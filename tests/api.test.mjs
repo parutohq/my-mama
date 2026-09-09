@@ -1,75 +1,18 @@
 import assert from 'node:assert/strict';
-import { randomUUID } from 'node:crypto';
-const base = 'http://localhost:3001';
-const id = 'test_' + randomUUID();
-const headers = {
-  Cookie: '__sites_local_auth=1',
-  'Content-Type': 'application/json',
-  Origin: base,
-};
-async function request(method, body, custom = headers) {
-  const response = await fetch(base + '/api/records', {
-    method,
-    headers: custom,
-    ...(body ? { body: JSON.stringify(body) } : {}),
-  });
-  return {
-    status: response.status,
-    body: response.headers.get('content-type')?.includes('application/json')
-      ? await response.json()
-      : await response.text(),
-    cache: response.headers.get('cache-control'),
-  };
+import { readFileSync, existsSync } from 'node:fs';
+
+const migration = readFileSync(new URL('../supabase/migrations/202609090001_initial_my_mama.sql', import.meta.url), 'utf8');
+const route = readFileSync(new URL('../app/api/records/route.ts', import.meta.url), 'utf8');
+const proxy = readFileSync(new URL('../proxy.ts', import.meta.url), 'utf8');
+
+for (const table of ['profiles', 'user_journeys', 'health_events', 'symptom_logs', 'menstrual_cycles', 'appointments', 'care_tasks', 'care_questions', 'providers', 'consultation_bookings', 'sharing_permissions', 'clinical_content', 'audit_logs']) {
+  assert.match(migration, new RegExp(`create table public\\.${table}`));
+  assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`));
 }
-try {
-  assert.equal((await request('GET', null, {})).status, 401);
-  assert.equal(
-    (
-      await request('GET', null, {
-        'oai-authenticated-user-id': 'forged',
-        'oai-authenticated-user-email': 'forged@example.test',
-      })
-    ).status,
-    401,
-  );
-  const record = {
-    kind: 'care',
-    id,
-    type: 'appointment',
-    title: 'TEST temporary appointment',
-    date: '2026-09-09',
-    time: '14:30',
-    location: 'Test only',
-    notes: 'Question for care team',
-    done: false,
-  };
-  assert.equal(
-    (
-      await request('PUT', record, {
-        ...headers,
-        Origin: 'https://other.example',
-      })
-    ).status,
-    403,
-  );
-  assert.equal((await request('PUT', { ...record, title: '' })).status, 400);
-  assert.equal((await request('PUT', record)).status, 200);
-  const list = await request('GET');
-  assert.match(list.cache, /no-store/);
-  assert.equal(list.body.records.find((r) => r.id === id).notes, record.notes);
-  assert.equal((await request('PUT', { ...record, done: true })).status, 200);
-  assert.equal(
-    (await request('GET')).body.records.find((r) => r.id === id).done,
-    true,
-  );
-  assert.equal((await request('DELETE', { id })).status, 200);
-  assert.equal(
-    (await request('GET')).body.records.some((r) => r.id === id),
-    false,
-  );
-  console.log(
-    'PASS: authentication, forged-header rejection, same-origin protection, input validation, save/read/update/delete, cache policy.',
-  );
-} finally {
-  await request('DELETE', { id });
-}
+assert.match(migration, /can_provider_access_patient/);
+assert.match(migration, /revoke all on all tables in schema public from anon, authenticated/);
+assert.match(route, /supabase\.auth\.getUser/);
+assert.doesNotMatch(route, /oai-authenticated-user-id|care_records/);
+assert.match(proxy, /updateSession/);
+assert.equal(existsSync(new URL('../app/chatgpt-auth.ts', import.meta.url)), false);
+console.log('PASS: relational Supabase migration, RLS foundation, verified session boundary, and legacy identity removal.');

@@ -1,39 +1,37 @@
-# MAMA
+# My MAMA
 
-A private reproductive and maternal-care web app built with React, Vinext and Cloudflare D1. This first release is a clinical-review prototype, not approved patient-facing clinical software.
+My MAMA is a private reproductive and maternal-care companion. It is a clinical-review prototype and must not accept real health data until Nigerian clinical, privacy, and operational reviews are complete.
 
-## Included
+## Production architecture
 
-- Signed-in, per-user saved records using dispatch-owned ChatGPT authentication.
-- Journey setup for cycle tracking, preconception, pregnancy, postpartum, or recovery/pause.
-- Mood/symptom check-ins and period history with descriptive cycle summaries.
-- Editable appointments, questions, tasks, and a saved healthcare contact.
-- Evidence-linked educational library and static urgent care guidance.
-- Printable care summary with opt-in free-text notes, record export and deletion.
-- Responsive layout with accessible component primitives and keyboard navigation.
+- **Next.js + Vercel:** application hosting, protected preview deployments, and production releases from `main`.
+- **Supabase:** PostgreSQL, email/password authentication, private storage, migrations, RLS, and database tests.
+- **Environment split:** use isolated London Supabase staging and production projects. Vercel previews use staging credentials; `main` uses production credentials.
 
-There is no autonomous symptom assessment, prescribing, fertility prediction, partner sharing, push-notification delivery, appointment booking, or clinical messaging. Content has not been signed off by a Nigerian clinical team. Use fictitious data during review.
+The legacy Cloudflare/Vinext/D1 implementation and dispatcher authentication have been removed. The application maintains the existing care interface while mapping profile, check-in, period, appointment, and task records to relational tables.
 
-## Development
+## Local setup
 
-Use the existing pnpm lockfile and pnpm-workspace build approvals. `pnpm dev` starts the local app; `pnpm build` emits the Cloudflare Worker and public assets. The Sites plugin provides local sign-in at `/signin-with-chatgpt` using a development-only identity. Hosting uses dispatcher-provided authenticated identity headers. Direct untrusted exposure of the Worker bypassing the Sites dispatcher is unsupported.
+1. Copy `.env.example` to `.env.local` and add the **staging** Supabase URL and publishable key.
+2. Install and authenticate the Supabase CLI, link the staging project, then run `pnpm supabase:reset`.
+3. Run `pnpm dev`.
+4. After the project is linked, refresh checked-in database types with `pnpm supabase:types`.
 
-Schema lives in `db/schema.ts`; generated SQL lives in `drizzle/`. Production migrations are applied by Sites. To create a fresh local database after building, run:
+Never commit `.env.local`, service-role keys, real health data, or production exports.
 
-```
-pnpm exec wrangler d1 execute site-creator-d1 --local --persist-to .wrangler/state --config dist/server/wrangler.json --file drizzle/0000_remarkable_whizzer.sql
-```
+## Database and access control
 
-Do not rerun the initial migration against a database where it already exists. Future production changes need new migrations.
+`supabase/migrations/202609090001_initial_my_mama.sql` creates the production foundation. Every exposed sensitive table enables RLS and has explicit authenticated grants and policies. A clinician receives no patient data simply by holding a clinician role: access requires an accepted booking or an active, scoped, explicit sharing permission.
 
-## Validation
+`supabase/tests/rls.sql` is the database test baseline. Extend it with allow and deny tests for every new policy before applying a migration to staging or production.
 
-- `node --experimental-strip-types --test tests/care-model.test.mjs`: date validation, cycle summaries, pregnancy dating source, recovery pause, unknown symptom data, validation limits.
-- `node tests/api.test.mjs`: against localhost:3001 with the local Sites identity; authentication, forged-header rejection, cross-origin protection, CRUD, and private no-store responses. Creates and cleans up only its own temporary test entry.
-- An additional local database test inserted an isolated second-owner record and verified that the current identity could neither read nor delete it; the temporary record was removed.
-- TypeScript checking and a production build are required before deployment.
-- Browser visual/interaction testing was not performed. The two optional WebMCP tools are feature-detected; no supported WebMCP execution context was available, so their live contracts remain unverified.
+## Release flow
 
-## Before patient use
+Create pull requests against `main`. Vercel previews must use staging-only credentials. Apply and test migrations in staging, validate sign-in and RLS, then merge reviewed changes to `main`; apply the same reviewed migration to production before accepting real records.
 
-Obtain Nigerian clinical validation of the exact educational content and urgent-care wording, validate referral contacts and schedules, perform privacy/security and accessibility reviews, and evaluate user comprehension and care-seeking safety. Appointment dates are an organiser only, not automated reminders. The app does not monitor check-ins or notify clinicians.
+## Verification
+
+- `pnpm exec tsc --noEmit`
+- `pnpm test`
+- `pnpm build`
+- `pnpm supabase:test` after Supabase CLI setup
