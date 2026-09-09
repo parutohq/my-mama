@@ -88,6 +88,7 @@ import {
   type Stage,
 } from '@/lib/care-model';
 import { articles, starterTasks, type Article } from '@/lib/education';
+import { createClient as createSupabaseClient } from '@/lib/supabase/client';
 const nav = [
   ['Today', House],
   ['My journal', BookOpen],
@@ -404,6 +405,11 @@ export default function MamaApp() {
       busy.current = false;
       setSaving(false);
     }
+  }
+  async function signOut() {
+    const { error } = await createSupabaseClient().auth.signOut();
+    if (error) { setError('Could not sign out. Please try again.'); return; }
+    location.assign('/sign-in');
   }
   function exportRecords() {
     const blob = new Blob(
@@ -1343,15 +1349,9 @@ export default function MamaApp() {
                       >
                         <Trash2 size={16} /> Delete all my records
                       </button>
-                      {/* Dispatcher-owned auth requires a full top-level navigation. */}
-                      {/* oxlint-disable-next-line next/no-html-link-for-pages */}
-                      <a
-                        className="text-btn"
-                        href="/signout-with-chatgpt?return_to=%2F"
-                        target="_top"
-                      >
+                      <button className="text-btn" onClick={() => void signOut()}>
                         <LogOut size={16} /> Sign out
-                      </a>
+                      </button>
                     </div>
                     <p className="helper">
                       Downloaded files may contain sensitive information. Keep
