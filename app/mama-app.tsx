@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useRef, useState, useId } from 'react';
 import {
   Heart,
-  House,
   CalendarDays,
   BookOpen,
   ClipboardList,
@@ -10,9 +9,7 @@ import {
   ArrowUpRight,
   Plus,
   Flower2,
-  Sparkles,
   ChevronRight,
-  Settings2,
   CircleHelp,
   LockKeyhole,
   Check,
@@ -29,14 +26,7 @@ import {
 import {
   SidebarProvider,
   Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
   SidebarTrigger,
-  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   Dialog,
@@ -89,14 +79,8 @@ import {
 } from '@/lib/care-model';
 import { articles, starterTasks, type Article } from '@/lib/education';
 import { createClient as createSupabaseClient } from '@/lib/supabase/client';
-const nav = [
-  ['Today', House],
-  ['My journal', BookOpen],
-  ['My care', CalendarDays],
-  ['Learn', Sparkles],
-  ['Care summary', ClipboardList],
-] as const;
-type View = (typeof nav)[number][0] | 'Settings';
+import { careViews, MamaNavigation, type MamaView } from '@/components/mama/navigation';
+type View = MamaView;
 type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'help' | null;
 const faces = ['😊', '🙂', '😐', '😔', '😣'];
 function Choice({
@@ -149,62 +133,6 @@ function Blank({
       </EmptyHeader>
       {action}
     </Empty>
-  );
-}
-function Navigation({ view, go }: { view: View; go: (v: View) => void }) {
-  const { setOpenMobile } = useSidebar();
-  return (
-    <>
-      <SidebarHeader className="brand">
-        <Heart fill="currentColor" />
-        <span>
-          mama<span className="brand-dot">.</span>
-        </span>
-      </SidebarHeader>
-      <SidebarContent className="nav-content">
-        <p className="eyebrow">YOUR SPACE</p>
-        <SidebarMenu>
-          {nav.map(([title, Icon]) => (
-            <SidebarMenuItem key={title}>
-              <SidebarMenuButton
-                isActive={view === title}
-                className="nav-item"
-                onClick={() => {
-                  go(title);
-                  setOpenMobile(false);
-                }}
-              >
-                <Icon />
-                <span>{title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-        <div className="sidebar-note">
-          <Flower2 size={28} />
-          <p>
-            Care that moves
-            <br />
-            with you.
-          </p>
-          <span>Every stage. At your pace.</span>
-        </div>
-      </SidebarContent>
-      <SidebarFooter className="nav-content">
-        <button
-          className={'nav-item ' + (view === 'Settings' ? 'selected' : '')}
-          onClick={() => {
-            go('Settings');
-            setOpenMobile(false);
-          }}
-        >
-          <Settings2 size={18} /> My journey & privacy
-        </button>
-        <div className="privacy-note">
-          <LockKeyhole size={14} /> Your personal care space
-        </div>
-      </SidebarFooter>
-    </>
   );
 }
 export default function MamaApp() {
@@ -459,14 +387,14 @@ export default function MamaApp() {
         'Open Today, My journal, My care, Learn or Care summary. Does not disclose or modify saved health records.',
       inputSchema: {
         type: 'object',
-        properties: { view: { type: 'string', enum: nav.map((x) => x[0]) } },
+        properties: { view: { type: 'string', enum: careViews.map((x) => x[0]) } },
         required: ['view'],
         additionalProperties: false,
       },
       annotations: { readOnlyHint: false },
       execute: async (input: unknown) => {
         const v = (input as { view?: unknown })?.view;
-        if (typeof v !== 'string' || !nav.some((x) => x[0] === v))
+        if (typeof v !== 'string' || !careViews.some((x) => x[0] === v))
           throw new Error('Unknown care view');
         actions.current.go(v as View);
         await new Promise((r) => setTimeout(r, 0));
@@ -542,7 +470,7 @@ export default function MamaApp() {
       style={{ '--sidebar-width': '15.5rem' } as React.CSSProperties}
     >
       <Sidebar>
-        <Navigation view={view} go={go} />
+        <MamaNavigation view={view} onNavigate={go} />
       </Sidebar>
       <main className="app-main">
         <header className="topbar">
