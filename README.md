@@ -1,37 +1,41 @@
 # My MAMA
 
-My MAMA is a private reproductive and maternal-care companion. It is a clinical-review prototype and must not accept real health data until Nigerian clinical, privacy, and operational reviews are complete.
+A private maternal and reproductive-care companion for women in Nigeria.
 
-## Production architecture
+## Production foundation
 
-- **Next.js + Vercel:** application hosting, protected preview deployments, and production releases from `main`.
-- **Supabase:** PostgreSQL, email/password authentication, private storage, migrations, RLS, and database tests.
-- **Environment split:** use isolated London Supabase staging and production projects. Vercel previews use staging credentials; `main` uses production credentials.
+- **Next.js App Router + TypeScript + Tailwind** for the application.
+- **Supabase Auth** for confirmed email/password accounts and cookie-backed sessions.
+- **Supabase PostgreSQL** for personal care records, RLS, migrations and later private storage.
+- **Vercel** for Preview deployments from feature branches and the live deployment from `main`.
 
-The legacy Cloudflare/Vinext/D1 implementation and dispatcher authentication have been removed. The application maintains the existing care interface while mapping profile, check-in, period, appointment, and task records to relational tables.
+Sensitive data never relies on browser storage or a generic JSON database field. The application uses relational records protected by Supabase Row Level Security. A patient can access only her own records; clinicians require an accepted care relationship or an active, scoped sharing permission.
+
+## Rebuild sequence
+
+1. Keep the existing authentication, verified server session and RLS foundation.
+2. Replace the original all-in-one record handler with modular Supabase repositories. The legacy UI adapter remains only while screens are migrated one by one.
+3. Rebuild the authenticated patient experience around Today, Journal, Care, Learn and Care Summary.
+4. Add patient-controlled sharing, clinician profiles and consultation workflows only after the patient records flow is complete.
+5. Add exports, audit events, descriptive trends, production monitoring and clinical/privacy review gates.
 
 ## Local setup
 
-1. Copy `.env.example` to `.env.local` and add the **staging** Supabase URL and publishable key.
-2. Install and authenticate the Supabase CLI, link the staging project, then run `pnpm supabase:reset`.
-3. Run `pnpm dev`.
-4. After the project is linked, refresh checked-in database types with `pnpm supabase:types`.
+Create `.env.local` from `.env.example`, then add the Supabase project URL and publishable key:
 
-Never commit `.env.local`, service-role keys, real health data, or production exports.
+```bash
+pnpm install
+pnpm dev
+```
 
-## Database and access control
+Never commit `.env.local`, a database password, or a Supabase service-role key.
 
-`supabase/migrations/202609090001_initial_my_mama.sql` creates the production foundation. Every exposed sensitive table enables RLS and has explicit authenticated grants and policies. A clinician receives no patient data simply by holding a clinician role: access requires an accepted booking or an active, scoped, explicit sharing permission.
+## Checks
 
-`supabase/tests/rls.sql` is the database test baseline. Extend it with allow and deny tests for every new policy before applying a migration to staging or production.
+```bash
+pnpm test
+pnpm lint
+pnpm build
+```
 
-## Release flow
-
-Create pull requests against `main`. Vercel previews must use staging-only credentials. Apply and test migrations in staging, validate sign-in and RLS, then merge reviewed changes to `main`; apply the same reviewed migration to production before accepting real records.
-
-## Verification
-
-- `pnpm exec tsc --noEmit`
-- `pnpm test`
-- `pnpm build`
-- `pnpm supabase:test` after Supabase CLI setup
+Before accepting real health data, verify RLS for anonymous users, two patients, and clinicians with and without an active care relationship. Use a separate Supabase production project before public launch.
