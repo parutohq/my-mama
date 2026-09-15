@@ -3,21 +3,22 @@
 import { useState } from 'react';
 import { ArrowLeft, Heart } from 'lucide-react';
 import { HomeVisualPrototype, type HomeDesignState } from '@/components/mama/home-visual-prototype';
+import styles from './design-preview.module.css';
 
 export default function DesignPreviewPage() {
   const [state, setState] = useState<HomeDesignState>('cycle');
   const signIn = () => { window.location.assign('/sign-in'); };
 
   return (
-    <main className="public-design-preview">
-      <header className="public-design-preview-header">
-        <a href="/sign-in" className="public-design-preview-brand"><Heart size={19} fill="currentColor" /> mama.</a>
-        <div>
+    <main className={styles.page}>
+      <header className={styles.header}>
+        <a href="/sign-in" className={styles.brand}><Heart size={19} fill="currentColor" /> mama.</a>
+        <div className={styles.headerActions}>
           <span>Public design preview</span>
-          <a href="/sign-in"><ArrowLeft size={15} /> Sign in</a>
+          <a href="/sign-in" className={styles.signIn}><ArrowLeft size={15} /> Sign in</a>
         </div>
       </header>
-      <div className="public-design-preview-notice" role="note">
+      <div className={styles.notice} role="note">
         <strong>Explore the new MAMA Home design.</strong> This page contains illustrative content only. No account, health record or clinical data is being shown.
       </div>
       <HomeVisualPrototype
