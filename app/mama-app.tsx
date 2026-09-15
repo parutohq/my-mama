@@ -1103,9 +1103,17 @@ export default function MamaApp() {
                 </div>
               )}
               {view === 'My care' && (
-                <>
-                  <div className="care-columns">
-                    <section className="card">
+                <div className="care-v2">
+                  <section className="care-v2-hero">
+                    <div>
+                      <span><CalendarDays size={15} /> YOUR CARE PLAN</span>
+                      <h2>Keep your next conversation within reach.</h2>
+                      <p>Appointments, questions and practical tasks in one private place.</p>
+                    </div>
+                    <button className="white-btn" onClick={() => openCare()}><Plus size={16} /> Add appointment</button>
+                  </section>
+                  <div className="care-columns care-v2-columns">
+                    <section className="card care-v2-appointments">
                       <div className="section-title">
                         <h2>Appointments</h2>
                         <CalendarDays size={20} />
@@ -1131,7 +1139,7 @@ export default function MamaApp() {
                         />
                       )}
                     </section>
-                    <section className="card">
+                    <section className="card care-v2-checklist">
                       <div className="section-title">
                         <h2>My checklist</h2>
                         <button
@@ -1167,7 +1175,7 @@ export default function MamaApp() {
                       </div>
                     </section>
                   </div>
-                  <section className="card questions-card">
+                  <section className="card questions-card care-v2-questions">
                     <div className="section-title">
                       <div>
                         <h2>Questions for your next visit</h2>
@@ -1199,7 +1207,7 @@ export default function MamaApp() {
                       <p className="spaced">Save questions as they come to mind, ready for a future appointment.</p>
                     )}
                   </section>
-                  <section className="card contact-card">
+                  <section className="card contact-card care-v2-contact">
                     <Phone size={22} />
                     <div>
                       <h2>
@@ -1222,7 +1230,7 @@ export default function MamaApp() {
                       Edit contact <Pencil size={15} />
                     </button>
                   </section>
-                </>
+                </div>
               )}
               {view === 'Learn' && (
                 <>
