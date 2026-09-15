@@ -504,7 +504,7 @@ export default function MamaApp() {
                     ? `Hello, ${profile.name}`
                     : 'Welcome to your space'
                   : view === 'Settings'
-                    ? 'My journey & privacy'
+                    ? 'My profile & privacy'
                     : view}
                 <span>.</span>
               </h1>

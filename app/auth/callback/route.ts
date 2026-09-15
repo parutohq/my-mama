@@ -10,5 +10,8 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     await supabase.auth.exchangeCodeForSession(code);
   }
-  return NextResponse.redirect(new URL(destination, url.origin));
+  // Confirmation links may be opened from an older Vercel alias. Redirect the
+  // authenticated user to the configured canonical application URL instead.
+  const appUrl = process.env.APP_URL || url.origin;
+  return NextResponse.redirect(new URL(destination, appUrl));
 }

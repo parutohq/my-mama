@@ -75,7 +75,7 @@ export function MamaNavigation({
           className={'nav-item ' + (view === 'Settings' ? 'selected' : '')}
           onClick={() => navigate('Settings')}
         >
-          <Settings2 size={18} /> My journey & privacy
+          <Settings2 size={18} /> Profile & privacy
         </button>
         <div className="privacy-note">
           <LockKeyhole size={14} /> Your personal care space
