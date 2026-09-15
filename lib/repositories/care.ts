@@ -87,14 +87,14 @@ export async function getCareRecords(client: Client, userId: string) {
 
 export async function saveProfile(client: Client, userId: string, profile: Profile) {
   const profileResult = await client.from('profiles').upsert(
-    { id: userId, display_name: profile.name }, { onConflict: 'id' },
+    { id: userId, display_name: profile.name, is_demo: false }, { onConflict: 'id' },
   );
   if (profileResult.error) throw new Error(profileResult.error.message);
 
   const journeyResult = await client.from('user_journeys').upsert({
     user_id: userId, stage: profile.stage, anchor_date: profile.date || null,
     date_source: profile.dateSource, contact_name: profile.contactName || null,
-    contact_phone: profile.phone || null, is_current: true,
+    contact_phone: profile.phone || null, is_current: true, is_demo: false,
   }, { onConflict: 'user_id,is_current' });
   if (journeyResult.error) throw new Error(journeyResult.error.message);
 }
@@ -102,7 +102,7 @@ export async function saveProfile(client: Client, userId: string, profile: Profi
 export async function saveCheckin(client: Client, userId: string, checkin: Checkin) {
   const eventResult = await client.from('health_events').upsert({
     id: checkin.id, user_id: userId, event_type: 'checkin', occurred_on: checkin.date,
-    mood: checkin.mood, bleeding: checkin.bleeding, pain: checkin.pain, notes: checkin.notes,
+    mood: checkin.mood, bleeding: checkin.bleeding, pain: checkin.pain, notes: checkin.notes, is_demo: false,
   }, { onConflict: 'id' });
   if (eventResult.error) throw new Error(eventResult.error.message);
 
@@ -119,7 +119,7 @@ export async function saveCheckin(client: Client, userId: string, checkin: Check
 
 export async function savePeriod(client: Client, userId: string, period: Period) {
   const result = await client.from('menstrual_cycles').upsert({
-    id: period.id, user_id: userId, start_date: period.start, end_date: period.end || null, notes: period.notes,
+    id: period.id, user_id: userId, start_date: period.start, end_date: period.end || null, notes: period.notes, is_demo: false,
   }, { onConflict: 'id' });
   if (result.error) throw new Error(result.error.message);
 }
@@ -128,17 +128,17 @@ export async function saveCareItem(client: Client, userId: string, item: CareIte
   const result = item.type === 'appointment'
     ? await client.from('appointments').upsert({
       id: item.id, user_id: userId, title: item.title, scheduled_on: item.date,
-      scheduled_time: item.time || null, location: item.location || null, notes: item.notes, done: item.done,
+      scheduled_time: item.time || null, location: item.location || null, notes: item.notes, done: item.done, is_demo: false,
     }, { onConflict: 'id' })
     : await client.from('care_tasks').upsert({
-      id: item.id, user_id: userId, title: item.title, notes: item.notes, done: item.done,
+      id: item.id, user_id: userId, title: item.title, notes: item.notes, done: item.done, is_demo: false,
     }, { onConflict: 'id' });
   if (result.error) throw new Error(result.error.message);
 }
 
 export async function saveQuestion(client: Client, userId: string, question: CareQuestion) {
   const result = await client.from('care_questions').upsert({
-    id: question.id, user_id: userId, question: question.question, status: question.status,
+    id: question.id, user_id: userId, question: question.question, status: question.status, is_demo: false,
   }, { onConflict: 'id' });
   if (result.error) throw new Error(result.error.message);
 }

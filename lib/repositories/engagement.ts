@@ -52,12 +52,12 @@ export async function savePreferences(client: Client, userId: string, preference
 }
 export async function saveJourneyTask(client: Client, userId: string, task: JourneyTask) {
   const result = await client.from('journey_tasks').upsert({ id: task.id, user_id: userId, title: task.title, description: task.description,
-    category: task.category, status: task.status, completed_at: task.completedAt, points_awarded: 0, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+    category: task.category, status: task.status, completed_at: task.completedAt, points_awarded: 0, is_demo: false, updated_at: new Date().toISOString() }, { onConflict: 'id' });
   if (result.error) throw new Error(result.error.message);
 }
 export async function saveReminder(client: Client, userId: string, reminder: UserReminder) {
   const result = await client.from('user_reminders').upsert({ id: reminder.id, user_id: userId, title: reminder.title, remind_at: reminder.remindAt,
-    active: reminder.active, completed_at: reminder.completedAt, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+    active: reminder.active, completed_at: reminder.completedAt, is_demo: false, updated_at: new Date().toISOString() }, { onConflict: 'id' });
   if (result.error) throw new Error(result.error.message);
 }
 export async function removeEngagementRecord(client: Client, userId: string, kind: 'task' | 'reminder', id: string) {

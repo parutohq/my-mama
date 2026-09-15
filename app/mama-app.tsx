@@ -153,7 +153,9 @@ export default function MamaApp() {
     [error, setError] = useState(''),
     [notice, setNotice] = useState(''),
     [engagement, setEngagement] = useState<EngagementData>({ preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [] }),
-    [engagementReady, setEngagementReady] = useState(true);
+    [engagementReady, setEngagementReady] = useState(true),
+    [demoData, setDemoData] = useState(false),
+    [demoCleared, setDemoCleared] = useState(false);
   const [modal, setModal] = useState<Modal>(null),
     [article, setArticle] = useState<Article | null>(null),
     [deletion, setDeletion] = useState<string | null>(null),
@@ -201,7 +203,14 @@ export default function MamaApp() {
     setTimeout(() => heading.current?.focus(), 0);
   }, []);
   const load = useCallback(() => {
-    return Promise.all([fetch('/api/records', { cache: 'no-store' }), fetch('/api/engagement', { cache: 'no-store' })])
+    return fetch('/api/demo', { cache: 'no-store' })
+      .then(async (demoResponse) => {
+        const demo = await demoResponse.json() as { isDemo?: boolean; cleared?: boolean };
+        if (!demoResponse.ok) throw new Error('Could not prepare your care space.');
+        setDemoData(Boolean(demo.isDemo));
+        setDemoCleared(Boolean(demo.cleared));
+        return Promise.all([fetch('/api/records', { cache: 'no-store' }), fetch('/api/engagement', { cache: 'no-store' })]);
+      })
       .then(async ([recordsResponse, engagementResponse]) => {
         const recordsData = await recordsResponse.json() as { records?: CareRecord[]; error?: string };
         const engagementData = await engagementResponse.json() as { engagement?: EngagementData; error?: string };
@@ -363,6 +372,27 @@ export default function MamaApp() {
       setNotice('Deleted from your care space.');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not delete.');
+    } finally {
+      busy.current = false;
+      setSaving(false);
+    }
+  }
+  async function clearSampleData() {
+    if (busy.current) return;
+    busy.current = true;
+    setSaving(true);
+    setError('');
+    try {
+      const response = await fetch('/api/demo', { method: 'DELETE' });
+      const data = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(data.error || 'Could not remove sample data.');
+      setDemoData(false);
+      setDemoCleared(true);
+      setRecords([]);
+      setEngagement({ preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [] });
+      setNotice('Sample data removed. Your care space is ready for your own records.');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not remove sample data.');
     } finally {
       busy.current = false;
       setSaving(false);
@@ -595,6 +625,9 @@ export default function MamaApp() {
           )}
           {!loading && !loadError && !engagementReady && (
             <div className="engagement-pending" role="status">MAMA’s new journey tools are being prepared for this preview. Your existing care records remain available.</div>
+          )}
+          {!loading && !loadError && demoData && (
+            <div className="engagement-pending" role="status"><b>Sample care experience</b> — these clearly labelled example records are private to this account and can be removed in My Care.</div>
           )}
           {loading ? (
             <div
@@ -1378,6 +1411,14 @@ export default function MamaApp() {
                     </div>
                     <button className="outline-btn spaced" disabled={!engagementReady} onClick={() => openReminder()}><Clock3 size={16} /> Add a private reminder</button>
                     <p className="helper">Push delivery needs your browser permission. No clinical details are placed in notification payloads.</p>
+                  </section>
+                  <section className="card">
+                    <Sparkles size={23} />
+                    <h2 className="spaced">Sample care experience</h2>
+                    {demoData ? <>
+                      <p>You are viewing clearly labelled example records so you can explore MAMA’s charts, tasks and care views. They are not health information and are private to this account.</p>
+                      <button className="outline-btn danger-text spaced" disabled={saving} onClick={() => void clearSampleData()}><Trash2 size={16} /> {saving ? 'Removing…' : 'Clear sample data'}</button>
+                    </> : <p>{demoCleared ? 'Sample data has been removed. Add your own records whenever you are ready.' : 'Your care space starts with the records you choose to add.'}</p>}
                   </section>
                   <section className="card">
                     <LockKeyhole size={23} />

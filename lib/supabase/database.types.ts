@@ -6,7 +6,7 @@ export type Database = { public: { Tables: {
   profiles: Table; user_journeys: Table; health_events: Table; symptom_logs: Table;
   menstrual_cycles: Table; appointments: Table; care_tasks: Table; care_questions: Table; profile_preferences: Table; journey_transitions: Table;
   journey_tasks: Table; achievement_definitions: Table; user_achievements: Table; user_reminders: Table;
-  notifications: Table; push_subscriptions: Table; notification_delivery_logs: Table;
+  notifications: Table; push_subscriptions: Table; notification_delivery_logs: Table; demo_data_state: Table;
   pregnancies: Table; postpartum_profiles: Table; user_roles: Table; providers: Table;
   consultation_services: Table; provider_availability: Table; consultation_bookings: Table;
   sharing_permissions: Table; clinical_content: Table; audit_logs: Table;
