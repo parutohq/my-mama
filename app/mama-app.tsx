@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState, useId } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useId } from 'react';
 import {
   Heart,
   CalendarDays,
@@ -23,6 +23,10 @@ import {
   RefreshCw,
   LogOut,
   UserRound,
+  BellRing,
+  Trophy,
+  Sparkles,
+  Clock3,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -82,8 +86,11 @@ import {
 import { articles, starterTasks, type Article } from '@/lib/education';
 import { createClient as createSupabaseClient } from '@/lib/supabase/client';
 import { careViews, MamaNavigation, type MamaView } from '@/components/mama/navigation';
+import { MobileBottomNavigation } from '@/components/mama/mobile-bottom-navigation';
+import { InsightCard } from '@/components/mama/insight-card';
+import { defaultEngagementPreferences, type EngagementData, type JourneyTask, type UserReminder } from '@/lib/engagement-model';
 type View = MamaView;
-type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'question' | 'help' | null;
+type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'question' | 'help' | 'reminder' | null;
 const faces = ['😊', '🙂', '😐', '😔', '😣'];
 function Choice({
   label,
@@ -144,7 +151,9 @@ export default function MamaApp() {
     [loadError, setLoadError] = useState(''),
     [saving, setSaving] = useState(false),
     [error, setError] = useState(''),
-    [notice, setNotice] = useState('');
+    [notice, setNotice] = useState(''),
+    [engagement, setEngagement] = useState<EngagementData>({ preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [] }),
+    [engagementReady, setEngagementReady] = useState(true);
   const [modal, setModal] = useState<Modal>(null),
     [article, setArticle] = useState<Article | null>(null),
     [deletion, setDeletion] = useState<string | null>(null),
@@ -155,7 +164,8 @@ export default function MamaApp() {
     [checkinDraft, setCheckinDraft] = useState<Checkin | null>(null),
     [periodDraft, setPeriodDraft] = useState<Period | null>(null),
     [careDraft, setCareDraft] = useState<CareItem | null>(null),
-    [questionDraft, setQuestionDraft] = useState<CareQuestion | null>(null);
+    [questionDraft, setQuestionDraft] = useState<CareQuestion | null>(null),
+    [reminderDraft, setReminderDraft] = useState<UserReminder | null>(null);
   const [includeNotes, setIncludeNotes] = useState(false),
     [currentDay, setCurrentDay] = useState(today());
   const heading = useRef<HTMLHeadingElement>(null),
@@ -191,25 +201,15 @@ export default function MamaApp() {
     setTimeout(() => heading.current?.focus(), 0);
   }, []);
   const load = useCallback(() => {
-    return fetch('/api/records', { cache: 'no-store' })
-      .then(async (res) => {
-        const data = (await res.json()) as {
-          records: CareRecord[];
-          error?: string;
-        };
-        if (!res.ok) throw new Error(data.error);
-        return data.records;
+    return Promise.all([fetch('/api/records', { cache: 'no-store' }), fetch('/api/engagement', { cache: 'no-store' })])
+      .then(async ([recordsResponse, engagementResponse]) => {
+        const recordsData = await recordsResponse.json() as { records?: CareRecord[]; error?: string };
+        const engagementData = await engagementResponse.json() as { engagement?: EngagementData; error?: string };
+        if (!recordsResponse.ok) throw new Error(recordsData.error || 'Could not load your records.');
+        return { records: recordsData.records || [], engagement: engagementData.engagement || { preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [] }, engagementReady: engagementResponse.ok };
       })
-      .then((data) => {
-        setRecords(data);
-        setLoading(false);
-      })
-      .catch((e: unknown) => {
-        setLoadError(
-          e instanceof Error ? e.message : 'Could not load your records.',
-        );
-        setLoading(false);
-      });
+      .then((data) => { setRecords(data.records); setEngagement(data.engagement); setEngagementReady(data.engagementReady); setLoading(false); })
+      .catch((e: unknown) => { setLoadError(e instanceof Error ? e.message : 'Could not load your care space.'); setLoading(false); });
   }, []);
   useEffect(() => {
     void load();
@@ -251,6 +251,25 @@ export default function MamaApp() {
       busy.current = false;
       setSaving(false);
     }
+  }
+  const activeTasks = engagement.tasks.filter((task) => task.status !== 'dismissed');
+  const completedTasks = activeTasks.filter((task) => task.status === 'completed');
+  const taskProgress = activeTasks.length ? Math.round((completedTasks.length / activeTasks.length) * 100) : 0;
+  const sensitiveJourney = profile.stage === 'recovery';
+  const insightPoints = useMemo(() => checkins.slice(0, 7).reverse().map((checkin) => ({ label: new Date(checkin.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' }), value: 1, detail: `${checkin.mood} check-in` })), [checkins]);
+  async function updateEngagement(kind: 'preferences' | 'task' | 'reminder', value: unknown) {
+    const res = await fetch('/api/engagement', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, value }) });
+    const data = await res.json() as { engagement?: EngagementData; error?: string };
+    if (!res.ok || !data.engagement) throw new Error(data.error || 'Could not save this setting.');
+    setEngagement(data.engagement);
+  }
+  async function toggleJourneyTask(task: JourneyTask) {
+    try { await updateEngagement('task', { ...task, status: task.status === 'completed' ? 'available' : 'completed' }); setNotice(task.status === 'completed' ? 'Task reopened.' : 'A thoughtful step, saved.'); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Could not update task.'); }
+  }
+  function openReminder(existing?: UserReminder) {
+    setReminderDraft(existing ? { ...existing } : { id: crypto.randomUUID(), title: '', remindAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(), active: true, completedAt: null });
+    setError(''); setModal('reminder');
   }
   function openProfile() {
     setProfileDraft({ ...profile });
@@ -516,7 +535,11 @@ export default function MamaApp() {
                   ? 'A MOMENT FOR YOU'
                   : view === 'Settings'
                     ? 'ON YOUR TERMS'
-                    : 'YOUR PERSONAL CARE SPACE'}
+                    : view === 'Journey'
+                      ? 'YOUR MAMA JOURNEY'
+                      : view === 'Ask MAMA'
+                        ? 'PREPARE FOR YOUR CARE CONVERSATION'
+                        : 'YOUR PERSONAL CARE SPACE'}
               </p>
               <h1 tabIndex={-1} ref={heading}>
                 {view === 'Today'
@@ -539,7 +562,11 @@ export default function MamaApp() {
                         ? 'Understand more, with sources you can explore.'
                         : view === 'Care summary'
                           ? 'The important details, ready for your next conversation.'
-                          : 'Your stage can change. Your history stays yours.'}
+                          : view === 'Journey'
+                            ? sensitiveJourney ? 'Your pace is enough. We have paused celebratory prompts.' : 'Small, constructive steps that are yours to choose.'
+                            : view === 'Ask MAMA'
+                              ? 'Save questions and prepare. MAMA does not diagnose or send messages for you.'
+                              : 'Your stage can change. Your history stays yours.'}
               </p>
             </div>
             {!loading &&
@@ -565,6 +592,9 @@ export default function MamaApp() {
             <div className="error-banner" role="alert">
               {error}
             </div>
+          )}
+          {!loading && !loadError && !engagementReady && (
+            <div className="engagement-pending" role="status">MAMA’s new journey tools are being prepared for this preview. Your existing care records remain available.</div>
           )}
           {loading ? (
             <div
@@ -1288,6 +1318,35 @@ export default function MamaApp() {
                   </article>
                 </>
               )}
+              {view === 'Journey' && (
+                <div className="journey-experience">
+                  <section className={'journey-progress-card ' + (sensitiveJourney ? 'quiet' : '')}>
+                    <div>
+                      <span className="pill light"><Sparkles size={15} /> {sensitiveJourney ? 'YOUR SPACE, YOUR PACE' : 'YOUR PROGRESS'}</span>
+                      <h2>{sensitiveJourney ? 'There is no timeline to keep.' : `${taskProgress}% of your chosen steps complete.`}</h2>
+                      <p>{sensitiveJourney ? 'Celebrations, streaks and journey prompts are paused. Keep only what feels useful.' : 'MAMA rewards preparation, tracking, learning and follow-up — never a medical outcome.'}</p>
+                    </div>
+                    <div className="progress-orb" style={{ '--progress': `${taskProgress * 3.6}deg` } as React.CSSProperties}><b>{taskProgress}%</b><span>chosen steps</span></div>
+                  </section>
+                  <div className="insights-grid">
+                    <InsightCard title="Check-in rhythm" description="A view of entries you recorded." points={insightPoints} empty="Log a check-in to begin a private pattern view." footer="Recorded check-ins only. This is not a wellbeing or diagnostic score." />
+                    <InsightCard title={profile.stage === 'pregnancy' ? 'Journey progression' : profile.stage === 'postpartum' ? 'Postpartum timeline' : 'Cycle history'} description={metric ? metric.detail : stats.day ? `Day ${stats.day} from your latest recorded period.` : 'MAMA will only display dates you choose to record.'} points={metric ? [{ label: 'Today', value: 1, detail: `${metric.value} ${metric.label}` }] : periods.slice(0, 6).reverse().map((period) => ({ label: new Date(period.start + 'T12:00:00').toLocaleDateString('en-GB', { month: 'short' }), value: 1, detail: `Period start recorded ${prettyDate(period.start)}` }))} valueLabel={metric ? 'Estimated' : 'Recorded'} empty="No recorded timeline yet." footer={metric ? 'Estimated from the date you entered. It is not a clinical assessment.' : 'Recorded information only. MAMA does not predict fertility.'} />
+                    <InsightCard title="Care actions" description="The practical things you chose to prepare." points={activeTasks.map((task) => ({ label: task.category.replace('_', ' '), value: task.status === 'completed' ? 1 : 0.35, detail: task.title }))} empty="Add a task below when a step would help you feel prepared." footer="Progress is private and can be paused at any time." />
+                  </div>
+                  <section className="card journey-tasks-card">
+                    <div className="section-title"><div><p className="eyebrow">GENTLE CONSISTENCY</p><h2>Your chosen steps</h2></div><span className="task-count">{completedTasks.length}/{activeTasks.length || 0}</span></div>
+                    {activeTasks.length ? <div className="task-list">{activeTasks.map((task) => <label className={'journey-task ' + task.status} key={task.id}><Checkbox checked={task.status === 'completed'} onCheckedChange={() => void toggleJourneyTask(task)} aria-label={`Mark ${task.title} ${task.status === 'completed' ? 'incomplete' : 'complete'}`} /><span><b>{task.title}</b><small>{task.description || task.category.replace('_', ' ')}</small></span>{engagement.preferences.pointsEnabled && <em>+{task.pointsAwarded || 1} MAMA point{task.pointsAwarded === 1 ? '' : 's'}</em>}</label>)}</div> : <Blank title="Choose your first helpful step" description="Add a personal task for tracking, learning, preparation or follow-up." action={<button className="outline-btn" onClick={() => openCare('task')}>Add a care task</button>} />}
+                  </section>
+                  {!sensitiveJourney && <section className="achievement-strip"><Trophy /><div><h2>{engagement.achievements.length ? 'Your care moments' : 'Your care moments will appear here'}</h2><p>{engagement.achievements.length ? engagement.achievements.map((achievement) => achievement.title).join(' · ') : 'MAMA recognises practical care actions, never medical outcomes.'}</p></div></section>}
+                </div>
+              )}
+              {view === 'Ask MAMA' && (
+                <div className="ask-mama-grid">
+                  <section className="card ask-mama-intro"><span className="icon-box"><CircleHelp /></span><h2>Prepare what matters to you</h2><p>Capture a question before a visit, then take it with you. MAMA does not give a diagnosis or replace a clinician.</p><button className="primary-btn spaced" onClick={() => openQuestion()}><Plus size={16} /> Save a question</button></section>
+                  <section className="card"><div className="section-title"><h2>Your saved questions</h2><button className="text-btn" onClick={() => openQuestion()}>Add <Plus size={15} /></button></div>{questions.length ? <div className="question-list">{questions.map((question) => <div className="question-row" key={question.id}><div><span className="pill">{question.status}</span><p>{question.question}</p></div><button className="icon-button" aria-label="Edit question" onClick={() => openQuestion(question)}><Pencil size={16} /></button></div>)}</div> : <Blank title="Nothing saved yet" description="A question can help make a future care conversation feel clearer." />}</section>
+                  <section className="card wide"><h2>What MAMA can help you do</h2><div className="ask-guides"><div><BookOpen /><b>Learn</b><span>Explore reviewed information and note what you want to discuss.</span></div><div><ClipboardList /><b>Summarise</b><span>Bring your own recorded details to a care conversation.</span></div><div><Phone /><b>Seek care</b><span>Use urgent-care guidance when something feels seriously wrong.</span></div></div></section>
+                </div>
+              )}
               {view === 'Settings' && (
                 <div className="settings-grid">
                   <section className="card">
@@ -1307,6 +1366,18 @@ export default function MamaApp() {
                       Choose Recovery & a pause to stop pregnancy prompts. Your
                       earlier records remain available.
                     </p>
+                  </section>
+                  <section className="card">
+                    <BellRing size={23} />
+                    <h2 className="spaced">Notifications, your way</h2>
+                    <p>By default, lock-screen reminders stay discreet and never display health details.</p>
+                    <div className="preference-list">
+                      <label><span>Discreet lock-screen messages</span><Checkbox checked={engagement.preferences.discreetNotifications} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, discreetNotifications: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
+                      <label><span>Weekly private recap</span><Checkbox checked={engagement.preferences.weeklyRecapEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, weeklyRecapEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
+                      <label><span>Optional MAMA Points</span><Checkbox checked={engagement.preferences.pointsEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, pointsEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
+                    </div>
+                    <button className="outline-btn spaced" disabled={!engagementReady} onClick={() => openReminder()}><Clock3 size={16} /> Add a private reminder</button>
+                    <p className="helper">Push delivery needs your browser permission. No clinical details are placed in notification payloads.</p>
                   </section>
                   <section className="card">
                     <LockKeyhole size={23} />
@@ -1366,6 +1437,7 @@ export default function MamaApp() {
           </footer>
         </div>
       </main>
+      <MobileBottomNavigation view={view} onNavigate={go} />
       <Dialog
         open={modal !== null}
         onOpenChange={(open) => {
@@ -1391,7 +1463,9 @@ export default function MamaApp() {
                       : 'Your appointment'
                     : modal === 'question'
                       ? 'Question for your next visit'
-                      : 'When to get help'}
+                      : modal === 'reminder'
+                        ? 'A private reminder'
+                        : 'When to get help'}
           </DialogTitle>
           <DialogDescription>
             {modal === 'profile'
@@ -1404,12 +1478,21 @@ export default function MamaApp() {
                     ? 'A personal reminder in your care space. This does not book a visit.'
                     : modal === 'question'
                       ? 'Save a question for your own conversation with a health professional. MAMA will not send it to anyone.'
-                      : 'If something feels seriously wrong, seek care now. Do not wait for an app response.'}
+                      : modal === 'reminder'
+                        ? 'Use a general title. MAMA avoids showing health details in notifications.'
+                        : 'If something feels seriously wrong, seek care now. Do not wait for an app response.'}
           </DialogDescription>
           {error && (
             <div className="error-banner" role="alert">
               {error}
             </div>
+          )}
+          {modal === 'reminder' && reminderDraft && (
+            <form className="mama-form" onSubmit={(e) => { e.preventDefault(); void updateEngagement('reminder', reminderDraft).then(() => { setModal(null); setNotice('Private reminder saved.'); }).catch((err) => setError(err instanceof Error ? err.message : 'Could not save reminder.')); }}>
+              <label htmlFor="mama-reminder-title" className="field"><span>Reminder title</span><Input id="mama-reminder-title" required maxLength={120} value={reminderDraft.title} onChange={(e) => setReminderDraft({ ...reminderDraft, title: e.target.value })} placeholder="For example: A moment for my care list" /></label>
+              <label htmlFor="mama-reminder-time" className="field"><span>When</span><Input id="mama-reminder-time" type="datetime-local" required value={reminderDraft.remindAt.slice(0, 16)} onChange={(e) => setReminderDraft({ ...reminderDraft, remindAt: new Date(e.target.value).toISOString() })} /></label>
+              <div className="dialog-actions"><Button className="primary-btn" disabled={saving}>Save reminder</Button></div>
+            </form>
           )}
           {modal === 'question' && questionDraft && (
             <form

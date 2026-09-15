@@ -1,6 +1,6 @@
 'use client';
 
-import { Flower2, Heart, LockKeyhole, Settings2 } from 'lucide-react';
+import { Flower2, Heart, LockKeyhole, Settings2, Route, CircleHelp } from 'lucide-react';
 import {
   SidebarContent,
   SidebarFooter,
@@ -14,13 +14,14 @@ import { BookOpen, CalendarDays, ClipboardList, House, Sparkles } from 'lucide-r
 
 export const careViews = [
   ['Today', House],
+  ['Journey', Route],
   ['My journal', BookOpen],
   ['My care', CalendarDays],
   ['Learn', Sparkles],
   ['Care summary', ClipboardList],
 ] as const;
 
-export type MamaView = (typeof careViews)[number][0] | 'Settings';
+export type MamaView = (typeof careViews)[number][0] | 'Settings' | 'Ask MAMA';
 
 export function MamaNavigation({
   view,
@@ -59,6 +60,11 @@ export function MamaNavigation({
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+          <SidebarMenuItem>
+            <SidebarMenuButton isActive={view === 'Ask MAMA'} className="nav-item" onClick={() => navigate('Ask MAMA')}>
+              <CircleHelp /><span>Ask MAMA</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
         <div className="sidebar-note">
           <Flower2 size={28} />

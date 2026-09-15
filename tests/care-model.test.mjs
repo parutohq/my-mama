@@ -120,3 +120,19 @@ test('validates care entries and strips untrusted owner fields', () => {
   assert.throws(() => validateRecord({ ...c, id: '../profile' }, now));
   assert.throws(() => validateRecord({ ...c, notes: 'a'.repeat(2001) }, now));
 });
+import {
+  validatePreferences,
+  validateReminder,
+  validateTask,
+} from '../lib/engagement-model.ts';
+test('validates engagement records without accepting medical content as notification payloads', () => {
+  const task = validateTask({ id: 'engagement-task', title: 'Write a question for my visit', description: '', category: 'follow_up', status: 'completed' });
+  assert.equal(task.status, 'completed');
+  assert.throws(() => validateTask({ ...task, category: 'clinical_outcome' }));
+  const reminder = validateReminder({ id: 'reminder', title: 'A private care reminder', remindAt: '2026-09-15T10:00:00.000Z', active: true });
+  assert.equal(reminder.active, true);
+  assert.throws(() => validateReminder({ ...reminder, title: ' ' }));
+  const preferences = validatePreferences({ discreetNotifications: false, pointsEnabled: true, timezone: 'Africa/Lagos' });
+  assert.equal(preferences.discreetNotifications, false);
+  assert.equal(preferences.pointsEnabled, true);
+});
