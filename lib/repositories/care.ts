@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/supabase/database.types';
 import {
   type CareItem,
+  type CareQuestion,
   type CareRecord,
   type Checkin,
   type Period,
@@ -35,7 +36,7 @@ function profileFromRows(profile?: Row | null, journey?: Row | null): Profile | 
  * existing UI shapes while the screen-by-screen MAMA rebuild is in progress.
  */
 export async function getCareRecords(client: Client, userId: string) {
-  const [profileRes, journeyRes, eventsRes, symptomsRes, periodsRes, appointmentsRes, tasksRes] = await Promise.all([
+  const [profileRes, journeyRes, eventsRes, symptomsRes, periodsRes, appointmentsRes, tasksRes, questionsRes] = await Promise.all([
     client.from('profiles').select('*').eq('id', userId).maybeSingle(),
     client.from('user_journeys').select('*').eq('user_id', userId).eq('is_current', true).maybeSingle(),
     client.from('health_events').select('*').eq('user_id', userId).eq('event_type', 'checkin').order('occurred_on', { ascending: false }),
@@ -43,9 +44,10 @@ export async function getCareRecords(client: Client, userId: string) {
     client.from('menstrual_cycles').select('*').eq('user_id', userId).order('start_date', { ascending: false }),
     client.from('appointments').select('*').eq('user_id', userId).order('scheduled_on', { ascending: true }),
     client.from('care_tasks').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+    client.from('care_questions').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
   ]);
 
-  const results = [profileRes, journeyRes, eventsRes, symptomsRes, periodsRes, appointmentsRes, tasksRes];
+  const results = [profileRes, journeyRes, eventsRes, symptomsRes, periodsRes, appointmentsRes, tasksRes, questionsRes];
   const failed = results.find((result) => result.error);
   if (failed?.error) throw new Error(failed.error.message);
 
@@ -74,6 +76,10 @@ export async function getCareRecords(client: Client, userId: string) {
   rows(tasksRes.data).forEach((row) => records.push({
     kind: 'care', id: text(row.id), type: 'task', title: text(row.title), date: '', time: '', location: '',
     notes: text(row.notes), done: Boolean(row.done),
+  }));
+  rows(questionsRes.data).forEach((row) => records.push({
+    kind: 'question', id: text(row.id), question: text(row.question),
+    status: text(row.status, 'open') as CareQuestion['status'],
   }));
 
   return records;
@@ -130,15 +136,23 @@ export async function saveCareItem(client: Client, userId: string, item: CareIte
   if (result.error) throw new Error(result.error.message);
 }
 
+export async function saveQuestion(client: Client, userId: string, question: CareQuestion) {
+  const result = await client.from('care_questions').upsert({
+    id: question.id, user_id: userId, question: question.question, status: question.status,
+  }, { onConflict: 'id' });
+  if (result.error) throw new Error(result.error.message);
+}
+
 export async function saveCareRecord(client: Client, userId: string, record: CareRecord) {
   if (record.kind === 'profile') return saveProfile(client, userId, record);
   if (record.kind === 'checkin') return saveCheckin(client, userId, record);
   if (record.kind === 'period') return savePeriod(client, userId, record);
+  if (record.kind === 'question') return saveQuestion(client, userId, record);
   return saveCareItem(client, userId, record);
 }
 
 export async function deleteCareRecord(client: Client, userId: string, recordId: string) {
-  const tables = ['health_events', 'menstrual_cycles', 'appointments', 'care_tasks'] as const;
+  const tables = ['health_events', 'menstrual_cycles', 'appointments', 'care_tasks', 'care_questions'] as const;
   for (const table of tables) {
     const result = await client.from(table).delete().eq('id', recordId).eq('user_id', userId).select('id');
     if (result.error) throw new Error(result.error.message);
@@ -147,7 +161,7 @@ export async function deleteCareRecord(client: Client, userId: string, recordId:
 }
 
 export async function deleteAllCareData(client: Client, userId: string) {
-  const tables = ['symptom_logs', 'health_events', 'menstrual_cycles', 'appointments', 'care_tasks', 'user_journeys'] as const;
+  const tables = ['symptom_logs', 'health_events', 'menstrual_cycles', 'appointments', 'care_tasks', 'care_questions', 'user_journeys'] as const;
   for (const table of tables) {
     const result = await client.from(table).delete().eq('user_id', userId);
     if (result.error) throw new Error(result.error.message);

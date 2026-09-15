@@ -76,13 +76,14 @@ import {
   type Checkin,
   type Period,
   type CareItem,
+  type CareQuestion,
   type Stage,
 } from '@/lib/care-model';
 import { articles, starterTasks, type Article } from '@/lib/education';
 import { createClient as createSupabaseClient } from '@/lib/supabase/client';
 import { careViews, MamaNavigation, type MamaView } from '@/components/mama/navigation';
 type View = MamaView;
-type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'help' | null;
+type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'question' | 'help' | null;
 const faces = ['😊', '🙂', '😐', '😔', '😣'];
 function Choice({
   label,
@@ -153,7 +154,8 @@ export default function MamaApp() {
   const [profileDraft, setProfileDraft] = useState<Profile>(emptyProfile),
     [checkinDraft, setCheckinDraft] = useState<Checkin | null>(null),
     [periodDraft, setPeriodDraft] = useState<Period | null>(null),
-    [careDraft, setCareDraft] = useState<CareItem | null>(null);
+    [careDraft, setCareDraft] = useState<CareItem | null>(null),
+    [questionDraft, setQuestionDraft] = useState<CareQuestion | null>(null);
   const [includeNotes, setIncludeNotes] = useState(false),
     [currentDay, setCurrentDay] = useState(today());
   const heading = useRef<HTMLHeadingElement>(null),
@@ -172,6 +174,9 @@ export default function MamaApp() {
     .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   const pending = appointments.filter((c) => !c.done && c.date >= currentDay);
   const tasks = care.filter((c) => c.type === 'task');
+  const questions = records
+    .filter((r): r is CareQuestion => r.kind === 'question')
+    .sort((a, b) => a.status.localeCompare(b.status));
   const todayCheck = checkins.find((c) => c.date === currentDay);
   const metric = journeyMetric(profile, currentDay),
     stats = cycleStats(periods, currentDay);
@@ -251,6 +256,15 @@ export default function MamaApp() {
     setProfileDraft({ ...profile });
     setError('');
     setModal('profile');
+  }
+  function openQuestion(existing?: CareQuestion) {
+    setQuestionDraft(
+      existing
+        ? { ...existing }
+        : { kind: 'question', id: crypto.randomUUID(), question: '', status: 'open' },
+    );
+    setError('');
+    setModal('question');
   }
   function openCheckin(mood = 'Okay', existing?: Checkin) {
     setCheckinDraft(
@@ -1034,6 +1048,38 @@ export default function MamaApp() {
                       </div>
                     </section>
                   </div>
+                  <section className="card questions-card">
+                    <div className="section-title">
+                      <div>
+                        <h2>Questions for your next visit</h2>
+                        <p className="helper">A private prompt list for your own conversation. It is not sent to a clinician.</p>
+                      </div>
+                      <button className="outline-btn" onClick={() => openQuestion()}>
+                        <Plus size={16} /> Add question
+                      </button>
+                    </div>
+                    {questions.length ? (
+                      <div className="question-list">
+                        {questions.map((question) => (
+                          <div className="record-row" key={question.id}>
+                            <CircleHelp size={19} className="question-icon" />
+                            <div className="record-body">
+                              <h3>{question.question}</h3>
+                              <p>{question.status === 'open' ? 'Open question' : question.status === 'answered' ? 'Marked answered' : 'Closed'}</p>
+                            </div>
+                            <button className="icon-button" aria-label="Edit question" onClick={() => openQuestion(question)}>
+                              <Pencil size={16} />
+                            </button>
+                            <button className="icon-button" aria-label="Delete question" onClick={() => { setError(''); setDeletion(question.id); }}>
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="spaced">Save questions as they come to mind, ready for a future appointment.</p>
+                    )}
+                  </section>
                   <section className="card contact-card">
                     <Phone size={22} />
                     <div>
@@ -1343,7 +1389,9 @@ export default function MamaApp() {
                     ? careDraft?.type === 'task'
                       ? 'Add to your checklist'
                       : 'Your appointment'
-                    : 'When to get help'}
+                    : modal === 'question'
+                      ? 'Question for your next visit'
+                      : 'When to get help'}
           </DialogTitle>
           <DialogDescription>
             {modal === 'profile'
@@ -1354,12 +1402,44 @@ export default function MamaApp() {
                   ? 'Record menstruation here. Use a check-in for spotting or postpartum bleeding.'
                   : modal === 'care'
                     ? 'A personal reminder in your care space. This does not book a visit.'
-                    : 'If something feels seriously wrong, seek care now. Do not wait for an app response.'}
+                    : modal === 'question'
+                      ? 'Save a question for your own conversation with a health professional. MAMA will not send it to anyone.'
+                      : 'If something feels seriously wrong, seek care now. Do not wait for an app response.'}
           </DialogDescription>
           {error && (
             <div className="error-banner" role="alert">
               {error}
             </div>
+          )}
+          {modal === 'question' && questionDraft && (
+            <form
+              className="mama-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void save(questionDraft);
+              }}
+            >
+              <label htmlFor="mama-question" className="field">
+                <span>Your question</span>
+                <Textarea
+                  id="mama-question"
+                  required
+                  maxLength={2000}
+                  value={questionDraft.question}
+                  onChange={(e) => setQuestionDraft({ ...questionDraft, question: e.target.value })}
+                  placeholder="For example: What should I ask about at my next visit?"
+                />
+              </label>
+              <Choice
+                label="Status"
+                value={questionDraft.status}
+                options={{ open: 'Open', answered: 'Answered', closed: 'Closed' }}
+                onChange={(status) => setQuestionDraft({ ...questionDraft, status: status as CareQuestion['status'] })}
+              />
+              <Button type="submit" disabled={saving} className="primary-btn">
+                {saving ? 'Saving…' : 'Save question'}
+              </Button>
+            </form>
           )}
           {modal === 'profile' && (
             <form

@@ -45,7 +45,13 @@ export type CareItem = {
   notes: string;
   done: boolean;
 };
-export type CareRecord = Profile | Checkin | Period | CareItem;
+export type CareQuestion = {
+  kind: 'question';
+  id: string;
+  question: string;
+  status: 'open' | 'answered' | 'closed';
+};
+export type CareRecord = Profile | Checkin | Period | CareItem | CareQuestion;
 export const emptyProfile: Profile = {
   kind: 'profile',
   id: 'profile',
@@ -218,6 +224,14 @@ export function validateRecord(raw: unknown, now = today()): CareRecord {
     if (end && end < start)
       throw new Error('The end must be on or after the start.');
     return { kind: 'period', id, start, end, notes: str(r.notes, 2000) };
+  }
+  if (r.kind === 'question') {
+    return {
+      kind: 'question',
+      id,
+      question: str(r.question, 2000, true),
+      status: choice(r.status, ['open', 'answered', 'closed']),
+    };
   }
   if (r.kind === 'care') {
     const d = date(r.date),

@@ -92,6 +92,14 @@ test('unanswered symptom data is not recast as normal', () => {
   assert.throws(() => validateRecord({ ...c, mood: 'Diagnosed well' }, now));
   assert.throws(() => validateRecord({ ...c, symptoms: ['invented'] }, now));
 });
+test('validates questions as personal discussion prompts', () => {
+  const question = validateRecord({
+    kind: 'question', id: 'question1', question: 'What should I ask at my next visit?', status: 'open',
+  }, now);
+  assert.equal(question.kind, 'question');
+  assert.throws(() => validateRecord({ ...question, question: ' ' }, now));
+  assert.throws(() => validateRecord({ ...question, status: 'urgent' }, now));
+});
 test('validates care entries and strips untrusted owner fields', () => {
   const c = {
     kind: 'care',

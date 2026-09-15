@@ -1349,3 +1349,16 @@ fieldset {
 .auth-card input { border: 1px solid var(--border); border-radius: 8px; padding: 11px 12px; font: inherit; }
 .auth-card button[type='submit'] { border: 0; border-radius: 8px; background: var(--primary); color: white; padding: 12px 16px; font-weight: 700; }
 .text-button { padding: 0; border: 0; background: transparent; color: var(--primary); text-decoration: underline; font: inherit; }
+.questions-card {
+  margin-top: 22px;
+}
+.questions-card .section-title {
+  align-items: flex-start;
+}
+.question-list {
+  margin-top: 18px;
+}
+.question-icon {
+  color: var(--primary);
+  margin-top: 3px;
+}
