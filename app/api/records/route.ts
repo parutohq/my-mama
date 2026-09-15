@@ -14,6 +14,11 @@ const reply = (body: unknown, status = 200) => Response.json(body, {
   headers: { 'Cache-Control': 'private, no-store' },
 });
 
+function hasAllowedOrigin(request: Request) {
+  const origin = request.headers.get('origin');
+  return !origin || origin === new URL(request.url).origin;
+}
+
 async function authenticatedClient() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -34,8 +39,7 @@ export async function GET() {
 export async function PUT(request: Request) {
   const { supabase, user } = await authenticatedClient();
   if (!user) return reply({ error: 'Sign in to save your records.' }, 401);
-  const origin = request.headers.get('origin');
-  if (origin && origin !== new URL(request.url).origin) {
+  if (!hasAllowedOrigin(request)) {
     return reply({ error: 'Request origin is not allowed.' }, 403);
   }
 
@@ -53,6 +57,9 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   const { supabase, user } = await authenticatedClient();
   if (!user) return reply({ error: 'Sign in to manage your records.' }, 401);
+  if (!hasAllowedOrigin(request)) {
+    return reply({ error: 'Request origin is not allowed.' }, 403);
+  }
 
   try {
     const data = await request.json() as { id?: string; all?: boolean };

@@ -12,6 +12,8 @@ for (const table of ['profiles', 'user_journeys', 'health_events', 'symptom_logs
 assert.match(migration, /can_provider_access_patient/);
 assert.match(migration, /revoke all on all tables in schema public from anon, authenticated/);
 assert.match(route, /supabase\.auth\.getUser/);
+assert.match(route, /function hasAllowedOrigin/);
+assert.match(route, /if \(!hasAllowedOrigin\(request\)\)/);
 assert.doesNotMatch(route, /oai-authenticated-user-id|care_records/);
 assert.match(proxy, /updateSession/);
 assert.equal(existsSync(new URL('../app/chatgpt-auth.ts', import.meta.url)), false);
