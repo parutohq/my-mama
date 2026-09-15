@@ -1233,7 +1233,12 @@ export default function MamaApp() {
                 </div>
               )}
               {view === 'Learn' && (
-                <>
+                <div className="learn-v2">
+                  <section className="learn-v2-hero">
+                    <span><BookOpen size={15} /> MAMA LEARNING LIBRARY</span>
+                    <h2>Clear information for the questions you are carrying.</h2>
+                    <p>Evidence-linked reading to support a conversation with your care team—not a diagnosis or a symptom assessment.</p>
+                  </section>
                   <div className="library-tools">
                     <label htmlFor="mama-control-1" className="search-field">
                       <Search size={18} />
@@ -1252,14 +1257,14 @@ export default function MamaApp() {
                       onChange={setLearnFilter}
                     />
                   </div>
-                  <div className="info-banner">
+                  <div className="info-banner learn-v2-note">
                     <BookOpen size={18} />
                     <p>
                       Evidence-linked reading. These summaries await local
                       clinical approval; they do not assess your symptoms.
                     </p>
                   </div>
-                  <div className="article-grid library-grid">
+                  <div className="article-grid library-grid learn-v2-library">
                     {articles
                       .filter(
                         (a) =>
@@ -1298,10 +1303,14 @@ export default function MamaApp() {
                       description="Try a different word or show all topics."
                     />
                   )}
-                </>
+                </div>
               )}
               {view === 'Care summary' && (
-                <>
+                <div className="summary-v2">
+                  <section className="summary-v2-hero">
+                    <div><span><ClipboardList size={15} /> YOUR PERSONAL SUMMARY</span><h2>Bring your own record into a care conversation.</h2><p>Review the information before sharing. It remains your user-entered record, not a verified clinical file.</p></div>
+                    <ShieldCheck size={42} strokeWidth={1.25} />
+                  </section>
                   <div className="summary-tools">
                     <label htmlFor="mama-control-2" className="check-label">
                       <Checkbox
@@ -1323,7 +1332,7 @@ export default function MamaApp() {
                     symptoms and dates. Notes are hidden until you choose to
                     include them.
                   </p>
-                  <article className="card print-summary">
+                  <article className="card print-summary summary-v2-sheet">
                     <div className="summary-brand">mama.</div>
                     <h2>Personal care summary</h2>
                     <p>
@@ -1413,7 +1422,7 @@ export default function MamaApp() {
                       consultation.
                     </p>
                   </article>
-                </>
+                </div>
               )}
               {view === 'Journey' && (
                 <div className="journey-experience journey-v2">
@@ -1440,15 +1449,15 @@ export default function MamaApp() {
                 </div>
               )}
               {view === 'Ask MAMA' && (
-                <div className="ask-mama-grid">
-                  <section className="card ask-mama-intro"><span className="icon-box"><CircleHelp /></span><h2>Prepare what matters to you</h2><p>Capture a question before a visit, then take it with you. MAMA does not give a diagnosis or replace a clinician.</p><button className="primary-btn spaced" onClick={() => openQuestion()}><Plus size={16} /> Save a question</button></section>
-                  <section className="card"><div className="section-title"><h2>Your saved questions</h2><button className="text-btn" onClick={() => openQuestion()}>Add <Plus size={15} /></button></div>{questions.length ? <div className="question-list">{questions.map((question) => <div className="question-row" key={question.id}><div><span className="pill">{question.status}</span><p>{question.question}</p></div><button className="icon-button" aria-label="Edit question" onClick={() => openQuestion(question)}><Pencil size={16} /></button></div>)}</div> : <Blank title="Nothing saved yet" description="A question can help make a future care conversation feel clearer." />}</section>
-                  <section className="card wide"><h2>What MAMA can help you do</h2><div className="ask-guides"><div><BookOpen /><b>Learn</b><span>Explore reviewed information and note what you want to discuss.</span></div><div><ClipboardList /><b>Summarise</b><span>Bring your own recorded details to a care conversation.</span></div><div><Phone /><b>Seek care</b><span>Use urgent-care guidance when something feels seriously wrong.</span></div></div></section>
+                <div className="ask-mama-grid ask-v2">
+                  <section className="card ask-mama-intro ask-v2-intro"><span className="icon-box"><CircleHelp /></span><span className="ask-v2-label">PREPARE FOR CARE</span><h2>Prepare what matters to you.</h2><p>Capture a question before a visit, then take it with you. MAMA does not give a diagnosis or replace a clinician.</p><button className="primary-btn spaced" onClick={() => openQuestion()}><Plus size={16} /> Save a question</button></section>
+                  <section className="card ask-v2-questions"><div className="section-title"><div><span className="ask-v2-label">YOUR QUESTIONS</span><h2>Your saved questions</h2></div><button className="text-btn" onClick={() => openQuestion()}>Add <Plus size={15} /></button></div>{questions.length ? <div className="question-list">{questions.map((question) => <div className="question-row" key={question.id}><div><span className="pill">{question.status}</span><p>{question.question}</p></div><button className="icon-button" aria-label="Edit question" onClick={() => openQuestion(question)}><Pencil size={16} /></button></div>)}</div> : <Blank title="Nothing saved yet" description="A question can help make a future care conversation feel clearer." />}</section>
+                  <section className="card wide ask-v2-guide"><span className="ask-v2-label">HOW MAMA SUPPORTS YOU</span><h2>Use your records to prepare, not to self-diagnose.</h2><div className="ask-guides"><div><BookOpen /><b>Learn</b><span>Explore reviewed information and note what you want to discuss.</span></div><div><ClipboardList /><b>Summarise</b><span>Bring your own recorded details to a care conversation.</span></div><div><Phone /><b>Seek care</b><span>Use urgent-care guidance when something feels seriously wrong.</span></div></div></section>
                 </div>
               )}
               {view === 'Settings' && (
-                <div className="settings-grid">
-                  <section className="card">
+                <div className="settings-grid settings-v2">
+                  <section className="card settings-v2-journey">
                     <span className="icon-box">
                       <Flower2 />
                     </span>
@@ -1466,7 +1475,7 @@ export default function MamaApp() {
                       earlier records remain available.
                     </p>
                   </section>
-                  <section className="card">
+                  <section className="card settings-v2-notifications">
                     <BellRing size={23} />
                     <h2 className="spaced">Notifications, your way</h2>
                     <p>By default, lock-screen reminders stay discreet and never display health details.</p>
@@ -1478,7 +1487,7 @@ export default function MamaApp() {
                     <button className="outline-btn spaced" disabled={!engagementReady} onClick={() => openReminder()}><Clock3 size={16} /> Add a private reminder</button>
                     <p className="helper">Push delivery needs your browser permission. No clinical details are placed in notification payloads.</p>
                   </section>
-                  <section className="card">
+                  <section className="card settings-v2-demo">
                     <Sparkles size={23} />
                     <h2 className="spaced">Sample care experience</h2>
                     {demoData ? <>
@@ -1486,7 +1495,7 @@ export default function MamaApp() {
                       <button className="outline-btn danger-text spaced" disabled={saving} onClick={() => void clearSampleData()}><Trash2 size={16} /> {saving ? 'Removing…' : 'Clear sample data'}</button>
                     </> : <p>{demoCleared ? 'Sample data has been removed. Add your own records whenever you are ready.' : 'Your care space starts with the records you choose to add.'}</p>}
                   </section>
-                  <section className="card">
+                  <section className="card settings-v2-privacy">
                     <LockKeyhole size={23} />
                     <h2 className="spaced">Your records & privacy</h2>
                     <p>
@@ -1516,7 +1525,7 @@ export default function MamaApp() {
                       them somewhere private.
                     </p>
                   </section>
-                  <section className="card wide">
+                  <section className="card wide settings-v2-about">
                     <h2>About this first version</h2>
                     <p className="spaced">
                       MAMA helps you keep records, prepare for care and explore
