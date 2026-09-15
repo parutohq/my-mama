@@ -93,7 +93,8 @@ import { defaultEngagementPreferences, type EngagementData, type JourneyTask, ty
 type View = MamaView;
 type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'question' | 'help' | 'reminder' | null;
 const faces = ['😊', '🙂', '😐', '😔', '😣'];
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isLocalDevelopment = process.env.NODE_ENV === 'development';
+const isDesignPreviewHost = (host: string) => host.includes('-git-design-mymama-v2-');
 function Choice({
   label,
   value,
@@ -158,7 +159,8 @@ export default function MamaApp() {
     [engagementReady, setEngagementReady] = useState(true),
     [demoData, setDemoData] = useState(false),
     [demoCleared, setDemoCleared] = useState(false),
-    [developmentHomeState, setDevelopmentHomeState] = useState<HomeDesignState>('cycle');
+    [developmentHomeState, setDevelopmentHomeState] = useState<HomeDesignState>('cycle'),
+    [homeDesignPreviewEnabled, setHomeDesignPreviewEnabled] = useState(isLocalDevelopment);
   const [modal, setModal] = useState<Modal>(null),
     [article, setArticle] = useState<Article | null>(null),
     [deletion, setDeletion] = useState<string | null>(null),
@@ -177,6 +179,13 @@ export default function MamaApp() {
     busy = useRef(false);
   const profile =
     records.find((r): r is Profile => r.kind === 'profile') || emptyProfile;
+  useEffect(() => {
+    // Vercel Preview builds use NODE_ENV=production. Limit the temporary state
+    // switcher to this design branch's preview URL while keeping it off production.
+    if (typeof window !== 'undefined' && isDesignPreviewHost(window.location.hostname)) {
+      setHomeDesignPreviewEnabled(true);
+    }
+  }, []);
   const checkins = records
     .filter((r): r is Checkin => r.kind === 'checkin')
     .sort((a, b) => b.date.localeCompare(a.date));
@@ -205,7 +214,7 @@ export default function MamaApp() {
         : profile.stage === 'cycle' || profile.stage === 'preconception'
           ? 'cycle'
           : null;
-  const homeDesignState = isDevelopment
+  const homeDesignState = homeDesignPreviewEnabled
     ? developmentHomeState
     : actualHomeDesignState;
   const relevant = articles
@@ -681,8 +690,8 @@ export default function MamaApp() {
                     cycleDay={stats.day}
                     hasCheckin={Boolean(todayCheck)}
                     appointment={pending.length ? pending[0] : null}
-                    preview={isDevelopment}
-                    showDevelopmentSwitcher={isDevelopment}
+                    preview={homeDesignPreviewEnabled}
+                    showDevelopmentSwitcher={homeDesignPreviewEnabled}
                     onDevelopmentStateChange={setDevelopmentHomeState}
                     onLogCheckin={() => openCheckin()}
                     onLogPeriod={() => openPeriod()}
