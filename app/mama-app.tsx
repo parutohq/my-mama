@@ -929,7 +929,18 @@ export default function MamaApp() {
                 )
               )}
               {view === 'My journal' && (
-                <>
+                <div className="journal-v2">
+                  <section className="journal-v2-hero">
+                    <div>
+                      <span className="journal-v2-eyebrow"><BookOpen size={15} /> YOUR PRIVATE JOURNAL</span>
+                      <h2>Keep the details that help you tell your story.</h2>
+                      <p>Record only what feels useful. Entries stay private to your signed-in care space.</p>
+                    </div>
+                    <div className="journal-v2-hero-actions">
+                      <span><b>{checkins.length}</b> check-in{checkins.length === 1 ? '' : 's'} recorded</span>
+                      <button className="white-btn" onClick={() => openCheckin()}><Plus size={16} /> Add a check-in</button>
+                    </div>
+                  </section>
                   <Tabs
                     value={journalTab}
                     onValueChange={(v) => setJournalTab(String(v))}
@@ -941,7 +952,7 @@ export default function MamaApp() {
                       <TabsTrigger value="periods">Period history</TabsTrigger>
                     </TabsList>
                     <TabsContent value="checkins">
-                      <div className="card list-card">
+                      <div className="card list-card journal-v2-list">
                         {checkins.length ? (
                           checkins.map((c) => (
                             <div className="record-row" key={c.id}>
@@ -1008,7 +1019,7 @@ export default function MamaApp() {
                       </div>
                     </TabsContent>
                     <TabsContent value="periods">
-                      <div className="metric-grid">
+                      <div className="metric-grid journal-v2-metrics">
                         {[
                           ['Recorded periods', stats.count],
                           [
@@ -1030,13 +1041,13 @@ export default function MamaApp() {
                           </div>
                         ))}
                       </div>
-                      <p className="helper spaced">
+                      <p className="helper spaced journal-v2-disclaimer">
                         Summaries describe your entries, not a diagnosis or a
                         fertility prediction. Missing periods can distort
                         averages. Postpartum bleeding should be recorded in
                         check-ins, separately from periods.
                       </p>
-                      <div className="section-title spaced">
+                      <div className="section-title spaced journal-v2-record-heading">
                         <h2>Period records</h2>
                         <button
                           className="outline-btn"
@@ -1045,7 +1056,7 @@ export default function MamaApp() {
                           <Plus size={16} /> Log a period
                         </button>
                       </div>
-                      <div className="card list-card">
+                      <div className="card list-card journal-v2-list">
                         {periods.length ? (
                           periods.map((p) => (
                             <div className="record-row" key={p.id}>
@@ -1089,7 +1100,7 @@ export default function MamaApp() {
                       </div>
                     </TabsContent>
                   </Tabs>
-                </>
+                </div>
               )}
               {view === 'My care' && (
                 <>
