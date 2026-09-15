@@ -22,6 +22,7 @@ import {
   AlertTriangle,
   RefreshCw,
   LogOut,
+  UserRound,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -478,15 +479,20 @@ export default function MamaApp() {
             <SidebarTrigger />
             <span>Your daily companion</span>
           </div>
-          <button
-            className="help-link"
-            onClick={() => {
-              setError('');
-              setModal('help');
-            }}
-          >
-            <CircleHelp size={17} /> When to get help <ArrowUpRight size={15} />
-          </button>
+          <div className="topbar-actions">
+            <button className="account-link" onClick={() => go('Settings')}>
+              <UserRound size={17} /> Profile & privacy
+            </button>
+            <button
+              className="help-link"
+              onClick={() => {
+                setError('');
+                setModal('help');
+              }}
+            >
+              <CircleHelp size={17} /> When to get help <ArrowUpRight size={15} />
+            </button>
+          </div>
         </header>
         <div className="page">
           <div className="page-heading">

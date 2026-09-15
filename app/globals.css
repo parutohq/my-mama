@@ -209,12 +209,27 @@ svg {
 .topbar-title > [data-slot='sidebar-trigger'] {
   display: none;
 }
-.help-link {
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.help-link,
+.account-link {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 13px;
   color: #805369;
+}
+.account-link {
+  color: #625665;
+}
+.account-link:hover,
+.account-link:focus-visible {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 .page {
   max-width: 1380px;
@@ -520,6 +535,16 @@ svg {
   }
   .topbar-title > span {
     display: none;
+  }
+  .topbar-actions {
+    gap: 12px;
+  }
+  .account-link {
+    font-size: 0;
+  }
+  .account-link svg {
+    width: 19px;
+    height: 19px;
   }
   .page {
     padding: 27px 18px 20px;
