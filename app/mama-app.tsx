@@ -88,10 +88,12 @@ import { createClient as createSupabaseClient } from '@/lib/supabase/client';
 import { careViews, MamaNavigation, type MamaView } from '@/components/mama/navigation';
 import { MobileBottomNavigation } from '@/components/mama/mobile-bottom-navigation';
 import { InsightCard } from '@/components/mama/insight-card';
+import { HomeVisualPrototype, type HomeDesignState } from '@/components/mama/home-visual-prototype';
 import { defaultEngagementPreferences, type EngagementData, type JourneyTask, type UserReminder } from '@/lib/engagement-model';
 type View = MamaView;
 type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'question' | 'help' | 'reminder' | null;
 const faces = ['😊', '🙂', '😐', '😔', '😣'];
+const isDevelopment = process.env.NODE_ENV === 'development';
 function Choice({
   label,
   value,
@@ -155,7 +157,8 @@ export default function MamaApp() {
     [engagement, setEngagement] = useState<EngagementData>({ preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [] }),
     [engagementReady, setEngagementReady] = useState(true),
     [demoData, setDemoData] = useState(false),
-    [demoCleared, setDemoCleared] = useState(false);
+    [demoCleared, setDemoCleared] = useState(false),
+    [developmentHomeState, setDevelopmentHomeState] = useState<HomeDesignState>('cycle');
   const [modal, setModal] = useState<Modal>(null),
     [article, setArticle] = useState<Article | null>(null),
     [deletion, setDeletion] = useState<string | null>(null),
@@ -194,6 +197,17 @@ export default function MamaApp() {
     stats = cycleStats(periods, currentDay);
   const cycleMode =
     profile.stage === 'cycle' || profile.stage === 'preconception';
+  const actualHomeDesignState: HomeDesignState | null =
+    profile.stage === 'pregnancy'
+      ? 'pregnancy'
+      : profile.stage === 'postpartum'
+        ? 'postpartum'
+        : profile.stage === 'cycle' || profile.stage === 'preconception'
+          ? 'cycle'
+          : null;
+  const homeDesignState = isDevelopment
+    ? developmentHomeState
+    : actualHomeDesignState;
   const relevant = articles
     .filter((a) => a.stages.includes(profile.stage))
     .slice(0, 3);
@@ -659,7 +673,26 @@ export default function MamaApp() {
           ) : (
             <>
               {view === 'Today' && (
-                <>
+                homeDesignState ? (
+                  <HomeVisualPrototype
+                    state={homeDesignState}
+                    displayName={profile.name}
+                    metric={metric}
+                    cycleDay={stats.day}
+                    hasCheckin={Boolean(todayCheck)}
+                    appointment={pending.length ? pending[0] : null}
+                    preview={isDevelopment}
+                    showDevelopmentSwitcher={isDevelopment}
+                    onDevelopmentStateChange={setDevelopmentHomeState}
+                    onLogCheckin={() => openCheckin()}
+                    onLogPeriod={() => openPeriod()}
+                    onUpdateJourney={openProfile}
+                    onOpenCare={() => go('My care')}
+                    onOpenJournal={() => go('My journal')}
+                    onOpenLearn={() => go('Learn')}
+                  />
+                ) : (
+                  <>
                   <div className="dashboard-grid">
                     <section className="journey-card">
                       <div>
@@ -882,6 +915,7 @@ export default function MamaApp() {
                     ))}
                   </div>
                 </>
+                )
               )}
               {view === 'My journal' && (
                 <>
