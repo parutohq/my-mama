@@ -39,6 +39,7 @@ type HomeVisualPrototypeProps = {
   hasCheckin: boolean;
   appointment: Appointment;
   preview: boolean;
+  publicDemo?: boolean;
   showDevelopmentSwitcher: boolean;
   onDevelopmentStateChange: (state: HomeDesignState) => void;
   onLogCheckin: () => void;
@@ -142,6 +143,7 @@ export function HomeVisualPrototype({
   hasCheckin,
   appointment,
   preview,
+  publicDemo = false,
   showDevelopmentSwitcher,
   onDevelopmentStateChange,
   onLogCheckin,
@@ -169,6 +171,7 @@ export function HomeVisualPrototype({
     detail: design.previewDetail,
   } : actualMetric;
   const primaryAction = state === 'cycle' ? onLogPeriod : onUpdateJourney;
+  const action = publicDemo ? onUpdateJourney : primaryAction;
 
   return (
     <section className={`home-v2 home-v2-${state}`} aria-label={`${design.label} home`}>
@@ -200,11 +203,11 @@ export function HomeVisualPrototype({
           <h2>{design.title}</h2>
           <p className="home-v2-intro">{design.intro}</p>
           <div className="home-v2-hero-actions">
-            <Button className="home-v2-primary" onClick={primaryAction}>
-              {design.primary} <ChevronRight size={17} />
+            <Button className="home-v2-primary" onClick={action}>
+              {publicDemo ? 'Create a private care space' : design.primary} <ChevronRight size={17} />
             </Button>
-            <button type="button" className="home-v2-secondary" onClick={onOpenCare}>
-              My care <ArrowUpRight size={15} />
+            <button type="button" className="home-v2-secondary" onClick={publicDemo ? onUpdateJourney : onOpenCare}>
+              {publicDemo ? 'Sign in' : 'My care'} <ArrowUpRight size={15} />
             </button>
           </div>
         </div>
