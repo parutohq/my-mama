@@ -1397,25 +1397,27 @@ export default function MamaApp() {
                 </>
               )}
               {view === 'Journey' && (
-                <div className="journey-experience">
-                  <section className={'journey-progress-card ' + (sensitiveJourney ? 'quiet' : '')}>
+                <div className="journey-experience journey-v2">
+                  <section className={'journey-progress-card journey-v2-hero ' + (sensitiveJourney ? 'quiet' : '')}>
                     <div>
-                      <span className="pill light"><Sparkles size={15} /> {sensitiveJourney ? 'YOUR SPACE, YOUR PACE' : 'YOUR PROGRESS'}</span>
-                      <h2>{sensitiveJourney ? 'There is no timeline to keep.' : `${taskProgress}% of your chosen steps complete.`}</h2>
+                      <span className="pill light"><Sparkles size={15} /> {sensitiveJourney ? 'YOUR SPACE, YOUR PACE' : stages[profile.stage].toUpperCase()}</span>
+                      <h2>{sensitiveJourney ? 'There is no timeline to keep.' : 'A journey shaped around your own next steps.'}</h2>
                       <p>{sensitiveJourney ? 'Celebrations, streaks and journey prompts are paused. Keep only what feels useful.' : 'MAMA rewards preparation, tracking, learning and follow-up — never a medical outcome.'}</p>
+                      {!sensitiveJourney && <div className="journey-v2-meta" aria-label="Your private journey activity"><span>{checkins.length} check-in{checkins.length === 1 ? '' : 's'} recorded</span><span>{completedTasks.length} step{completedTasks.length === 1 ? '' : 's'} complete</span><span>Private by default</span></div>}
                     </div>
                     <div className="progress-orb" style={{ '--progress': `${taskProgress * 3.6}deg` } as React.CSSProperties}><b>{taskProgress}%</b><span>chosen steps</span></div>
                   </section>
-                  <div className="insights-grid">
+                  <div className="journey-v2-section-heading"><div><span>YOUR PERSONAL VIEW</span><h2>Notice what you have recorded</h2></div><p>These visuals describe entries and chosen actions. They are never a clinical score.</p></div>
+                  <div className="insights-grid journey-v2-insights">
                     <InsightCard title="Check-in rhythm" description="A view of entries you recorded." points={insightPoints} empty="Log a check-in to begin a private pattern view." footer="Recorded check-ins only. This is not a wellbeing or diagnostic score." />
                     <InsightCard title={profile.stage === 'pregnancy' ? 'Journey progression' : profile.stage === 'postpartum' ? 'Postpartum timeline' : 'Cycle history'} description={metric ? metric.detail : stats.day ? `Day ${stats.day} from your latest recorded period.` : 'MAMA will only display dates you choose to record.'} points={metric ? [{ label: 'Today', value: 1, detail: `${metric.value} ${metric.label}` }] : periods.slice(0, 6).reverse().map((period) => ({ label: new Date(period.start + 'T12:00:00').toLocaleDateString('en-GB', { month: 'short' }), value: 1, detail: `Period start recorded ${prettyDate(period.start)}` }))} valueLabel={metric ? 'Estimated' : 'Recorded'} empty="No recorded timeline yet." footer={metric ? 'Estimated from the date you entered. It is not a clinical assessment.' : 'Recorded information only. MAMA does not predict fertility.'} />
                     <InsightCard title="Care actions" description="The practical things you chose to prepare." points={activeTasks.map((task) => ({ label: task.category.replace('_', ' '), value: task.status === 'completed' ? 1 : 0.35, detail: task.title }))} empty="Add a task below when a step would help you feel prepared." footer="Progress is private and can be paused at any time." />
                   </div>
-                  <section className="card journey-tasks-card">
+                  <section className="card journey-tasks-card journey-v2-tasks">
                     <div className="section-title"><div><p className="eyebrow">GENTLE CONSISTENCY</p><h2>Your chosen steps</h2></div><span className="task-count">{completedTasks.length}/{activeTasks.length || 0}</span></div>
                     {activeTasks.length ? <div className="task-list">{activeTasks.map((task) => <label className={'journey-task ' + task.status} key={task.id}><Checkbox checked={task.status === 'completed'} onCheckedChange={() => void toggleJourneyTask(task)} aria-label={`Mark ${task.title} ${task.status === 'completed' ? 'incomplete' : 'complete'}`} /><span><b>{task.title}</b><small>{task.description || task.category.replace('_', ' ')}</small></span>{engagement.preferences.pointsEnabled && <em>+{task.pointsAwarded || 1} MAMA point{task.pointsAwarded === 1 ? '' : 's'}</em>}</label>)}</div> : <Blank title="Choose your first helpful step" description="Add a personal task for tracking, learning, preparation or follow-up." action={<button className="outline-btn" onClick={() => openCare('task')}>Add a care task</button>} />}
                   </section>
-                  {!sensitiveJourney && <section className="achievement-strip"><Trophy /><div><h2>{engagement.achievements.length ? 'Your care moments' : 'Your care moments will appear here'}</h2><p>{engagement.achievements.length ? engagement.achievements.map((achievement) => achievement.title).join(' · ') : 'MAMA recognises practical care actions, never medical outcomes.'}</p></div></section>}
+                  {!sensitiveJourney && <section className="achievement-strip journey-v2-milestone"><Trophy /><div><span>YOUR CARE MOMENTS</span><h2>{engagement.achievements.length ? 'Small actions, thoughtfully noticed.' : 'Your care moments will appear here'}</h2><p>{engagement.achievements.length ? engagement.achievements.map((achievement) => achievement.title).join(' · ') : 'MAMA recognises practical care actions, never medical outcomes.'}</p></div></section>}
                 </div>
               )}
               {view === 'Ask MAMA' && (
