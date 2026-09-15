@@ -94,7 +94,9 @@ type View = MamaView;
 type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'question' | 'help' | 'reminder' | null;
 const faces = ['😊', '🙂', '😐', '😔', '😣'];
 const isLocalDevelopment = process.env.NODE_ENV === 'development';
-const isDesignPreviewHost = (host: string) => host.includes('-git-design-mymama-v2-');
+const isDesignPreviewHost = (host: string, search: string) =>
+  host.includes('-git-design-mymama-v2-') ||
+  (host.endsWith('.vercel.app') && new URLSearchParams(search).get('mamaDesignPreview') === '1');
 function Choice({
   label,
   value,
@@ -182,7 +184,7 @@ export default function MamaApp() {
   useEffect(() => {
     // Vercel Preview builds use NODE_ENV=production. Limit the temporary state
     // switcher to this design branch's preview URL while keeping it off production.
-    if (typeof window !== 'undefined' && isDesignPreviewHost(window.location.hostname)) {
+    if (typeof window !== 'undefined' && isDesignPreviewHost(window.location.hostname, window.location.search)) {
       setHomeDesignPreviewEnabled(true);
     }
   }, []);
