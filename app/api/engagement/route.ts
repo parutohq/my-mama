@@ -23,7 +23,12 @@ export async function PUT(request: Request) {
     if (body.kind === 'preferences') await savePreferences(supabase, user.id, validatePreferences(body.value));
     else if (body.kind === 'task') await saveJourneyTask(supabase, user.id, validateTask(body.value));
     else if (body.kind === 'reminder') await saveReminder(supabase, user.id, validateReminder(body.value));
-    else return reply({ error: 'Unknown engagement update.' }, 400);
+    else if (body.kind === 'notification') {
+      const id = typeof body.value === 'string' ? body.value : '';
+      if (!/^[0-9a-f-]{36}$/i.test(id)) return reply({ error: 'Invalid notification.' }, 400);
+      const result = await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('user_id', user.id).eq('id', id);
+      if (result.error) throw new Error(result.error.message);
+    } else return reply({ error: 'Unknown engagement update.' }, 400);
     return reply({ engagement: await getEngagementData(supabase, user.id) });
   } catch (error) { return reply({ error: error instanceof Error ? error.message : 'Could not save engagement data.' }, 400); }
 }

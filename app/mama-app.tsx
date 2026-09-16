@@ -331,7 +331,7 @@ export default function MamaApp() {
     return byStage[profile.stage];
   })();
   const insightPoints = useMemo(() => checkins.slice(0, 7).reverse().map((checkin) => ({ label: new Date(checkin.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' }), value: 1, detail: `${checkin.mood} check-in` })), [checkins]);
-  async function updateEngagement(kind: 'preferences' | 'task' | 'reminder', value: unknown) {
+  async function updateEngagement(kind: 'preferences' | 'task' | 'reminder' | 'notification', value: unknown) {
     const res = await fetch('/api/engagement', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, value }) });
     const data = await res.json() as { engagement?: EngagementData; error?: string };
     if (!res.ok || !data.engagement) throw new Error(data.error || 'Could not save this setting.');
@@ -340,6 +340,10 @@ export default function MamaApp() {
   async function toggleJourneyTask(task: JourneyTask) {
     try { await updateEngagement('task', { ...task, status: task.status === 'completed' ? 'available' : 'completed' }); setNotice(task.status === 'completed' ? 'Task reopened.' : 'A thoughtful step, saved.'); }
     catch (e) { setError(e instanceof Error ? e.message : 'Could not update task.'); }
+  }
+  async function markNotificationRead(id: string) {
+    try { await updateEngagement('notification', id); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Could not update this notification.'); }
   }
   async function removeEngagementItem(kind: 'task' | 'reminder', id: string) {
     try {
@@ -1623,6 +1627,7 @@ export default function MamaApp() {
                     <div className="settings-v2-browser-push"><div><b>Browser notifications</b><small>{process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ? 'Choose this only on a personal device you control.' : 'Available after browser notification delivery is configured.'}</small></div>{process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ? <button className="text-btn" onClick={() => void updatePushSubscription(!pushSubscribed)}>{pushSubscribed ? 'Turn off' : 'Turn on'}</button> : <span>Not configured</span>}</div>
                     {pushStatus && <p className="helper settings-v2-push-status" role="status">{pushStatus}</p>}
                     {engagement.reminders.length > 0 && <div className="settings-v2-reminders" aria-label="Your private reminders"><span>YOUR PRIVATE REMINDERS</span>{engagement.reminders.map((reminder) => <div key={reminder.id}><div><b>{reminder.title}</b><small>{new Date(reminder.remindAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}</small></div><button className="icon-button" aria-label={`Edit reminder ${reminder.title}`} onClick={() => openReminder(reminder)}><Pencil size={15} /></button><button className="icon-button" aria-label={`Remove reminder ${reminder.title}`} onClick={() => void removeEngagementItem('reminder', reminder.id)}><Trash2 size={15} /></button></div>)}</div>}
+                    {engagement.notifications.length > 0 && <div className="settings-v2-notification-history" aria-label="MAMA notification history"><span>MAMA UPDATES</span>{engagement.notifications.slice(0, 5).map((notification) => <div className={notification.readAt ? 'read' : ''} key={notification.id}><div><b>{notification.title}</b><small>{notification.body} · {new Date(notification.scheduledFor).toLocaleDateString('en-GB', { dateStyle: 'medium' })}</small></div>{notification.readAt ? <span>Read</span> : <button className="text-btn" onClick={() => void markNotificationRead(notification.id)}>Mark read</button>}</div>)}</div>}
                     <p className="helper">Push delivery needs your browser permission. No clinical details are placed in notification payloads.</p>
                   </section>
                   <section className="card settings-v2-care-team">

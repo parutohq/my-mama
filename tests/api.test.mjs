@@ -27,3 +27,6 @@ assert.match(pushRoute, /user_id: user\.id/);
 assert.match(pushRoute, /eq\('user_id', user\.id\)/);
 assert.match(pushWorker, /A private MAMA reminder/);
 assert.doesNotMatch(pushWorker, /pregnan|symptom|diagnos|appointment/i);
+const engagementRoute = readFileSync(new URL('../app/api/engagement/route.ts', import.meta.url), 'utf8');
+assert.match(engagementRoute, /body\.kind === 'notification'/);
+assert.match(engagementRoute, /eq\('user_id', user\.id\)\.eq\('id', id\)/);
