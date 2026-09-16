@@ -18,3 +18,12 @@ assert.doesNotMatch(route, /oai-authenticated-user-id|care_records/);
 assert.match(proxy, /updateSession/);
 assert.equal(existsSync(new URL('../app/chatgpt-auth.ts', import.meta.url)), false);
 console.log('PASS: relational Supabase migration, RLS foundation, verified session boundary, and legacy identity removal.');
+
+const pushRoute = readFileSync(new URL('../app/api/push-subscription/route.ts', import.meta.url), 'utf8');
+const pushWorker = readFileSync(new URL('../public/mama-push-sw.js', import.meta.url), 'utf8');
+assert.match(pushRoute, /supabase\.auth\.getUser/);
+assert.match(pushRoute, /hasAllowedOrigin/);
+assert.match(pushRoute, /user_id: user\.id/);
+assert.match(pushRoute, /eq\('user_id', user\.id\)/);
+assert.match(pushWorker, /A private MAMA reminder/);
+assert.doesNotMatch(pushWorker, /pregnan|symptom|diagnos|appointment/i);

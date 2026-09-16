@@ -161,6 +161,8 @@ export default function MamaApp() {
     [engagementReady, setEngagementReady] = useState(true),
     [demoData, setDemoData] = useState(false),
     [demoCleared, setDemoCleared] = useState(false),
+    [pushSubscribed, setPushSubscribed] = useState(false),
+    [pushStatus, setPushStatus] = useState(''),
     [developmentHomeState, setDevelopmentHomeState] = useState<HomeDesignState>('cycle'),
     [homeDesignPreviewEnabled, setHomeDesignPreviewEnabled] = useState(isLocalDevelopment);
   const [modal, setModal] = useState<Modal>(null),
@@ -255,6 +257,10 @@ export default function MamaApp() {
     const timer = setTimeout(() => setNotice(''), 4500);
     return () => clearTimeout(timer);
   }, [notice]);
+  useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !('serviceWorker' in navigator)) return;
+    void navigator.serviceWorker.getRegistration('/mama-push-sw.js').then((registration) => registration?.pushManager.getSubscription()).then((subscription) => setPushSubscribed(Boolean(subscription))).catch(() => undefined);
+  }, []);
   async function save(record: CareRecord, close = true) {
     if (busy.current) return false;
     busy.current = true;
@@ -464,6 +470,35 @@ export default function MamaApp() {
     } finally {
       busy.current = false;
       setSaving(false);
+    }
+  }
+  async function updatePushSubscription(enable: boolean) {
+    const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+    if (!vapidKey || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      setPushStatus('Browser notifications are not available in this browser yet.');
+      return;
+    }
+    try {
+      setPushStatus('');
+      const registration = await navigator.serviceWorker.register('/mama-push-sw.js');
+      const existing = await registration.pushManager.getSubscription();
+      if (!enable && existing) {
+        const response = await fetch('/api/push-subscription', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(existing.toJSON()) });
+        if (!response.ok) throw new Error('Could not remove browser notification permission.');
+        await existing.unsubscribe();
+        setPushSubscribed(false);
+        setPushStatus('Browser notifications turned off.');
+        return;
+      }
+      const applicationServerKey = Uint8Array.from(atob(vapidKey.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(vapidKey.length / 4) * 4, '=')), (character) => character.charCodeAt(0));
+      const subscription = existing || await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey });
+      const response = await fetch('/api/push-subscription', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(subscription.toJSON()) });
+      const data = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(data.error || 'Could not save browser notifications.');
+      setPushSubscribed(true);
+      setPushStatus('Browser notifications are on. MAMA will keep them discreet.');
+    } catch (error) {
+      setPushStatus(error instanceof Error ? error.message : 'Could not update browser notifications.');
     }
   }
   async function signOut() {
@@ -1585,6 +1620,8 @@ export default function MamaApp() {
                       <label><span>Optional MAMA Points</span><Checkbox checked={engagement.preferences.pointsEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, pointsEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
                     </div>
                     <button className="outline-btn spaced" disabled={!engagementReady} onClick={() => openReminder()}><Clock3 size={16} /> Add a private reminder</button>
+                    <div className="settings-v2-browser-push"><div><b>Browser notifications</b><small>{process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ? 'Choose this only on a personal device you control.' : 'Available after browser notification delivery is configured.'}</small></div>{process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ? <button className="text-btn" onClick={() => void updatePushSubscription(!pushSubscribed)}>{pushSubscribed ? 'Turn off' : 'Turn on'}</button> : <span>Not configured</span>}</div>
+                    {pushStatus && <p className="helper settings-v2-push-status" role="status">{pushStatus}</p>}
                     {engagement.reminders.length > 0 && <div className="settings-v2-reminders" aria-label="Your private reminders"><span>YOUR PRIVATE REMINDERS</span>{engagement.reminders.map((reminder) => <div key={reminder.id}><div><b>{reminder.title}</b><small>{new Date(reminder.remindAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}</small></div><button className="icon-button" aria-label={`Edit reminder ${reminder.title}`} onClick={() => openReminder(reminder)}><Pencil size={15} /></button><button className="icon-button" aria-label={`Remove reminder ${reminder.title}`} onClick={() => void removeEngagementItem('reminder', reminder.id)}><Trash2 size={15} /></button></div>)}</div>}
                     <p className="helper">Push delivery needs your browser permission. No clinical details are placed in notification payloads.</p>
                   </section>

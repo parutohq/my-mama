@@ -1593,3 +1593,5 @@ fieldset {
 .settings-v2-achievement-list > div { display: grid; gap: 3px; padding: 11px 0; border-top: 1px solid color-mix(in srgb, var(--border) 75%, transparent); }
 .settings-v2-achievement-list b { color: var(--text-primary); font-size: .8rem; }
 .settings-v2-achievement-list span { color: var(--text-secondary); font-size: .74rem; line-height: 1.42; }
+.settings-v2-browser-push { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-top: var(--space-5); padding: 13px 0; border-top: 1px solid var(--border); }
+.settings-v2-browser-push > div { display: grid; gap: 3px; }.settings-v2-browser-push b { color: var(--text-primary); font-size: .8rem; }.settings-v2-browser-push small, .settings-v2-browser-push > span { color: var(--text-secondary); font-size: .72rem; }.settings-v2-browser-push > span { font-weight: 700; }.settings-v2-push-status { margin-top: 9px; }
