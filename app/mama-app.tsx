@@ -335,6 +335,15 @@ export default function MamaApp() {
     try { await updateEngagement('task', { ...task, status: task.status === 'completed' ? 'available' : 'completed' }); setNotice(task.status === 'completed' ? 'Task reopened.' : 'A thoughtful step, saved.'); }
     catch (e) { setError(e instanceof Error ? e.message : 'Could not update task.'); }
   }
+  async function removeEngagementItem(kind: 'task' | 'reminder', id: string) {
+    try {
+      const response = await fetch('/api/engagement', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, id }) });
+      const data = await response.json() as { engagement?: EngagementData; error?: string };
+      if (!response.ok || !data.engagement) throw new Error(data.error || 'Could not remove this item.');
+      setEngagement(data.engagement);
+      setNotice(kind === 'reminder' ? 'Private reminder removed.' : 'Chosen step removed.');
+    } catch (e) { setError(e instanceof Error ? e.message : 'Could not remove this item.'); }
+  }
   function openReminder(existing?: UserReminder) {
     setReminderDraft(existing ? { ...existing } : { id: crypto.randomUUID(), title: '', remindAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(), active: true, completedAt: null });
     setError(''); setModal('reminder');
@@ -1568,11 +1577,28 @@ export default function MamaApp() {
                     <p>By default, lock-screen reminders stay discreet and never display health details.</p>
                     <div className="preference-list">
                       <label><span>Discreet lock-screen messages</span><Checkbox checked={engagement.preferences.discreetNotifications} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, discreetNotifications: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
+                      <label><span>Journey updates</span><Checkbox checked={engagement.preferences.journeyUpdatesEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, journeyUpdatesEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
+                      <label><span>Appointment reminders</span><Checkbox checked={engagement.preferences.appointmentRemindersEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, appointmentRemindersEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
+                      <label><span>Consultation reminders</span><Checkbox checked={engagement.preferences.consultationRemindersEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, consultationRemindersEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
                       <label><span>Weekly private recap</span><Checkbox checked={engagement.preferences.weeklyRecapEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, weeklyRecapEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
+                      <label><span>My private reminders</span><Checkbox checked={engagement.preferences.userRemindersEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, userRemindersEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
                       <label><span>Optional MAMA Points</span><Checkbox checked={engagement.preferences.pointsEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, pointsEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
                     </div>
                     <button className="outline-btn spaced" disabled={!engagementReady} onClick={() => openReminder()}><Clock3 size={16} /> Add a private reminder</button>
+                    {engagement.reminders.length > 0 && <div className="settings-v2-reminders" aria-label="Your private reminders"><span>YOUR PRIVATE REMINDERS</span>{engagement.reminders.map((reminder) => <div key={reminder.id}><div><b>{reminder.title}</b><small>{new Date(reminder.remindAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}</small></div><button className="icon-button" aria-label={`Edit reminder ${reminder.title}`} onClick={() => openReminder(reminder)}><Pencil size={15} /></button><button className="icon-button" aria-label={`Remove reminder ${reminder.title}`} onClick={() => void removeEngagementItem('reminder', reminder.id)}><Trash2 size={15} /></button></div>)}</div>}
                     <p className="helper">Push delivery needs your browser permission. No clinical details are placed in notification payloads.</p>
+                  </section>
+                  <section className="card settings-v2-care-team">
+                    <Phone size={23} />
+                    <h2 className="spaced">Your care circle</h2>
+                    <p>{profile.contactName ? `${profile.contactName}${profile.phone ? ` · ${profile.phone}` : ''}` : 'Save the contact details you want close at hand for your own care conversations.'}</p>
+                    <button className="outline-btn spaced" onClick={openProfile}><Pencil size={16} /> {profile.contactName ? 'Edit contact' : 'Add a contact'}</button>
+                    <p className="helper">MAMA does not contact anyone or share your records from this page.</p>
+                  </section>
+                  <section className="card settings-v2-achievements">
+                    <Trophy size={23} />
+                    <h2 className="spaced">Your care moments</h2>
+                    {sensitiveJourney ? <p>Care moments are paused here so you can keep only what feels useful.</p> : engagement.achievements.length ? <div className="settings-v2-achievement-list">{engagement.achievements.slice(0, 4).map((achievement) => <div key={achievement.code}><b>{achievement.title}</b><span>{achievement.description}</span></div>)}</div> : <p>Constructive moments such as tracking, learning, preparation and follow-up can appear here. MAMA never rewards medical outcomes.</p>}
                   </section>
                   <section className="card settings-v2-demo">
                     <Sparkles size={23} />
@@ -1586,9 +1612,7 @@ export default function MamaApp() {
                     <LockKeyhole size={23} />
                     <h2 className="spaced">Your records & privacy</h2>
                     <p>
-                      Saved records belong to your signed-in account. This
-                      version has no partner sharing. Avoid entering identifying
-                      medical information while the prototype is under review.
+                      Saved records belong to your signed-in account. Clinician sharing is not available from this care experience yet. Avoid entering identifying medical information while the prototype is under review.
                     </p>
                     <div className="stack-actions">
                       <button className="outline-btn" onClick={exportRecords}>

@@ -1579,3 +1579,17 @@ fieldset {
 .journal-v2-quick-icon.period { color: #9b6b55; background: var(--accent-sand); }
 .journal-v2-quick-icon.reminder { color: #77648f; background: var(--accent-lavender); }
 @media (max-width: 767px) { .journal-v2-quick-actions { grid-template-columns: 1fr; gap: 10px; }.journal-v2-quick-actions > button { min-height: 76px; }.journal-v2-quick-actions small { font-size: .76rem; } }
+
+/* Settings brings existing engagement records into a calm, patient-controlled surface. */
+.settings-v2-reminders { display: grid; gap: 8px; margin-top: var(--space-5); padding-top: var(--space-5); border-top: 1px solid var(--border); }
+.settings-v2-reminders > span { color: var(--text-muted); font-size: .67rem; font-weight: 800; letter-spacing: .1em; }
+.settings-v2-reminders > div { display: grid; grid-template-columns: minmax(0, 1fr) 34px 34px; gap: 5px; align-items: center; padding: 9px 0; border-bottom: 1px solid color-mix(in srgb, var(--border) 75%, transparent); }
+.settings-v2-reminders > div > div { display: grid; gap: 3px; min-width: 0; }
+.settings-v2-reminders b { overflow: hidden; color: var(--text-primary); font-size: .79rem; text-overflow: ellipsis; white-space: nowrap; }
+.settings-v2-reminders small { color: var(--text-secondary); font-size: .7rem; }
+.settings-v2-care-team { background: linear-gradient(145deg, var(--surface-elevated), color-mix(in srgb, var(--accent-sage) 36%, var(--surface-elevated))); }
+.settings-v2-achievements { background: linear-gradient(145deg, var(--surface-elevated), color-mix(in srgb, var(--accent-sand) 30%, var(--surface-elevated))); }
+.settings-v2-achievement-list { display: grid; gap: 9px; margin-top: var(--space-5); }
+.settings-v2-achievement-list > div { display: grid; gap: 3px; padding: 11px 0; border-top: 1px solid color-mix(in srgb, var(--border) 75%, transparent); }
+.settings-v2-achievement-list b { color: var(--text-primary); font-size: .8rem; }
+.settings-v2-achievement-list span { color: var(--text-secondary); font-size: .74rem; line-height: 1.42; }
