@@ -20,7 +20,7 @@ export async function updateSession(request: NextRequest) {
   );
   const { data: { user } } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
-  const protectedRoute = pathname === '/' || pathname.startsWith('/api/records');
+  const protectedRoute = pathname.startsWith('/api/records') || pathname.startsWith('/api/engagement') || pathname.startsWith('/api/care-details') || pathname.startsWith('/api/sharing') || pathname.startsWith('/api/push-subscription');
   if (!user && protectedRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/sign-in';

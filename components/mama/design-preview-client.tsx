@@ -9,24 +9,26 @@ import styles from '@/app/design-preview/design-preview.module.css';
 export function DesignPreviewClient() {
   const [state, setState] = useState<HomeDesignState>('cycle');
   const [labPanel, setLabPanel] = useState<'home' | 'states'>('home');
+  const [focus, setFocus] = useState(false);
   const signIn = () => { window.location.assign('/sign-in'); };
 
   return (
-    <main id="main-content" className={styles.page} tabIndex={-1}>
+    <main id="main-content" className={`${styles.page} ${focus ? styles.focus : ''}`} tabIndex={-1}>
       <header className={styles.header}>
         <Link href="/sign-in" className={styles.brand}><Heart size={19} fill="currentColor" /> mama.</Link>
         <div className={styles.headerActions}>
-          <span>Public design preview</span>
-          <Link href="/sign-in" className={styles.signIn}><ArrowLeft size={15} /> Sign in</Link>
+          <nav aria-label="Public previews"><Link href="/">Landing</Link><Link href="/sign-in?mode=sign-up">Register</Link><Link href="/sign-in?mode=recovery">Reset</Link></nav><Link href="/sign-in" className={styles.signIn}><ArrowLeft size={15} /> Sign in</Link>
         </div>
       </header>
-      <div className={styles.notice} role="note">
+      {!focus && <div className={styles.notice} role="note">
         <strong>Explore the MAMA Design Lab.</strong> This page contains illustrative content only. No account, health record or clinical data is being shown.
-      </div>
-      <div className={styles.labTabs} role="tablist" aria-label="Design Lab panels">
+      </div>}
+      {!focus && <div className={styles.labTabs} role="tablist" aria-label="Design Lab panels">
         <button type="button" role="tab" aria-selected={labPanel === 'home'} onClick={() => setLabPanel('home')}>Home states</button>
         <button type="button" role="tab" aria-selected={labPanel === 'states'} onClick={() => setLabPanel('states')}>System states</button>
-      </div>
+      </div>}
+      {!focus && <button type="button" className={styles.focusToggle} onClick={() => setFocus(true)}>Open Focus Preview</button>}
+      {focus && <button type="button" className={styles.focusExit} onClick={() => setFocus(false)}>Exit Focus Preview</button>}
       {labPanel === 'home' ? <HomeVisualPrototype
         state={state}
         displayName=""
@@ -36,7 +38,7 @@ export function DesignPreviewClient() {
         appointment={null}
         preview
         publicDemo
-        showDevelopmentSwitcher
+        showDevelopmentSwitcher={!focus}
         onDevelopmentStateChange={setState}
         onLogCheckin={signIn}
         onLogPeriod={signIn}

@@ -181,7 +181,7 @@ export function HomeVisualPrototype({
             <span>Development preview</span>
             <p>Illustrative content only. Your saved records are unchanged.</p>
           </div>
-          <div className="home-v2-switcher-buttons" role="group" aria-label="Choose a design state">
+          <fieldset className="home-v2-switcher-buttons"><legend className="sr-only">Choose a design state</legend>
             {(['cycle', 'pregnancy', 'postpartum'] as HomeDesignState[]).map((option) => (
               <button
                 type="button"
@@ -192,7 +192,7 @@ export function HomeVisualPrototype({
                 {content[option].label}
               </button>
             ))}
-          </div>
+          </fieldset>
         </aside>
       )}
 
@@ -211,14 +211,17 @@ export function HomeVisualPrototype({
             </button>
           </div>
         </div>
-        <div className="home-v2-orbit" aria-label={shownMetric ? `${shownMetric.value} ${shownMetric.label}` : 'Your personal timeline'}>
+        {state === 'cycle' ? <div className="home-v2-orbit" aria-label={shownMetric ? `${shownMetric.value} ${shownMetric.label}` : 'Your personal timeline'}>
           <div className="home-v2-orbit-ring" style={{ '--progress': design.progress } as React.CSSProperties}>
-            <Icon size={24} strokeWidth={1.5} />
-            <strong>{shownMetric?.value || 'Your'}</strong>
-            <span>{shownMetric?.label || 'timeline'}</span>
-          </div>
-          <span className="home-v2-orbit-note">{shownMetric?.detail || 'Add a date to begin your private timeline.'}</span>
-        </div>
+            <Icon size={24} strokeWidth={1.5} /><strong>{shownMetric?.value || 'Your'}</strong><span>{shownMetric?.label || 'timeline'}</span>
+          </div><span className="home-v2-orbit-note">{shownMetric?.detail || 'Add a date to begin your private timeline.'}</span>
+        </div> : state === 'pregnancy' ? <div className="home-v2-temporal" aria-label={shownMetric ? `${shownMetric.value} ${shownMetric.label}` : 'Your pregnancy timeline'}>
+          <span className="home-v2-temporal-label">Your pregnancy path</span><div className="home-v2-arc"><i /><i /><i /><i /><i /></div>
+          <strong>{shownMetric?.value || 'Your timeline'}</strong><span>{shownMetric?.label || 'is personal to you'}</span><small>{shownMetric?.detail || 'Add dates when you are ready.'}</small>
+        </div> : <div className="home-v2-temporal home-v2-postpartum-timeline" aria-label={shownMetric ? `${shownMetric.value} ${shownMetric.label}` : 'Your postpartum timeline'}>
+          <span className="home-v2-temporal-label">Time since birth</span><div className="home-v2-postpartum-line"><i>Birth</i><i>Rest</i><i>Support</i><i>Today</i></div>
+          <strong>{shownMetric?.value || 'Your pace'}</strong><span>{shownMetric?.label || 'is yours'}</span><small>{shownMetric?.detail || 'A reflection, not a recovery score.'}</small>
+        </div>}
       </section>
 
       <section className="home-v2-overview" aria-label="Your day at a glance">

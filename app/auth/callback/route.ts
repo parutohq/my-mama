@@ -8,7 +8,8 @@ export async function GET(request: Request) {
   const destination = next?.startsWith('/') ? next : '/';
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) return NextResponse.redirect(new URL('/sign-in?error=verification', url.origin));
   }
   // Confirmation links may be opened from an older Vercel alias. Redirect the
   // authenticated user to the configured canonical application URL instead.
