@@ -8,7 +8,7 @@
 | Candidate commit | `e9a868e` — **Elevate MAMA landing page art direction** |
 | Preview artifact | `https://mymamaapp-cuji2fogu-jonathanobises-projects.vercel.app/` |
 | Production aliases | `https://mymamaapp.vercel.app/`, `https://my-mama.vercel.app/` |
-| Promotion | Requested through Vercel on 16 September 2026; Vercel rebuilds with Production environment values. |
+| Production deployment | `dpl_EdKbiP9fF3Kk74bUe99Ez9HfYMTz` — Ready; 47s build; promoted 16 September 2026. |
 
 ## Scope included
 
@@ -48,6 +48,6 @@ No schema migration was run as part of this release promotion. Do not enter real
 
 ## Release assessment
 
-**Web release:** suitable for the promoted visual and application artifact, with production verification pending.
+**Technical deployment:** production deployment is Ready. **Health-data release:** not approved; the remaining safeguards below must be completed before admitting real health data.
 
 **Real-health-data release:** not ready. The open database, RLS, governance, retention, incident-response, email-delivery and accessibility gates above must be closed first.
