@@ -987,6 +987,23 @@ export default function MamaApp() {
                       <button className="white-btn" onClick={() => openCheckin()}><Plus size={16} /> Add a check-in</button>
                     </div>
                   </section>
+                  <section className="journal-v2-quick-actions" aria-label="Quick private tracking actions">
+                    <button type="button" onClick={() => openCheckin()}>
+                      <span className="journal-v2-quick-icon checkin"><Heart size={18} /></span>
+                      <span><b>Make a check-in</b><small>Notice your day in your own words.</small></span>
+                      <Plus size={18} aria-hidden="true" />
+                    </button>
+                    <button type="button" onClick={() => { setJournalTab('periods'); openPeriod(); }}>
+                      <span className="journal-v2-quick-icon period"><CalendarDays size={18} /></span>
+                      <span><b>Record period dates</b><small>Add dates you want to keep track of.</small></span>
+                      <Plus size={18} aria-hidden="true" />
+                    </button>
+                    <button type="button" onClick={() => openReminder()}>
+                      <span className="journal-v2-quick-icon reminder"><BellRing size={18} /></span>
+                      <span><b>Set a gentle reminder</b><small>Create a private prompt for yourself.</small></span>
+                      <Plus size={18} aria-hidden="true" />
+                    </button>
+                  </section>
                   <Tabs
                     value={journalTab}
                     onValueChange={(v) => setJournalTab(String(v))}
