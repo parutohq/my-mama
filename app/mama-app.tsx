@@ -310,11 +310,11 @@ export default function MamaApp() {
     setError('');
     setModal('profile');
   }
-  function openQuestion(existing?: CareQuestion) {
+  function openQuestion(existing?: CareQuestion, initialQuestion = '') {
     setQuestionDraft(
       existing
         ? { ...existing }
-        : { kind: 'question', id: crypto.randomUUID(), question: '', status: 'open' },
+        : { kind: 'question', id: crypto.randomUUID(), question: initialQuestion, status: 'open' },
     );
     setError('');
     setModal('question');
@@ -1450,7 +1450,21 @@ export default function MamaApp() {
               )}
               {view === 'Ask MAMA' && (
                 <div className="ask-mama-grid ask-v2">
-                  <section className="card ask-mama-intro ask-v2-intro"><span className="icon-box"><CircleHelp /></span><span className="ask-v2-label">PREPARE FOR CARE</span><h2>Prepare what matters to you.</h2><p>Capture a question before a visit, then take it with you. MAMA does not give a diagnosis or replace a clinician.</p><button className="primary-btn spaced" onClick={() => openQuestion()}><Plus size={16} /> Save a question</button></section>
+                  <section className="card ask-mama-intro ask-v2-intro">
+                    <span className="icon-box"><CircleHelp /></span>
+                    <span className="ask-v2-label">ASK MAMA</span>
+                    <h2>What&apos;s on your mind?</h2>
+                    <p>Turn a thought into a private question for your next care conversation. MAMA does not diagnose or replace a clinician.</p>
+                    <div className="ask-v2-prompts" aria-label="Suggested question prompts">
+                      {(profile.stage === 'pregnancy'
+                        ? ['What is changing this week?', 'Help me prepare for my appointment.', 'What should I ask my clinician?']
+                        : profile.stage === 'postpartum'
+                          ? ['What support would feel useful this week?', 'Help me prepare for my follow-up.', 'What should I ask my clinician?']
+                          : ['What have I noticed in my cycle?', 'Help me prepare for an appointment.', 'What should I ask my clinician?']
+                      ).map((prompt) => <button type="button" key={prompt} onClick={() => openQuestion(undefined, prompt)}>{prompt}<ArrowUpRight size={14} /></button>)}
+                    </div>
+                    <button className="primary-btn spaced" onClick={() => openQuestion()}><Plus size={16} /> Write my own question</button>
+                  </section>
                   <section className="card ask-v2-questions"><div className="section-title"><div><span className="ask-v2-label">YOUR QUESTIONS</span><h2>Your saved questions</h2></div><button className="text-btn" onClick={() => openQuestion()}>Add <Plus size={15} /></button></div>{questions.length ? <div className="question-list">{questions.map((question) => <div className="question-row" key={question.id}><div><span className="pill">{question.status}</span><p>{question.question}</p></div><button className="icon-button" aria-label="Edit question" onClick={() => openQuestion(question)}><Pencil size={16} /></button></div>)}</div> : <Blank title="Nothing saved yet" description="A question can help make a future care conversation feel clearer." />}</section>
                   <section className="card wide ask-v2-guide"><span className="ask-v2-label">HOW MAMA SUPPORTS YOU</span><h2>Use your records to prepare, not to self-diagnose.</h2><div className="ask-guides"><div><BookOpen /><b>Learn</b><span>Explore reviewed information and note what you want to discuss.</span></div><div><ClipboardList /><b>Summarise</b><span>Bring your own recorded details to a care conversation.</span></div><div><Phone /><b>Seek care</b><span>Use urgent-care guidance when something feels seriously wrong.</span></div></div></section>
                 </div>
