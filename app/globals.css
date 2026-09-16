@@ -736,6 +736,15 @@ svg {
 .loading-v2-side { display: grid; place-items: center; align-content: center; gap: 18px; min-height: 285px; padding: 28px; }
 .loading-v2-label { width: 92px; height: 12px; border-radius: 99px; }.loading-v2-title { width: min(100%, 380px); height: 48px; border-radius: 12px; }.loading-v2-copy { width: min(100%, 295px); height: 16px; border-radius: 8px; }.loading-v2-copy.short { width: 150px; }.loading-v2-action { width: 138px; height: 43px; margin-top: 7px; border-radius: 99px; }.loading-v2-orbit { width: 150px; height: 150px; border-radius: 50%; }.loading-v2-card { min-height: 145px; }
 @media (max-width: 767px) { .loading-v2 { grid-template-columns: 1fr; gap: 12px; }.loading-v2-hero, .loading-v2-side { min-height: 230px; padding: 24px; }.loading-v2-side { display: none; }.loading-v2-card { min-height: 108px; }.loading-v2-card:nth-last-child(-n+1) { display: none; } }
+
+/* Shared navigation: quiet surfaces, clear active state, and one recognisable MAMA action. */
+.nav-item { border: 1px solid transparent; transition: color var(--motion-fast) ease, background var(--motion-fast) ease, border-color var(--motion-fast) ease, transform var(--motion-fast) ease; }
+.nav-item:hover { color: var(--brand); background: color-mix(in srgb, var(--brand-soft) 56%, transparent); }
+.nav-item[data-active], .nav-item.selected { border-color: color-mix(in srgb, var(--brand) 11%, var(--border)); background: var(--brand-soft); color: var(--brand); }
+.topbar { box-shadow: 0 1px 0 rgb(74 47 61 / 0.02); }
+.account-link { min-height: 38px; padding: 0 10px; border: 1px solid transparent; border-radius: 99px; transition: color var(--motion-fast) ease, background var(--motion-fast) ease, border-color var(--motion-fast) ease; }
+.account-link:hover, .account-link:focus-visible { border-color: var(--border); background: var(--surface-muted); text-decoration: none; }
+@media (max-width: 767px) { .mobile-bottom-nav { border-top-color: var(--border); background: color-mix(in srgb, var(--surface) 88%, transparent); box-shadow: 0 -12px 32px rgb(74 47 61 / 0.08); }.mobile-bottom-nav button { border: 1px solid transparent; transition: color var(--motion-fast) ease, background var(--motion-fast) ease, transform var(--motion-fast) ease; }.mobile-bottom-nav button.active { border-color: color-mix(in srgb, var(--brand) 10%, transparent); color: var(--brand); background: var(--brand-soft); }.mobile-bottom-nav button:nth-child(4).active { color: #fff; border-color: var(--brand); background: var(--brand); box-shadow: 0 7px 17px rgb(111 52 79 / 0.22); }.mobile-bottom-nav button:active { transform: scale(.96); } }
 .mama-dialog {
   width: calc(100% - 32px) !important;
   max-width: 560px !important;
