@@ -656,11 +656,23 @@ export default function MamaApp() {
           )}
           {loading ? (
             <div
-              className="loading-grid"
+              className="loading-grid loading-v2"
               aria-label="Loading your care records"
+              aria-busy="true"
             >
-              <Skeleton className="h-72 rounded-2xl" />
-              <Skeleton className="h-72 rounded-2xl" />
+              <section className="loading-v2-hero">
+                <Skeleton className="loading-v2-label" />
+                <Skeleton className="loading-v2-title" />
+                <Skeleton className="loading-v2-copy" />
+                <Skeleton className="loading-v2-action" />
+              </section>
+              <section className="loading-v2-side">
+                <Skeleton className="loading-v2-orbit" />
+                <Skeleton className="loading-v2-copy short" />
+              </section>
+              <Skeleton className="loading-v2-card" />
+              <Skeleton className="loading-v2-card" />
+              <Skeleton className="loading-v2-card" />
             </div>
           ) : loadError ? (
             <div className="card">

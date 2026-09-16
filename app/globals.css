@@ -730,6 +730,12 @@ svg {
   grid-template-columns: 1.5fr 1fr;
   gap: 22px;
 }
+.loading-v2 { grid-template-columns: minmax(0, 1.4fr) minmax(220px, .6fr); gap: 16px; }
+.loading-v2-hero, .loading-v2-side, .loading-v2-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--elevation-1); }
+.loading-v2-hero { display: grid; align-content: center; justify-items: start; min-height: 285px; gap: 15px; padding: 33px; }
+.loading-v2-side { display: grid; place-items: center; align-content: center; gap: 18px; min-height: 285px; padding: 28px; }
+.loading-v2-label { width: 92px; height: 12px; border-radius: 99px; }.loading-v2-title { width: min(100%, 380px); height: 48px; border-radius: 12px; }.loading-v2-copy { width: min(100%, 295px); height: 16px; border-radius: 8px; }.loading-v2-copy.short { width: 150px; }.loading-v2-action { width: 138px; height: 43px; margin-top: 7px; border-radius: 99px; }.loading-v2-orbit { width: 150px; height: 150px; border-radius: 50%; }.loading-v2-card { min-height: 145px; }
+@media (max-width: 767px) { .loading-v2 { grid-template-columns: 1fr; gap: 12px; }.loading-v2-hero, .loading-v2-side { min-height: 230px; padding: 24px; }.loading-v2-side { display: none; }.loading-v2-card { min-height: 108px; }.loading-v2-card:nth-last-child(-n+1) { display: none; } }
 .mama-dialog {
   width: calc(100% - 32px) !important;
   max-width: 560px !important;
