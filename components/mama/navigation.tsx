@@ -78,6 +78,7 @@ export function MamaNavigation({
       </SidebarContent>
       <SidebarFooter className="nav-content">
         <button
+          type="button"
           className={'nav-item ' + (view === 'Settings' ? 'selected' : '')}
           onClick={() => navigate('Settings')}
         >

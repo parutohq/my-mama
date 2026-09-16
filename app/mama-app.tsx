@@ -561,7 +561,7 @@ export default function MamaApp() {
       <Sidebar>
         <MamaNavigation view={view} onNavigate={go} />
       </Sidebar>
-      <main className="app-main">
+      <main id="main-content" className="app-main" tabIndex={-1}>
         <header className="topbar">
           <div className="topbar-title">
             <SidebarTrigger />

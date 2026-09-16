@@ -10,7 +10,7 @@ export default function DesignPreviewPage() {
   const signIn = () => { window.location.assign('/sign-in'); };
 
   return (
-    <main className={styles.page}>
+    <main id="main-content" className={styles.page} tabIndex={-1}>
       <header className={styles.header}>
         <a href="/sign-in" className={styles.brand}><Heart size={19} fill="currentColor" /> mama.</a>
         <div className={styles.headerActions}>
