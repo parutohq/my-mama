@@ -1471,6 +1471,15 @@ export default function MamaApp() {
               )}
               {view === 'Settings' && (
                 <div className="settings-grid settings-v2">
+                  <section className="card wide settings-v2-profile-header">
+                    <div className="settings-v2-avatar" aria-hidden="true">{profile.name.trim().slice(0, 1).toUpperCase() || 'M'}</div>
+                    <div>
+                      <span>MY HEALTH IDENTITY</span>
+                      <h2>{profile.name ? profile.name : 'Your MAMA space'}</h2>
+                      <p>{stages[profile.stage]} · Your records are private to your signed-in account.</p>
+                    </div>
+                    <button className="outline-btn" onClick={openProfile}><Pencil size={16} /> Edit profile</button>
+                  </section>
                   <section className="card settings-v2-journey">
                     <span className="icon-box">
                       <Flower2 />
