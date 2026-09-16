@@ -290,6 +290,40 @@ export default function MamaApp() {
   const completedTasks = activeTasks.filter((task) => task.status === 'completed');
   const taskProgress = activeTasks.length ? Math.round((completedTasks.length / activeTasks.length) * 100) : 0;
   const sensitiveJourney = profile.stage === 'recovery';
+  const journeyTimeline = (() => {
+    const hasCheckins = checkins.length > 0;
+    const hasTasks = activeTasks.length > 0;
+    const hasCareNote = appointments.length > 0 || questions.length > 0;
+    const byStage = {
+      cycle: [
+        ['Your recorded rhythm', hasCheckins ? 'Check-ins saved in your private journal.' : 'Start with any observation that feels useful.', hasCheckins],
+        ['Your chosen care', hasTasks ? `${completedTasks.length} of ${activeTasks.length} chosen steps complete.` : 'Choose a practical step when it would help.', hasTasks],
+        ['Your next conversation', hasCareNote ? 'Keep an appointment or a question close at hand.' : 'Save a question whenever you want to remember it.', hasCareNote],
+      ],
+      pregnancy: [
+        ['Your pregnancy record', hasCheckins ? 'Your recorded check-ins stay in your private space.' : 'Record only what you want to keep close.', hasCheckins],
+        ['Your care choices', hasTasks ? `${completedTasks.length} of ${activeTasks.length} chosen steps complete.` : 'Choose preparation steps at your own pace.', hasTasks],
+        ['Your next conversation', hasCareNote ? 'Your appointment and question notes are ready when you are.' : 'Keep a question ready for your care conversation.', hasCareNote],
+      ],
+      postpartum: [
+        ['Your recovery record', hasCheckins ? 'Your recorded check-ins stay in your private space.' : 'Begin with what feels meaningful today.', hasCheckins],
+        ['Your support plan', hasTasks ? `${completedTasks.length} of ${activeTasks.length} chosen steps complete.` : 'Add a small support or follow-up step when useful.', hasTasks],
+        ['Your next conversation', hasCareNote ? 'Your appointment and question notes are ready when you are.' : 'Keep a question ready for your care conversation.', hasCareNote],
+      ],
+      preconception: [
+        ['Your private record', hasCheckins ? 'Your recorded check-ins stay in your private space.' : 'Start with any observation that feels useful.', hasCheckins],
+        ['Your chosen preparation', hasTasks ? `${completedTasks.length} of ${activeTasks.length} chosen steps complete.` : 'Choose a practical step when it would help.', hasTasks],
+        ['Your next conversation', hasCareNote ? 'Your appointment and question notes are ready when you are.' : 'Save a question whenever you want to remember it.', hasCareNote],
+      ],
+      none: [
+        ['Your private space', hasCheckins ? 'Your recorded check-ins stay in your private space.' : 'Choose a journey when you are ready.', hasCheckins],
+        ['Your chosen care', hasTasks ? `${completedTasks.length} of ${activeTasks.length} chosen steps complete.` : 'Add a practical step whenever one feels useful.', hasTasks],
+        ['Your next conversation', hasCareNote ? 'Your appointment and question notes are ready when you are.' : 'Save a question whenever you want to remember it.', hasCareNote],
+      ],
+      recovery: [],
+    } as const;
+    return byStage[profile.stage];
+  })();
   const insightPoints = useMemo(() => checkins.slice(0, 7).reverse().map((checkin) => ({ label: new Date(checkin.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' }), value: 1, detail: `${checkin.mood} check-in` })), [checkins]);
   async function updateEngagement(kind: 'preferences' | 'task' | 'reminder', value: unknown) {
     const res = await fetch('/api/engagement', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, value }) });
@@ -1447,6 +1481,7 @@ export default function MamaApp() {
                     </div>
                     <div className="progress-orb" style={{ '--progress': `${taskProgress * 3.6}deg` } as React.CSSProperties}><b>{taskProgress}%</b><span>chosen steps</span></div>
                   </section>
+                  {!sensitiveJourney && <section className="journey-v2-timeline" aria-labelledby="journey-timeline-title"><div className="journey-v2-timeline-heading"><div><span>YOUR JOURNEY, AT YOUR PACE</span><h2 id="journey-timeline-title">A private path shaped by your choices</h2></div><p>Nothing here predicts an outcome or asks you to keep up.</p></div><ol>{journeyTimeline.map(([title, description, complete], index) => <li className={complete ? 'complete' : ''} key={title}><span aria-hidden="true">{complete ? '✓' : index + 1}</span><div><b>{title}</b><p>{description}</p></div></li>)}</ol></section>}
                   <div className="journey-v2-section-heading"><div><span>YOUR PERSONAL VIEW</span><h2>Notice what you have recorded</h2></div><p>These visuals describe entries and chosen actions. They are never a clinical score.</p></div>
                   <div className="insights-grid journey-v2-insights">
                     <InsightCard title="Check-in rhythm" description="A view of entries you recorded." points={insightPoints} empty="Log a check-in to begin a private pattern view." footer="Recorded check-ins only. This is not a wellbeing or diagnostic score." />
