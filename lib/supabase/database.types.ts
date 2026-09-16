@@ -4,7 +4,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 type Table = { Row: Record<string, unknown>; Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [] };
 export type Database = { public: { Tables: {
   profiles: Table; user_journeys: Table; health_events: Table; symptom_logs: Table;
-  menstrual_cycles: Table; appointments: Table; care_tasks: Table; care_questions: Table; profile_preferences: Table; journey_transitions: Table;
+  menstrual_cycles: Table; appointments: Table; care_tasks: Table; medications: Table; investigations: Table; care_questions: Table; profile_preferences: Table; journey_transitions: Table;
   journey_tasks: Table; achievement_definitions: Table; user_achievements: Table; user_reminders: Table;
   notifications: Table; push_subscriptions: Table; notification_delivery_logs: Table; demo_data_state: Table;
   pregnancies: Table; postpartum_profiles: Table; user_roles: Table; providers: Table;

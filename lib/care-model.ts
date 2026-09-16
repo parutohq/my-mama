@@ -1,9 +1,14 @@
 export const stages = {
   none: 'Choose your journey',
-  cycle: 'Track my cycle',
+  first_period: 'Growing up & first period',
+  cycle: 'Menstrual health',
+  reproductive_health: 'General reproductive health',
   preconception: 'Prepare for pregnancy',
+  trying_to_conceive: 'Trying to conceive',
   pregnancy: 'Pregnancy',
   postpartum: 'Postpartum & early motherhood',
+  perimenopause: 'Perimenopause',
+  menopause: 'Menopause',
   recovery: 'Recovery & a pause',
 } as const;
 export type Stage = keyof typeof stages;

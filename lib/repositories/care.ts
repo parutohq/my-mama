@@ -86,6 +86,9 @@ export async function getCareRecords(client: Client, userId: string) {
 }
 
 export async function saveProfile(client: Client, userId: string, profile: Profile) {
+  const existingJourney = await client.from('user_journeys').select('stage').eq('user_id', userId).eq('is_current', true).maybeSingle();
+  if (existingJourney.error) throw new Error(existingJourney.error.message);
+  const previousStage = text((existingJourney.data as Row | null)?.stage, 'none');
   const profileResult = await client.from('profiles').upsert(
     { id: userId, display_name: profile.name, is_demo: false }, { onConflict: 'id' },
   );
@@ -97,6 +100,14 @@ export async function saveProfile(client: Client, userId: string, profile: Profi
     contact_phone: profile.phone || null, is_current: true, is_demo: false,
   }, { onConflict: 'user_id,is_current' });
   if (journeyResult.error) throw new Error(journeyResult.error.message);
+  if (previousStage !== profile.stage) {
+    const transition = await client.from('journey_transitions').insert({
+      user_id: userId, from_stage: previousStage === 'none' ? null : previousStage,
+      to_stage: profile.stage, transition_kind: profile.stage === 'recovery' ? 'sensitive_transition' : 'user_selected',
+      suppress_celebration: profile.stage === 'recovery',
+    });
+    if (transition.error) throw new Error(transition.error.message);
+  }
 }
 
 export async function saveCheckin(client: Client, userId: string, checkin: Checkin) {

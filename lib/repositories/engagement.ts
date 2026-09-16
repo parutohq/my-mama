@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/supabase/database.types';
-import { defaultEngagementPreferences, type EngagementData, type EngagementPreferences, type JourneyTask, type UserReminder, type Achievement, type InAppNotification } from '@/lib/engagement-model';
+import { defaultEngagementPreferences, type EngagementData, type EngagementPreferences, type JourneyTask, type UserReminder, type Achievement, type InAppNotification, type JourneyTransition } from '@/lib/engagement-model';
 
 type Client = SupabaseClient<Database>;
 type Row = Record<string, unknown>;
@@ -17,14 +17,15 @@ function preferencesFrom(row?: Row | null): EngagementPreferences {
 }
 
 export async function getEngagementData(client: Client, userId: string): Promise<EngagementData> {
-  const [preferences, tasks, reminders, achievements, notifications] = await Promise.all([
+  const [preferences, tasks, reminders, achievements, notifications, transitions] = await Promise.all([
     client.from('profile_preferences').select('*').eq('user_id', userId).maybeSingle(),
     client.from('journey_tasks').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
     client.from('user_reminders').select('*').eq('user_id', userId).order('remind_at', { ascending: true }),
     client.from('user_achievements').select('awarded_at, achievement_definitions(code,title,description,category)').eq('user_id', userId).order('awarded_at', { ascending: false }),
     client.from('notifications').select('*').eq('user_id', userId).order('scheduled_for', { ascending: false }).limit(12),
+    client.from('journey_transitions').select('*').eq('user_id', userId).order('occurred_at', { ascending: false }).limit(8),
   ]);
-  for (const result of [preferences, tasks, reminders, achievements, notifications]) if (result.error) throw new Error(result.error.message);
+  for (const result of [preferences, tasks, reminders, achievements, notifications, transitions]) if (result.error) throw new Error(result.error.message);
   return {
     preferences: preferencesFrom(preferences.data as Row | null),
     tasks: rows(tasks.data).map((row): JourneyTask => ({ id: text(row.id), title: text(row.title), description: text(row.description),
@@ -39,6 +40,7 @@ export async function getEngagementData(client: Client, userId: string): Promise
     }),
     notifications: rows(notifications.data).map((row): InAppNotification => ({ id: text(row.id), kind: text(row.kind), title: text(row.title),
       body: text(row.body), scheduledFor: text(row.scheduled_for), readAt: typeof row.read_at === 'string' ? row.read_at : null })),
+    transitions: rows(transitions.data).map((row): JourneyTransition => ({ id: text(row.id), fromStage: typeof row.from_stage === 'string' ? row.from_stage : null, toStage: text(row.to_stage), occurredAt: text(row.occurred_at), sensitive: row.suppress_celebration === true })),
   };
 }
 

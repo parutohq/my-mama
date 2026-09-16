@@ -136,3 +136,13 @@ test('validates engagement records without accepting medical content as notifica
   assert.equal(preferences.discreetNotifications, false);
   assert.equal(preferences.pointsEnabled, true);
 });
+import { validateInvestigation, validateMedication } from '../lib/care-details-model.ts';
+test('validates private care organiser entries without clinical interpretation', () => {
+  const medication = validateMedication({ id: '11111111-1111-4111-8111-111111111111', name: 'My supplement', schedule: 'Personal reference', notes: '', active: true });
+  assert.equal(medication.name, 'My supplement');
+  assert.throws(() => validateMedication({ ...medication, name: ' ' }));
+  const investigation = validateInvestigation({ id: '22222222-2222-4222-8222-222222222222', title: 'Discuss a result', status: 'planned', scheduledOn: '2026-09-10', notes: '' });
+  assert.equal(investigation.status, 'planned');
+  assert.throws(() => validateInvestigation({ ...investigation, status: 'interpreted' }));
+  assert.throws(() => validateInvestigation({ ...investigation, scheduledOn: '2026-02-30' }));
+});

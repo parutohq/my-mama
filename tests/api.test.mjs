@@ -35,3 +35,16 @@ assert.match(sharingRoute, /supabase\.auth\.getUser/);
 assert.match(sharingRoute, /eq\('patient_id', user\.id\)/);
 assert.match(sharingRoute, /eq\('id', body\.id\)\.eq\('patient_id', user\.id\)/);
 assert.match(sharingRoute, /is\('revoked_at', null\)/);
+
+const lifelongMigration = readFileSync(new URL('../supabase/migrations/202609160001_expand_lifelong_journeys.sql', import.meta.url), 'utf8');
+const careDetailsRoute = readFileSync(new URL('../app/api/care-details/route.ts', import.meta.url), 'utf8');
+for (const table of ['medications', 'investigations']) {
+  assert.match(lifelongMigration, new RegExp(`create table public\\.${table}`));
+  assert.match(lifelongMigration, new RegExp(`alter table public\\.${table} enable row level security`));
+  assert.match(lifelongMigration, new RegExp(`patients manage their own ${table === 'medications' ? 'medicines' : 'investigations'}`));
+}
+assert.match(careDetailsRoute, /supabase\.auth\.getUser/);
+assert.match(careDetailsRoute, /hasAllowedOrigin/);
+assert.match(careDetailsRoute, /removeCareDetail\(supabase, user\.id/);
+assert.match(careDetailsRoute, /saveMedication\(supabase, user\.id/);
+assert.match(careDetailsRoute, /saveInvestigation\(supabase, user\.id/);

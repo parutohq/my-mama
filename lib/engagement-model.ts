@@ -34,12 +34,14 @@ export type UserReminder = {
 };
 export type Achievement = { code: string; title: string; description: string; category: EngagementCategory; awardedAt: string };
 export type InAppNotification = { id: string; kind: string; title: string; body: string; scheduledFor: string; readAt: string | null };
+export type JourneyTransition = { id: string; fromStage: string | null; toStage: string; occurredAt: string; sensitive: boolean };
 export type EngagementData = {
   preferences: EngagementPreferences;
   tasks: JourneyTask[];
   reminders: UserReminder[];
   achievements: Achievement[];
   notifications: InAppNotification[];
+  transitions: JourneyTransition[];
 };
 
 export function validateTask(input: unknown): JourneyTask {

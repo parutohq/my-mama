@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useMemo, useRef, useState, useId } from 'react';
+import { useCallback, useEffect, useRef, useState, useId } from 'react';
 import {
   Heart,
   CalendarDays,
@@ -90,8 +90,9 @@ import { MobileBottomNavigation } from '@/components/mama/mobile-bottom-navigati
 import { InsightCard } from '@/components/mama/insight-card';
 import { HomeVisualPrototype, type HomeDesignState } from '@/components/mama/home-visual-prototype';
 import { defaultEngagementPreferences, type EngagementData, type JourneyTask, type UserReminder } from '@/lib/engagement-model';
+import { type Investigation, type Medication } from '@/lib/care-details-model';
 type View = MamaView;
-type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'question' | 'help' | 'reminder' | null;
+type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'question' | 'help' | 'reminder' | 'medication' | 'investigation' | null;
 type SharingPermission = { id: string; provider_user_id: string; scopes: string[]; granted_at: string; expires_at: string | null; revoked_at: string | null };
 const faces = ['😊', '🙂', '😐', '😔', '😣'];
 const isLocalDevelopment = process.env.NODE_ENV === 'development';
@@ -158,13 +159,15 @@ export default function MamaApp() {
     [saving, setSaving] = useState(false),
     [error, setError] = useState(''),
     [notice, setNotice] = useState(''),
-    [engagement, setEngagement] = useState<EngagementData>({ preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [] }),
+    [engagement, setEngagement] = useState<EngagementData>({ preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [], transitions: [] }),
     [engagementReady, setEngagementReady] = useState(true),
     [demoData, setDemoData] = useState(false),
     [demoCleared, setDemoCleared] = useState(false),
     [pushSubscribed, setPushSubscribed] = useState(false),
     [pushStatus, setPushStatus] = useState(''),
     [sharingPermissions, setSharingPermissions] = useState<SharingPermission[]>([]),
+    [medications, setMedications] = useState<Medication[]>([]),
+    [investigations, setInvestigations] = useState<Investigation[]>([]),
     [developmentHomeState, setDevelopmentHomeState] = useState<HomeDesignState>('cycle'),
     [homeDesignPreviewEnabled, setHomeDesignPreviewEnabled] = useState(isLocalDevelopment);
   const [modal, setModal] = useState<Modal>(null),
@@ -178,7 +181,9 @@ export default function MamaApp() {
     [periodDraft, setPeriodDraft] = useState<Period | null>(null),
     [careDraft, setCareDraft] = useState<CareItem | null>(null),
     [questionDraft, setQuestionDraft] = useState<CareQuestion | null>(null),
-    [reminderDraft, setReminderDraft] = useState<UserReminder | null>(null);
+    [reminderDraft, setReminderDraft] = useState<UserReminder | null>(null),
+    [medicationDraft, setMedicationDraft] = useState<Medication | null>(null),
+    [investigationDraft, setInvestigationDraft] = useState<Investigation | null>(null);
   const [includeNotes, setIncludeNotes] = useState(false),
     [currentDay, setCurrentDay] = useState(today());
   const heading = useRef<HTMLHeadingElement>(null),
@@ -188,9 +193,9 @@ export default function MamaApp() {
   useEffect(() => {
     // Vercel Preview builds use NODE_ENV=production. Limit the temporary state
     // switcher to this design branch's preview URL while keeping it off production.
-    if (typeof window !== 'undefined' && isDesignPreviewHost(window.location.hostname, window.location.search)) {
-      setHomeDesignPreviewEnabled(true);
-    }
+    if (typeof window === 'undefined' || !isDesignPreviewHost(window.location.hostname, window.location.search)) return;
+    const frame = window.requestAnimationFrame(() => setHomeDesignPreviewEnabled(true));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
   const checkins = records
     .filter((r): r is Checkin => r.kind === 'checkin')
@@ -211,13 +216,13 @@ export default function MamaApp() {
   const metric = journeyMetric(profile, currentDay),
     stats = cycleStats(periods, currentDay);
   const cycleMode =
-    profile.stage === 'cycle' || profile.stage === 'preconception';
+    ['first_period', 'cycle', 'reproductive_health', 'preconception', 'trying_to_conceive', 'perimenopause', 'menopause'].includes(profile.stage);
   const actualHomeDesignState: HomeDesignState | null =
     profile.stage === 'pregnancy'
       ? 'pregnancy'
       : profile.stage === 'postpartum'
         ? 'postpartum'
-        : profile.stage === 'cycle' || profile.stage === 'preconception'
+        : ['first_period', 'cycle', 'reproductive_health', 'preconception', 'trying_to_conceive', 'perimenopause', 'menopause'].includes(profile.stage)
           ? 'cycle'
           : null;
   const homeDesignState = homeDesignPreviewEnabled
@@ -238,16 +243,17 @@ export default function MamaApp() {
         if (!demoResponse.ok) throw new Error('Could not prepare your care space.');
         setDemoData(Boolean(demo.isDemo));
         setDemoCleared(Boolean(demo.cleared));
-        return Promise.all([fetch('/api/records', { cache: 'no-store' }), fetch('/api/engagement', { cache: 'no-store' }), fetch('/api/sharing', { cache: 'no-store' })]);
+        return Promise.all([fetch('/api/records', { cache: 'no-store' }), fetch('/api/engagement', { cache: 'no-store' }), fetch('/api/sharing', { cache: 'no-store' }), fetch('/api/care-details', { cache: 'no-store' })]);
       })
-      .then(async ([recordsResponse, engagementResponse, sharingResponse]) => {
+      .then(async ([recordsResponse, engagementResponse, sharingResponse, careDetailsResponse]) => {
         const recordsData = await recordsResponse.json() as { records?: CareRecord[]; error?: string };
         const engagementData = await engagementResponse.json() as { engagement?: EngagementData; error?: string };
         const sharingData = await sharingResponse.json() as { permissions?: SharingPermission[] };
+        const careDetailsData = await careDetailsResponse.json() as { medications?: Medication[]; investigations?: Investigation[] };
         if (!recordsResponse.ok) throw new Error(recordsData.error || 'Could not load your records.');
-        return { records: recordsData.records || [], engagement: engagementData.engagement || { preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [] }, engagementReady: engagementResponse.ok, permissions: sharingResponse.ok ? sharingData.permissions || [] : [] };
+        return { records: recordsData.records || [], engagement: engagementData.engagement || { preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [], transitions: [] }, engagementReady: engagementResponse.ok, permissions: sharingResponse.ok ? sharingData.permissions || [] : [], medications: careDetailsResponse.ok ? careDetailsData.medications || [] : [], investigations: careDetailsResponse.ok ? careDetailsData.investigations || [] : [] };
       })
-      .then((data) => { setRecords(data.records); setEngagement(data.engagement); setEngagementReady(data.engagementReady); setSharingPermissions(data.permissions); setLoading(false); })
+      .then((data) => { setRecords(data.records); setEngagement(data.engagement); setEngagementReady(data.engagementReady); setSharingPermissions(data.permissions); setMedications(data.medications); setInvestigations(data.investigations); setLoading(false); })
       .catch((e: unknown) => { setLoadError(e instanceof Error ? e.message : 'Could not load your care space.'); setLoading(false); });
   }, []);
   useEffect(() => {
@@ -324,6 +330,31 @@ export default function MamaApp() {
         ['Your chosen preparation', hasTasks ? `${completedTasks.length} of ${activeTasks.length} chosen steps complete.` : 'Choose a practical step when it would help.', hasTasks],
         ['Your next conversation', hasCareNote ? 'Your appointment and question notes are ready when you are.' : 'Save a question whenever you want to remember it.', hasCareNote],
       ],
+      first_period: [
+        ['Your private record', hasCheckins ? 'Your recorded check-ins stay in your private space.' : 'Start with a note only when it feels useful.', hasCheckins],
+        ['Your questions', hasTasks ? `${completedTasks.length} of ${activeTasks.length} chosen steps complete.` : 'Choose a question or small care step at your own pace.', hasTasks],
+        ['Your trusted support', hasCareNote ? 'Your care notes are ready when you are.' : 'Keep a question for someone you trust.', hasCareNote],
+      ],
+      reproductive_health: [
+        ['Your private record', hasCheckins ? 'Your recorded check-ins stay in your private space.' : 'Start with any observation that feels useful.', hasCheckins],
+        ['Your chosen care', hasTasks ? `${completedTasks.length} of ${activeTasks.length} chosen steps complete.` : 'Choose a practical step when it would help.', hasTasks],
+        ['Your next conversation', hasCareNote ? 'Your appointment and question notes are ready when you are.' : 'Save a question whenever you want to remember it.', hasCareNote],
+      ],
+      trying_to_conceive: [
+        ['Your private record', hasCheckins ? 'Your recorded check-ins stay in your private space.' : 'Start with any observation that feels useful.', hasCheckins],
+        ['Your chosen preparation', hasTasks ? `${completedTasks.length} of ${activeTasks.length} chosen steps complete.` : 'Choose a practical step when it would help.', hasTasks],
+        ['Your next conversation', hasCareNote ? 'Your appointment and question notes are ready when you are.' : 'Save a question whenever you want to remember it.', hasCareNote],
+      ],
+      perimenopause: [
+        ['Your private record', hasCheckins ? 'Your recorded check-ins stay in your private space.' : 'Start with any observation that feels useful.', hasCheckins],
+        ['Your chosen care', hasTasks ? `${completedTasks.length} of ${activeTasks.length} chosen steps complete.` : 'Choose a practical step when it would help.', hasTasks],
+        ['Your next conversation', hasCareNote ? 'Your appointment and question notes are ready when you are.' : 'Save a question whenever you want to remember it.', hasCareNote],
+      ],
+      menopause: [
+        ['Your private record', hasCheckins ? 'Your recorded check-ins stay in your private space.' : 'Start with any observation that feels useful.', hasCheckins],
+        ['Your chosen care', hasTasks ? `${completedTasks.length} of ${activeTasks.length} chosen steps complete.` : 'Choose a practical step when it would help.', hasTasks],
+        ['Your next conversation', hasCareNote ? 'Your appointment and question notes are ready when you are.' : 'Save a question whenever you want to remember it.', hasCareNote],
+      ],
       none: [
         ['Your private space', hasCheckins ? 'Your recorded check-ins stay in your private space.' : 'Choose a journey when you are ready.', hasCheckins],
         ['Your chosen care', hasTasks ? `${completedTasks.length} of ${activeTasks.length} chosen steps complete.` : 'Add a practical step whenever one feels useful.', hasTasks],
@@ -333,7 +364,16 @@ export default function MamaApp() {
     } as const;
     return byStage[profile.stage];
   })();
-  const insightPoints = useMemo(() => checkins.slice(0, 7).reverse().map((checkin) => ({ label: new Date(checkin.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' }), value: 1, detail: `${checkin.mood} check-in` })), [checkins]);
+  const insightPoints = checkins.slice(0, 7).reverse().map((checkin) => ({ label: new Date(checkin.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' }), value: 1, detail: `${checkin.mood} check-in` }));
+  const notificationGroups = (() => {
+    const startToday = new Date(`${currentDay}T00:00:00`).getTime();
+    const groups: Record<'Today' | 'This week' | 'Earlier', EngagementData['notifications']> = { Today: [], 'This week': [], Earlier: [] };
+    engagement.notifications.forEach((notification) => {
+      const difference = Math.floor((startToday - new Date(notification.scheduledFor).setHours(0, 0, 0, 0)) / 86_400_000);
+      groups[difference <= 0 ? 'Today' : difference < 7 ? 'This week' : 'Earlier'].push(notification);
+    });
+    return groups;
+  })();
   async function updateEngagement(kind: 'preferences' | 'task' | 'reminder' | 'notification', value: unknown) {
     const res = await fetch('/api/engagement', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, value }) });
     const data = await res.json() as { engagement?: EngagementData; error?: string };
@@ -431,6 +471,36 @@ export default function MamaApp() {
     setError('');
     setModal('care');
   }
+  function openMedication(existing?: Medication) {
+    setMedicationDraft(existing ? { ...existing } : { id: crypto.randomUUID(), name: '', schedule: '', notes: '', active: true });
+    setError(''); setModal('medication');
+  }
+  function openInvestigation(existing?: Investigation) {
+    setInvestigationDraft(existing ? { ...existing } : { id: crypto.randomUUID(), title: '', status: 'planned', scheduledOn: '', notes: '' });
+    setError(''); setModal('investigation');
+  }
+  async function saveCareDetail(kind: 'medication' | 'investigation', value: Medication | Investigation) {
+    if (busy.current) return;
+    busy.current = true; setSaving(true); setError('');
+    try {
+      const response = await fetch('/api/care-details', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, value }) });
+      const data = await response.json() as { medications?: Medication[]; investigations?: Investigation[]; error?: string };
+      if (!response.ok) throw new Error(data.error || 'Could not save this entry.');
+      setMedications(data.medications || []); setInvestigations(data.investigations || []); setModal(null); setNotice(kind === 'medication' ? 'Medicine or supplement saved.' : 'Investigation saved.');
+    } catch (e) { setError(e instanceof Error ? e.message : 'Could not save this entry.'); }
+    finally { busy.current = false; setSaving(false); }
+  }
+  async function removeCareDetail(kind: 'medication' | 'investigation', id: string) {
+    if (busy.current) return;
+    busy.current = true; setSaving(true); setError('');
+    try {
+      const response = await fetch('/api/care-details', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, id }) });
+      const data = await response.json() as { medications?: Medication[]; investigations?: Investigation[]; error?: string };
+      if (!response.ok) throw new Error(data.error || 'Could not remove this entry.');
+      setMedications(data.medications || []); setInvestigations(data.investigations || []); setNotice('Removed from your private care organiser.');
+    } catch (e) { setError(e instanceof Error ? e.message : 'Could not remove this entry.'); }
+    finally { busy.current = false; setSaving(false); }
+  }
   async function remove() {
     if (!deletion || busy.current) return;
     busy.current = true;
@@ -470,7 +540,7 @@ export default function MamaApp() {
       setDemoData(false);
       setDemoCleared(true);
       setRecords([]);
-      setEngagement({ preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [] });
+      setEngagement({ preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [], transitions: [] });
       setNotice('Sample data removed. Your care space is ready for your own records.');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not remove sample data.');
@@ -743,10 +813,10 @@ export default function MamaApp() {
             </div>
           )}
           {!loading && !loadError && !engagementReady && (
-            <div className="engagement-pending" role="status">MAMA’s new journey tools are being prepared for this preview. Your existing care records remain available.</div>
+            <output className="engagement-pending" aria-live="polite">MAMA’s new journey tools are being prepared for this preview. Your existing care records remain available.</output>
           )}
           {!loading && !loadError && demoData && (
-            <div className="engagement-pending" role="status"><b>Sample care experience</b> — these clearly labelled example records are private to this account and can be removed in My Care.</div>
+            <output className="engagement-pending" aria-live="polite"><b>Sample care experience</b> — these clearly labelled example records are private to this account and can be removed in My Care.</output>
           )}
           {loading ? (
             <div
@@ -1298,6 +1368,18 @@ export default function MamaApp() {
                       </div>
                     </section>
                   </div>
+                  <section className="care-v2-organisers" aria-label="Private care organisers">
+                    <article className="card care-v2-organiser">
+                      <div className="section-title"><div><span>PERSONAL LIST</span><h2>Medicines & supplements</h2></div><button className="text-btn" onClick={() => openMedication()}><Plus size={16} /> Add</button></div>
+                      <p className="helper">A private list only. Confirm medicines, doses, supplements and changes with your clinician or pharmacist.</p>
+                      {medications.length ? <div className="care-v2-detail-list">{medications.map((item) => <div key={item.id}><div><b>{item.name}</b><small>{item.active ? item.schedule || 'Active — schedule not recorded' : 'No longer active'}{item.notes ? ` · ${item.notes}` : ''}</small></div><button className="icon-button" aria-label={`Edit ${item.name}`} onClick={() => openMedication(item)}><Pencil size={15} /></button><button className="icon-button" aria-label={`Remove ${item.name}`} onClick={() => void removeCareDetail('medication', item.id)}><Trash2 size={15} /></button></div>)}</div> : <Blank title="Keep a simple personal list" description="Add something only if it helps you prepare for a care conversation." action={<button className="outline-btn" onClick={() => openMedication()}><Plus size={16} /> Add item</button>} />}
+                    </article>
+                    <article className="card care-v2-organiser">
+                      <div className="section-title"><div><span>PERSONAL ORGANISER</span><h2>Investigations</h2></div><button className="text-btn" onClick={() => openInvestigation()}><Plus size={16} /> Add</button></div>
+                      <p className="helper">Plan or keep track of conversations and results. MAMA does not interpret results or provide clinical advice.</p>
+                      {investigations.length ? <div className="care-v2-detail-list">{investigations.map((item) => <div key={item.id}><div><b>{item.title}</b><small>{item.status}{item.scheduledOn ? ` · ${prettyDate(item.scheduledOn)}` : ''}{item.notes ? ` · ${item.notes}` : ''}</small></div><button className="icon-button" aria-label={`Edit ${item.title}`} onClick={() => openInvestigation(item)}><Pencil size={15} /></button><button className="icon-button" aria-label={`Remove ${item.title}`} onClick={() => void removeCareDetail('investigation', item.id)}><Trash2 size={15} /></button></div>)}</div> : <Blank title="Keep your questions and plans together" description="Add an investigation only as a personal organiser for your next care conversation." action={<button className="outline-btn" onClick={() => openInvestigation()}><Plus size={16} /> Add item</button>} />}
+                    </article>
+                  </section>
                   <section className="card questions-card care-v2-questions">
                     <div className="section-title">
                       <div>
@@ -1329,6 +1411,10 @@ export default function MamaApp() {
                     ) : (
                       <p className="spaced">Save questions as they come to mind, ready for a future appointment.</p>
                     )}
+                  </section>
+                  <section className="card care-v2-consultation" aria-labelledby="consultation-access-title">
+                    <div><span>CONSULTATION ACCESS</span><h2 id="consultation-access-title">Bring your existing care relationship.</h2><p>MAMA does not match you with clinicians or make clinical decisions. A manually provisioned clinician may access only an accepted consultation or a sharing permission you can revoke.</p></div>
+                    <button className="outline-btn" onClick={openProfile}><Pencil size={16} /> Keep my care contact handy</button>
                   </section>
                   <section className="card contact-card care-v2-contact">
                     <Phone size={22} />
@@ -1621,27 +1707,31 @@ export default function MamaApp() {
                       Choose Recovery & a pause to stop pregnancy prompts. Your
                       earlier records remain available.
                     </p>
+                    <div className="settings-v2-journey-history" aria-label="Your private journey history">
+                      <span>PRIVATE JOURNEY HISTORY</span>
+                      {engagement.transitions.length ? engagement.transitions.slice(0, 4).map((transition) => <div key={transition.id}><div><b>{stages[transition.toStage as Stage] || 'Journey updated'}</b><small>{transition.sensitive ? 'Sensitive transition · celebratory content paused' : transition.fromStage ? `Updated from ${stages[transition.fromStage as Stage] || 'a previous journey'}` : 'Your selected journey'} · {new Date(transition.occurredAt).toLocaleDateString('en-GB', { dateStyle: 'medium' })}</small></div></div>) : <p>Changes you choose will appear here. MAMA stores only the journey change, not a reason.</p>}
+                    </div>
                   </section>
                   <section className="card settings-v2-notifications">
                     <BellRing size={23} />
                     <h2 className="spaced">Notifications, your way</h2>
                     <p>By default, lock-screen reminders stay discreet and never display health details.</p>
                     <div className="preference-list">
-                      <label><span>Discreet lock-screen messages</span><Checkbox checked={engagement.preferences.discreetNotifications} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, discreetNotifications: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
-                      <label><span>Journey updates</span><Checkbox checked={engagement.preferences.journeyUpdatesEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, journeyUpdatesEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
-                      <label><span>Appointment reminders</span><Checkbox checked={engagement.preferences.appointmentRemindersEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, appointmentRemindersEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
-                      <label><span>Consultation reminders</span><Checkbox checked={engagement.preferences.consultationRemindersEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, consultationRemindersEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
-                      <label><span>Weekly private recap</span><Checkbox checked={engagement.preferences.weeklyRecapEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, weeklyRecapEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
-                      <label><span>My private reminders</span><Checkbox checked={engagement.preferences.userRemindersEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, userRemindersEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
-                      <label><span>Optional MAMA Points</span><Checkbox checked={engagement.preferences.pointsEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, pointsEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></label>
+                      <div className="preference-control"><span>Discreet lock-screen messages</span><Checkbox aria-label="Discreet lock-screen messages" checked={engagement.preferences.discreetNotifications} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, discreetNotifications: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></div>
+                      <div className="preference-control"><span>Journey updates</span><Checkbox aria-label="Journey updates" checked={engagement.preferences.journeyUpdatesEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, journeyUpdatesEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></div>
+                      <div className="preference-control"><span>Appointment reminders</span><Checkbox aria-label="Appointment reminders" checked={engagement.preferences.appointmentRemindersEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, appointmentRemindersEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></div>
+                      <div className="preference-control"><span>Consultation reminders</span><Checkbox aria-label="Consultation reminders" checked={engagement.preferences.consultationRemindersEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, consultationRemindersEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></div>
+                      <div className="preference-control"><span>Weekly private recap</span><Checkbox aria-label="Weekly private recap" checked={engagement.preferences.weeklyRecapEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, weeklyRecapEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></div>
+                      <div className="preference-control"><span>My private reminders</span><Checkbox aria-label="My private reminders" checked={engagement.preferences.userRemindersEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, userRemindersEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></div>
+                      <div className="preference-control"><span>Optional MAMA Points</span><Checkbox aria-label="Optional MAMA Points" checked={engagement.preferences.pointsEnabled} onCheckedChange={(checked) => void updateEngagement('preferences', { ...engagement.preferences, pointsEnabled: !!checked }).catch((e) => setError(e instanceof Error ? e.message : 'Could not save preference.'))} /></div>
                     </div>
                     <button className="outline-btn spaced" disabled={!engagementReady} onClick={() => openReminder()}><Clock3 size={16} /> Add a private reminder</button>
                     <div className="settings-v2-browser-push"><div><b>Browser notifications</b><small>{process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ? 'Choose this only on a personal device you control.' : 'Available after browser notification delivery is configured.'}</small></div>{process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ? <button className="text-btn" onClick={() => void updatePushSubscription(!pushSubscribed)}>{pushSubscribed ? 'Turn off' : 'Turn on'}</button> : <span>Not configured</span>}</div>
-                    {pushStatus && <p className="helper settings-v2-push-status" role="status">{pushStatus}</p>}
+                    {pushStatus && <output className="helper settings-v2-push-status" aria-live="polite">{pushStatus}</output>}
                     {engagement.reminders.length > 0 && <div className="settings-v2-reminders" aria-label="Your private reminders"><span>YOUR PRIVATE REMINDERS</span>{engagement.reminders.map((reminder) => <div key={reminder.id}><div><b>{reminder.title}</b><small>{new Date(reminder.remindAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}</small></div><button className="icon-button" aria-label={`Edit reminder ${reminder.title}`} onClick={() => openReminder(reminder)}><Pencil size={15} /></button><button className="icon-button" aria-label={`Remove reminder ${reminder.title}`} onClick={() => void removeEngagementItem('reminder', reminder.id)}><Trash2 size={15} /></button></div>)}</div>}
-                    {engagement.notifications.length > 0 && <div className="settings-v2-notification-history" aria-label="MAMA notification history"><span>MAMA UPDATES</span>{engagement.notifications.slice(0, 5).map((notification) => <div className={notification.readAt ? 'read' : ''} key={notification.id}><div><b>{notification.title}</b><small>{notification.body} · {new Date(notification.scheduledFor).toLocaleDateString('en-GB', { dateStyle: 'medium' })}</small></div>{notification.readAt ? <span>Read</span> : <button className="text-btn" onClick={() => void markNotificationRead(notification.id)}>Mark read</button>}</div>)}</div>}
                     <p className="helper">Push delivery needs your browser permission. No clinical details are placed in notification payloads.</p>
                   </section>
+                  <section className="card wide settings-v2-notification-centre" aria-labelledby="notification-centre-title"><div className="section-title"><div><span>PRIVATE NOTIFICATION CENTRE</span><h2 id="notification-centre-title">MAMA updates</h2></div><BellRing size={20} /></div>{engagement.notifications.length ? <div className="notification-centre-list">{(['Today', 'This week', 'Earlier'] as const).map((group) => notificationGroups[group].length ? <section key={group}><h3>{group}</h3>{notificationGroups[group].map((notification) => <div className={notification.readAt ? 'read' : ''} key={notification.id}><div><span>{notification.kind.replaceAll('_', ' ')}</span><b>{notification.title}</b><p>{notification.body}</p></div>{notification.readAt ? <small>Read</small> : <button className="text-btn" onClick={() => void markNotificationRead(notification.id)}>Mark read</button>}</div>)}</section> : null)}</div> : <p className="settings-v2-notification-empty">Your private reminders and care updates will appear here. MAMA keeps notification copy general by default.</p>}</section>
                   <section className="card settings-v2-care-team">
                     <Phone size={23} />
                     <h2 className="spaced">Your care circle</h2>
@@ -1747,7 +1837,11 @@ export default function MamaApp() {
                       ? 'Question for your next visit'
                       : modal === 'reminder'
                         ? 'A private reminder'
-                        : 'When to get help'}
+                        : modal === 'medication'
+                          ? 'Medicine or supplement'
+                          : modal === 'investigation'
+                            ? 'Investigation organiser'
+                            : 'When to get help'}
           </DialogTitle>
           <DialogDescription>
             {modal === 'profile'
@@ -1762,12 +1856,34 @@ export default function MamaApp() {
                       ? 'Save a question for your own conversation with a health professional. MAMA will not send it to anyone.'
                       : modal === 'reminder'
                         ? 'Use a general title. MAMA avoids showing health details in notifications.'
-                        : 'If something feels seriously wrong, seek care now. Do not wait for an app response.'}
+                        : modal === 'medication'
+                          ? 'Keep a private personal list. MAMA does not prescribe, recommend doses or check interactions.'
+                          : modal === 'investigation'
+                            ? 'Use this only to organise your own plans, dates and care conversations. MAMA does not interpret results.'
+                            : 'If something feels seriously wrong, seek care now. Do not wait for an app response.'}
           </DialogDescription>
           {error && (
             <div className="error-banner" role="alert">
               {error}
             </div>
+          )}
+          {modal === 'medication' && medicationDraft && (
+            <form className="mama-form" onSubmit={(e) => { e.preventDefault(); void saveCareDetail('medication', medicationDraft); }}>
+              <label htmlFor="mama-medication-name" className="field"><span>Name</span><Input id="mama-medication-name" required maxLength={150} value={medicationDraft.name} onChange={(e) => setMedicationDraft({ ...medicationDraft, name: e.target.value })} placeholder="For example: My supplement" /></label>
+              <label htmlFor="mama-medication-schedule" className="field"><span>Schedule or note <small>Optional</small></span><Input id="mama-medication-schedule" maxLength={300} value={medicationDraft.schedule} onChange={(e) => setMedicationDraft({ ...medicationDraft, schedule: e.target.value })} placeholder="For your personal reference" /></label>
+              <label htmlFor="mama-medication-notes" className="field"><span>Private note <small>Optional</small></span><Textarea id="mama-medication-notes" maxLength={2000} value={medicationDraft.notes} onChange={(e) => setMedicationDraft({ ...medicationDraft, notes: e.target.value })} /></label>
+              <Choice label="List status" value={medicationDraft.active ? 'active' : 'inactive'} options={{ active: 'Active', inactive: 'No longer active' }} onChange={(value) => setMedicationDraft({ ...medicationDraft, active: value === 'active' })} />
+              <Button type="submit" disabled={saving} className="primary-btn">{saving ? 'Saving…' : 'Save private list item'}</Button>
+            </form>
+          )}
+          {modal === 'investigation' && investigationDraft && (
+            <form className="mama-form" onSubmit={(e) => { e.preventDefault(); void saveCareDetail('investigation', investigationDraft); }}>
+              <label htmlFor="mama-investigation-title" className="field"><span>Investigation or conversation</span><Input id="mama-investigation-title" required maxLength={150} value={investigationDraft.title} onChange={(e) => setInvestigationDraft({ ...investigationDraft, title: e.target.value })} placeholder="For example: Ask about a result" /></label>
+              <Choice label="Status" value={investigationDraft.status} options={{ planned: 'Planned', completed: 'Completed', discussed: 'Discussed with care team' }} onChange={(value) => setInvestigationDraft({ ...investigationDraft, status: value as Investigation['status'] })} />
+              <label htmlFor="mama-investigation-date" className="field"><span>Date <small>Optional</small></span><Input id="mama-investigation-date" type="date" value={investigationDraft.scheduledOn} onChange={(e) => setInvestigationDraft({ ...investigationDraft, scheduledOn: e.target.value })} /></label>
+              <label htmlFor="mama-investigation-notes" className="field"><span>Private note <small>Optional</small></span><Textarea id="mama-investigation-notes" maxLength={2000} value={investigationDraft.notes} onChange={(e) => setInvestigationDraft({ ...investigationDraft, notes: e.target.value })} /></label>
+              <Button type="submit" disabled={saving} className="primary-btn">{saving ? 'Saving…' : 'Save organiser item'}</Button>
+            </form>
           )}
           {modal === 'reminder' && reminderDraft && (
             <form className="mama-form" onSubmit={(e) => { e.preventDefault(); void updateEngagement('reminder', reminderDraft).then(() => { setModal(null); setNotice('Private reminder saved.'); }).catch((err) => setError(err instanceof Error ? err.message : 'Could not save reminder.')); }}>

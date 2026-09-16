@@ -20,7 +20,7 @@ export const articles: Article[] = [
     ],
     source: 'https://www.acog.org/womens-health/faqs/abnormal-uterine-bleeding',
     sourceTitle: 'ACOG · Abnormal uterine bleeding',
-    stages: ['cycle', 'preconception', 'none'],
+    stages: ['first_period', 'cycle', 'reproductive_health', 'preconception', 'trying_to_conceive', 'perimenopause', 'menopause', 'none'],
   },
   {
     id: 'visit',
@@ -68,7 +68,7 @@ export const articles: Article[] = [
     source:
       'https://www.asrm.org/practice-guidance/practice-committee-documents/prepregnancy-counseling-2019/',
     sourceTitle: 'ACOG / ASRM · Prepregnancy counselling',
-    stages: ['preconception', 'cycle'],
+    stages: ['preconception', 'trying_to_conceive', 'cycle'],
   },
   {
     id: 'movement',
@@ -109,7 +109,7 @@ export const articles: Article[] = [
     source:
       'https://www.nhs.uk/baby/support-and-services/sex-and-contraception-after-birth/',
     sourceTitle: 'NHS · Contraception after birth',
-    stages: ['postpartum', 'cycle'],
+    stages: ['postpartum', 'cycle', 'reproductive_health'],
   },
   {
     id: 'wellbeing',
@@ -122,7 +122,7 @@ export const articles: Article[] = [
     ],
     source: 'https://www.nhs.uk/mental-health/conditions/postnatal-depression/',
     sourceTitle: 'NHS · Postnatal depression',
-    stages: ['postpartum', 'pregnancy', 'recovery'],
+    stages: ['postpartum', 'pregnancy', 'recovery', 'perimenopause', 'menopause'],
   },
   {
     id: 'loss',
@@ -154,14 +154,26 @@ export const articles: Article[] = [
 ];
 export const starterTasks: Record<string, string[]> = {
   none: ['Choose my current journey', 'Save my healthcare contact'],
+  first_period: [
+    'Save a question about my first period',
+    'Choose a trusted healthcare contact',
+  ],
   cycle: [
     'Note changes to discuss with my clinician',
     'Bring my cycle history to my next visit',
+  ],
+  reproductive_health: [
+    'Save a question about my reproductive health',
+    'Keep a care conversation note',
   ],
   preconception: [
     'Discuss medicines and supplements',
     'Ask about preconception care',
     'Discuss folic acid with my clinician',
+  ],
+  trying_to_conceive: [
+    'Discuss preconception care with my clinician',
+    'Prepare questions about my cycle history',
   ],
   pregnancy: [
     'Save my maternity unit contact',
@@ -174,6 +186,14 @@ export const starterTasks: Record<string, string[]> = {
     'Ask for feeding support if needed',
     'Discuss contraception options',
     'Arrange practical help and rest',
+  ],
+  perimenopause: [
+    'Note changes I want to discuss',
+    'Prepare a question for my healthcare professional',
+  ],
+  menopause: [
+    'Keep a private symptom note',
+    'Prepare a question for my healthcare professional',
   ],
   recovery: [
     'Confirm any follow-up instructions',
