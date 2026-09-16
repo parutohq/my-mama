@@ -30,3 +30,8 @@ assert.doesNotMatch(pushWorker, /pregnan|symptom|diagnos|appointment/i);
 const engagementRoute = readFileSync(new URL('../app/api/engagement/route.ts', import.meta.url), 'utf8');
 assert.match(engagementRoute, /body\.kind === 'notification'/);
 assert.match(engagementRoute, /eq\('user_id', user\.id\)\.eq\('id', id\)/);
+const sharingRoute = readFileSync(new URL('../app/api/sharing/route.ts', import.meta.url), 'utf8');
+assert.match(sharingRoute, /supabase\.auth\.getUser/);
+assert.match(sharingRoute, /eq\('patient_id', user\.id\)/);
+assert.match(sharingRoute, /eq\('id', body\.id\)\.eq\('patient_id', user\.id\)/);
+assert.match(sharingRoute, /is\('revoked_at', null\)/);

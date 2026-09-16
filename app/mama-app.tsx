@@ -92,6 +92,7 @@ import { HomeVisualPrototype, type HomeDesignState } from '@/components/mama/hom
 import { defaultEngagementPreferences, type EngagementData, type JourneyTask, type UserReminder } from '@/lib/engagement-model';
 type View = MamaView;
 type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'question' | 'help' | 'reminder' | null;
+type SharingPermission = { id: string; provider_user_id: string; scopes: string[]; granted_at: string; expires_at: string | null; revoked_at: string | null };
 const faces = ['😊', '🙂', '😐', '😔', '😣'];
 const isLocalDevelopment = process.env.NODE_ENV === 'development';
 const isDesignPreviewHost = (host: string, search: string) =>
@@ -163,6 +164,7 @@ export default function MamaApp() {
     [demoCleared, setDemoCleared] = useState(false),
     [pushSubscribed, setPushSubscribed] = useState(false),
     [pushStatus, setPushStatus] = useState(''),
+    [sharingPermissions, setSharingPermissions] = useState<SharingPermission[]>([]),
     [developmentHomeState, setDevelopmentHomeState] = useState<HomeDesignState>('cycle'),
     [homeDesignPreviewEnabled, setHomeDesignPreviewEnabled] = useState(isLocalDevelopment);
   const [modal, setModal] = useState<Modal>(null),
@@ -236,15 +238,16 @@ export default function MamaApp() {
         if (!demoResponse.ok) throw new Error('Could not prepare your care space.');
         setDemoData(Boolean(demo.isDemo));
         setDemoCleared(Boolean(demo.cleared));
-        return Promise.all([fetch('/api/records', { cache: 'no-store' }), fetch('/api/engagement', { cache: 'no-store' })]);
+        return Promise.all([fetch('/api/records', { cache: 'no-store' }), fetch('/api/engagement', { cache: 'no-store' }), fetch('/api/sharing', { cache: 'no-store' })]);
       })
-      .then(async ([recordsResponse, engagementResponse]) => {
+      .then(async ([recordsResponse, engagementResponse, sharingResponse]) => {
         const recordsData = await recordsResponse.json() as { records?: CareRecord[]; error?: string };
         const engagementData = await engagementResponse.json() as { engagement?: EngagementData; error?: string };
+        const sharingData = await sharingResponse.json() as { permissions?: SharingPermission[] };
         if (!recordsResponse.ok) throw new Error(recordsData.error || 'Could not load your records.');
-        return { records: recordsData.records || [], engagement: engagementData.engagement || { preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [] }, engagementReady: engagementResponse.ok };
+        return { records: recordsData.records || [], engagement: engagementData.engagement || { preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [] }, engagementReady: engagementResponse.ok, permissions: sharingResponse.ok ? sharingData.permissions || [] : [] };
       })
-      .then((data) => { setRecords(data.records); setEngagement(data.engagement); setEngagementReady(data.engagementReady); setLoading(false); })
+      .then((data) => { setRecords(data.records); setEngagement(data.engagement); setEngagementReady(data.engagementReady); setSharingPermissions(data.permissions); setLoading(false); })
       .catch((e: unknown) => { setLoadError(e instanceof Error ? e.message : 'Could not load your care space.'); setLoading(false); });
   }, []);
   useEffect(() => {
@@ -475,6 +478,15 @@ export default function MamaApp() {
       busy.current = false;
       setSaving(false);
     }
+  }
+  async function revokeSharingPermission(id: string) {
+    try {
+      const response = await fetch('/api/sharing', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      const data = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(data.error || 'Could not revoke sharing permission.');
+      setSharingPermissions((current) => current.map((permission) => permission.id === id ? { ...permission, revoked_at: new Date().toISOString() } : permission));
+      setNotice('Clinician sharing revoked.');
+    } catch (error) { setError(error instanceof Error ? error.message : 'Could not revoke sharing permission.'); }
   }
   async function updatePushSubscription(enable: boolean) {
     const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -1654,8 +1666,9 @@ export default function MamaApp() {
                     <LockKeyhole size={23} />
                     <h2 className="spaced">Your records & privacy</h2>
                     <p>
-                      Saved records belong to your signed-in account. Clinician sharing is not available from this care experience yet. Avoid entering identifying medical information while the prototype is under review.
+                      Saved records belong to your signed-in account. Any clinician access must come from a manually provisioned care relationship and can be revoked here. Avoid entering identifying medical information while the prototype is under review.
                     </p>
+                    <div className="settings-v2-sharing"><span>CLINICIAN SHARING</span>{sharingPermissions.filter((permission) => !permission.revoked_at).length ? sharingPermissions.filter((permission) => !permission.revoked_at).map((permission) => <div key={permission.id}><div><b>Verified care relationship</b><small>{permission.scopes.length ? `Limited to: ${permission.scopes.join(', ').replaceAll('_', ' ')}` : 'No care-record scopes granted'}{permission.expires_at ? ` · ends ${new Date(permission.expires_at).toLocaleDateString('en-GB', { dateStyle: 'medium' })}` : ''}</small></div><button className="text-btn danger-text" onClick={() => void revokeSharingPermission(permission.id)}>Revoke access</button></div>) : <p>No active clinician sharing. MAMA never grants access automatically.</p>}</div>
                     <div className="stack-actions">
                       <button className="outline-btn" onClick={exportRecords}>
                         <Download size={16} /> Download my records
