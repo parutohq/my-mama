@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/supabase/database.types';
+import type { CareMode } from '@/lib/repositories/demo';
 import {
   type CareItem,
   type CareQuestion,
@@ -35,16 +36,17 @@ function profileFromRows(profile?: Row | null, journey?: Row | null): Profile | 
  * Temporary UI adapter. It deliberately maps relational Supabase records to the
  * existing UI shapes while the screen-by-screen MAMA rebuild is in progress.
  */
-export async function getCareRecords(client: Client, userId: string) {
+export async function getCareRecords(client: Client, userId: string, mode: CareMode = 'account') {
+  const isDemo = mode === 'demo';
   const [profileRes, journeyRes, eventsRes, symptomsRes, periodsRes, appointmentsRes, tasksRes, questionsRes] = await Promise.all([
-    client.from('profiles').select('*').eq('id', userId).maybeSingle(),
-    client.from('user_journeys').select('*').eq('user_id', userId).eq('is_current', true).maybeSingle(),
-    client.from('health_events').select('*').eq('user_id', userId).eq('event_type', 'checkin').order('occurred_on', { ascending: false }),
+    isDemo ? Promise.resolve({ data: null, error: null }) : client.from('profiles').select('*').eq('id', userId).eq('is_demo', false).maybeSingle(),
+    client.from('user_journeys').select('*').eq('user_id', userId).eq('is_demo', isDemo).eq('is_current', true).maybeSingle(),
+    client.from('health_events').select('*').eq('user_id', userId).eq('is_demo', isDemo).eq('event_type', 'checkin').order('occurred_on', { ascending: false }),
     client.from('symptom_logs').select('*').eq('user_id', userId),
-    client.from('menstrual_cycles').select('*').eq('user_id', userId).order('start_date', { ascending: false }),
-    client.from('appointments').select('*').eq('user_id', userId).order('scheduled_on', { ascending: true }),
-    client.from('care_tasks').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
-    client.from('care_questions').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+    client.from('menstrual_cycles').select('*').eq('user_id', userId).eq('is_demo', isDemo).order('start_date', { ascending: false }),
+    client.from('appointments').select('*').eq('user_id', userId).eq('is_demo', isDemo).order('scheduled_on', { ascending: true }),
+    client.from('care_tasks').select('*').eq('user_id', userId).eq('is_demo', isDemo).order('created_at', { ascending: false }),
+    client.from('care_questions').select('*').eq('user_id', userId).eq('is_demo', isDemo).order('created_at', { ascending: false }),
   ]);
 
   const results = [profileRes, journeyRes, eventsRes, symptomsRes, periodsRes, appointmentsRes, tasksRes, questionsRes];
@@ -58,7 +60,9 @@ export async function getCareRecords(client: Client, userId: string) {
   });
 
   const records: CareRecord[] = [];
-  const profile = profileFromRows(profileRes.data as Row | null, journeyRes.data as Row | null);
+  const profile = isDemo
+    ? profileFromRows({ display_name: 'MAMA demo' }, journeyRes.data as Row | null)
+    : profileFromRows(profileRes.data as Row | null, journeyRes.data as Row | null);
   if (profile) records.push(profile);
 
   rows(eventsRes.data).forEach((row) => records.push({
@@ -86,7 +90,7 @@ export async function getCareRecords(client: Client, userId: string) {
 }
 
 export async function saveProfile(client: Client, userId: string, profile: Profile) {
-  const existingJourney = await client.from('user_journeys').select('stage').eq('user_id', userId).eq('is_current', true).maybeSingle();
+  const existingJourney = await client.from('user_journeys').select('stage').eq('user_id', userId).eq('is_demo', false).eq('is_current', true).maybeSingle();
   if (existingJourney.error) throw new Error(existingJourney.error.message);
   const previousStage = text((existingJourney.data as Row | null)?.stage, 'none');
   const profileResult = await client.from('profiles').upsert(
@@ -165,18 +169,25 @@ export async function saveCareRecord(client: Client, userId: string, record: Car
 export async function deleteCareRecord(client: Client, userId: string, recordId: string) {
   const tables = ['health_events', 'menstrual_cycles', 'appointments', 'care_tasks', 'care_questions'] as const;
   for (const table of tables) {
-    const result = await client.from(table).delete().eq('id', recordId).eq('user_id', userId).select('id');
+    const result = await client.from(table).delete().eq('id', recordId).eq('user_id', userId).eq('is_demo', false).select('id');
     if (result.error) throw new Error(result.error.message);
     if (result.data?.length) return;
   }
 }
 
 export async function deleteAllCareData(client: Client, userId: string) {
-  const tables = ['symptom_logs', 'health_events', 'menstrual_cycles', 'appointments', 'care_tasks', 'care_questions', 'user_journeys'] as const;
-  for (const table of tables) {
-    const result = await client.from(table).delete().eq('user_id', userId);
+  // symptom_logs do not carry is_demo, so target only the person’s non-demo events.
+  const personalEvents = await client.from('health_events').select('id').eq('user_id', userId).eq('is_demo', false);
+  if (personalEvents.error) throw new Error(personalEvents.error.message);
+  const eventIds = rows(personalEvents.data).map((row) => text(row.id)).filter(Boolean);
+  if (eventIds.length) {
+    const symptomResult = await client.from('symptom_logs').delete().eq('user_id', userId).in('health_event_id', eventIds);
+    if (symptomResult.error) throw new Error(symptomResult.error.message);
+  }
+  for (const table of ['health_events', 'menstrual_cycles', 'appointments', 'care_tasks', 'care_questions', 'user_journeys'] as const) {
+    const result = await client.from(table).delete().eq('user_id', userId).eq('is_demo', false);
     if (result.error) throw new Error(result.error.message);
   }
-  const profileResult = await client.from('profiles').delete().eq('id', userId);
+  const profileResult = await client.from('profiles').delete().eq('id', userId).eq('is_demo', false);
   if (profileResult.error) throw new Error(profileResult.error.message);
 }

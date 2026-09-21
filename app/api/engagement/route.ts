@@ -1,16 +1,17 @@
 import { createClient } from '@/lib/supabase/server';
 import { getEngagementData, removeEngagementRecord, saveJourneyTask, savePreferences, saveReminder } from '@/lib/repositories/engagement';
 import { validatePreferences, validateReminder, validateTask } from '@/lib/engagement-model';
+import { resolveCareMode } from '@/lib/repositories/demo';
 
 export const dynamic = 'force-dynamic';
 const reply = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'private, no-store' } });
 const hasAllowedOrigin = (request: Request) => { const origin = request.headers.get('origin'); return !origin || origin === new URL(request.url).origin; };
 async function auth() { const supabase = await createClient(); const { data: { user } } = await supabase.auth.getUser(); return { supabase, user }; }
 
-export async function GET() {
+export async function GET(request: Request) {
   const { supabase, user } = await auth();
   if (!user) return reply({ error: 'Sign in to access engagement settings.' }, 401);
-  try { return reply({ engagement: await getEngagementData(supabase, user.id) }); }
+  try { const mode = await resolveCareMode(supabase, user.id, new URL(request.url).searchParams.get('mode')); return reply({ engagement: await getEngagementData(supabase, user.id, mode), mode }); }
   catch { return reply({ error: 'Engagement data could not be loaded.' }, 503); }
 }
 export async function PUT(request: Request) {

@@ -161,8 +161,10 @@ export default function MamaApp() {
     [notice, setNotice] = useState(''),
     [engagement, setEngagement] = useState<EngagementData>({ preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [], transitions: [] }),
     [engagementReady, setEngagementReady] = useState(true),
-    [demoData, setDemoData] = useState(false),
-    [demoCleared, setDemoCleared] = useState(false),
+    [careMode, setCareMode] = useState<'account' | 'demo'>('account'),
+    [demoAvailable, setDemoAvailable] = useState(false),
+    [demoHidden, setDemoHidden] = useState(false),
+    [demoDeleted, setDemoDeleted] = useState(false),
     [pushSubscribed, setPushSubscribed] = useState(false),
     [pushStatus, setPushStatus] = useState(''),
     [sharingPermissions, setSharingPermissions] = useState<SharingPermission[]>([]),
@@ -236,14 +238,18 @@ export default function MamaApp() {
     setArticle(null);
     setTimeout(() => heading.current?.focus(), 0);
   }, []);
-  const load = useCallback(() => {
+  const load = useCallback((requestedMode?: 'account' | 'demo') => {
     return fetch('/api/demo', { cache: 'no-store' })
       .then(async (demoResponse) => {
-        const demo = await demoResponse.json() as { isDemo?: boolean; cleared?: boolean };
-        if (!demoResponse.ok) throw new Error('Could not prepare your care space.');
-        setDemoData(Boolean(demo.isDemo));
-        setDemoCleared(Boolean(demo.cleared));
-        return Promise.all([fetch('/api/records', { cache: 'no-store' }), fetch('/api/engagement', { cache: 'no-store' }), fetch('/api/sharing', { cache: 'no-store' }), fetch('/api/care-details', { cache: 'no-store' })]);
+        const demo = await demoResponse.json() as { available?: boolean; hidden?: boolean; deleted?: boolean; activeMode?: 'account' | 'demo' };
+        if (!demoResponse.ok) throw new Error('Could not load your care-space settings.');
+        const mode = requestedMode === 'demo' && demo.available && !demo.hidden ? 'demo' : requestedMode || demo.activeMode || 'account';
+        setCareMode(mode);
+        setDemoAvailable(Boolean(demo.available));
+        setDemoHidden(Boolean(demo.hidden));
+        setDemoDeleted(Boolean(demo.deleted));
+        const query = mode === 'demo' ? '?mode=demo' : '';
+        return Promise.all([fetch(`/api/records${query}`, { cache: 'no-store' }), fetch(`/api/engagement${query}`, { cache: 'no-store' }), fetch('/api/sharing', { cache: 'no-store' }), fetch(`/api/care-details${query}`, { cache: 'no-store' })]);
       })
       .then(async ([recordsResponse, engagementResponse, sharingResponse, careDetailsResponse]) => {
         const recordsData = await recordsResponse.json() as { records?: CareRecord[]; error?: string };
@@ -270,8 +276,13 @@ export default function MamaApp() {
     if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !('serviceWorker' in navigator)) return;
     void navigator.serviceWorker.getRegistration('/mama-push-sw.js').then((registration) => registration?.pushManager.getSubscription()).then((subscription) => setPushSubscribed(Boolean(subscription))).catch(() => undefined);
   }, []);
+  function requireAccountMode() {
+    if (careMode !== 'demo') return true;
+    setNotice('Demo mode is view-only. Switch to your personal account to add or edit records.');
+    return false;
+  }
   async function save(record: CareRecord, close = true) {
-    if (busy.current) return false;
+    if (!requireAccountMode() || busy.current) return false;
     busy.current = true;
     setSaving(true);
     setError('');
@@ -375,6 +386,7 @@ export default function MamaApp() {
     return groups;
   })();
   async function updateEngagement(kind: 'preferences' | 'task' | 'reminder' | 'notification', value: unknown) {
+    if (!requireAccountMode()) return;
     const res = await fetch('/api/engagement', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, value }) });
     const data = await res.json() as { engagement?: EngagementData; error?: string };
     if (!res.ok || !data.engagement) throw new Error(data.error || 'Could not save this setting.');
@@ -389,6 +401,7 @@ export default function MamaApp() {
     catch (e) { setError(e instanceof Error ? e.message : 'Could not update this notification.'); }
   }
   async function removeEngagementItem(kind: 'task' | 'reminder', id: string) {
+    if (!requireAccountMode()) return;
     try {
       const response = await fetch('/api/engagement', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, id }) });
       const data = await response.json() as { engagement?: EngagementData; error?: string };
@@ -398,15 +411,18 @@ export default function MamaApp() {
     } catch (e) { setError(e instanceof Error ? e.message : 'Could not remove this item.'); }
   }
   function openReminder(existing?: UserReminder) {
+    if (!requireAccountMode()) return;
     setReminderDraft(existing ? { ...existing } : { id: crypto.randomUUID(), title: '', remindAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(), active: true, completedAt: null });
     setError(''); setModal('reminder');
   }
   function openProfile() {
+    if (!requireAccountMode()) return;
     setProfileDraft({ ...profile });
     setError('');
     setModal('profile');
   }
   function openQuestion(existing?: CareQuestion, initialQuestion = '') {
+    if (!requireAccountMode()) return;
     setQuestionDraft(
       existing
         ? { ...existing }
@@ -416,6 +432,7 @@ export default function MamaApp() {
     setModal('question');
   }
   function openCheckin(mood = 'Okay', existing?: Checkin) {
+    if (!requireAccountMode()) return;
     setCheckinDraft(
       existing
         ? { ...existing }
@@ -434,6 +451,7 @@ export default function MamaApp() {
     setModal('checkin');
   }
   function openPeriod(existing?: Period) {
+    if (!requireAccountMode()) return;
     setPeriodDraft(
       existing
         ? { ...existing }
@@ -453,6 +471,7 @@ export default function MamaApp() {
     existing?: CareItem,
     title = '',
   ) {
+    if (!requireAccountMode()) return;
     setCareDraft(
       existing
         ? { ...existing }
@@ -472,15 +491,17 @@ export default function MamaApp() {
     setModal('care');
   }
   function openMedication(existing?: Medication) {
+    if (!requireAccountMode()) return;
     setMedicationDraft(existing ? { ...existing } : { id: crypto.randomUUID(), name: '', schedule: '', notes: '', active: true });
     setError(''); setModal('medication');
   }
   function openInvestigation(existing?: Investigation) {
+    if (!requireAccountMode()) return;
     setInvestigationDraft(existing ? { ...existing } : { id: crypto.randomUUID(), title: '', status: 'planned', scheduledOn: '', notes: '' });
     setError(''); setModal('investigation');
   }
   async function saveCareDetail(kind: 'medication' | 'investigation', value: Medication | Investigation) {
-    if (busy.current) return;
+    if (!requireAccountMode() || busy.current) return;
     busy.current = true; setSaving(true); setError('');
     try {
       const response = await fetch('/api/care-details', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, value }) });
@@ -491,7 +512,7 @@ export default function MamaApp() {
     finally { busy.current = false; setSaving(false); }
   }
   async function removeCareDetail(kind: 'medication' | 'investigation', id: string) {
-    if (busy.current) return;
+    if (!requireAccountMode() || busy.current) return;
     busy.current = true; setSaving(true); setError('');
     try {
       const response = await fetch('/api/care-details', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, id }) });
@@ -502,7 +523,7 @@ export default function MamaApp() {
     finally { busy.current = false; setSaving(false); }
   }
   async function remove() {
-    if (!deletion || busy.current) return;
+    if (!requireAccountMode() || !deletion || busy.current) return;
     busy.current = true;
     setSaving(true);
     setError('');
@@ -528,26 +549,36 @@ export default function MamaApp() {
       setSaving(false);
     }
   }
+  async function updateDemo(action: 'start' | 'account' | 'demo' | 'hide' | 'show') {
+    if (busy.current) return;
+    busy.current = true; setSaving(true); setError('');
+    try {
+      const response = await fetch('/api/demo', {
+        method: action === 'start' ? 'POST' : 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      const data = await response.json() as { available?: boolean; hidden?: boolean; deleted?: boolean; activeMode?: 'account' | 'demo'; error?: string };
+      if (!response.ok) throw new Error(data.error || 'Could not update demo mode.');
+      const mode = data.activeMode || 'account';
+      setCareMode(mode); setDemoAvailable(Boolean(data.available)); setDemoHidden(Boolean(data.hidden)); setDemoDeleted(Boolean(data.deleted));
+      setLoading(true); await load(mode);
+      setNotice(mode === 'demo' ? 'Demo mode is on. Your personal records are not shown or changed.' : action === 'hide' ? 'Demo hidden. Your personal account is active.' : 'Your personal account is active.');
+    } catch (e) { setError(e instanceof Error ? e.message : 'Could not update demo mode.'); }
+    finally { busy.current = false; setSaving(false); }
+  }
   async function clearSampleData() {
     if (busy.current) return;
-    busy.current = true;
-    setSaving(true);
-    setError('');
+    busy.current = true; setSaving(true); setError('');
     try {
       const response = await fetch('/api/demo', { method: 'DELETE' });
-      const data = await response.json() as { error?: string };
-      if (!response.ok) throw new Error(data.error || 'Could not remove sample data.');
-      setDemoData(false);
-      setDemoCleared(true);
-      setRecords([]);
-      setEngagement({ preferences: defaultEngagementPreferences, tasks: [], reminders: [], achievements: [], notifications: [], transitions: [] });
-      setNotice('Sample data removed. Your care space is ready for your own records.');
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not remove sample data.');
-    } finally {
-      busy.current = false;
-      setSaving(false);
-    }
+      const data = await response.json() as { available?: boolean; hidden?: boolean; deleted?: boolean; activeMode?: 'account' | 'demo'; error?: string };
+      if (!response.ok) throw new Error(data.error || 'Could not delete demo data.');
+      setCareMode('account'); setDemoAvailable(Boolean(data.available)); setDemoHidden(Boolean(data.hidden)); setDemoDeleted(Boolean(data.deleted));
+      setLoading(true); await load('account');
+      setNotice('Demo data permanently deleted. Your personal account is unchanged.');
+    } catch (e) { setError(e instanceof Error ? e.message : 'Could not delete demo data.'); }
+    finally { busy.current = false; setSaving(false); }
   }
   async function revokeSharingPermission(id: string) {
     try {
@@ -815,8 +846,11 @@ export default function MamaApp() {
           {!loading && !loadError && !engagementReady && (
             <output className="engagement-pending" aria-live="polite">MAMA’s new journey tools are being prepared for this preview. Your existing care records remain available.</output>
           )}
-          {!loading && !loadError && demoData && (
-            <output className="engagement-pending" aria-live="polite"><b>Sample care experience</b> — these clearly labelled example records are private to this account and can be removed in My Care.</output>
+          {!loading && !loadError && careMode === 'demo' && (
+            <output className="engagement-pending demo-mode-banner" aria-live="polite"><b>Demo mode</b> — illustrative records only. Your personal care records are not shown, changed or exported here. <button className="text-btn" onClick={() => void updateDemo('account')}>Return to personal account</button></output>
+          )}
+          {!loading && !loadError && careMode === 'account' && demoAvailable && !demoHidden && (
+            <output className="engagement-pending demo-mode-banner" aria-live="polite">Want to compare the experience? <button className="text-btn" onClick={() => void updateDemo('demo')}>Open demo mode</button></output>
           )}
           {loading ? (
             <div
@@ -1746,11 +1780,16 @@ export default function MamaApp() {
                   </section>
                   <section className="card settings-v2-demo">
                     <Sparkles size={23} />
-                    <h2 className="spaced">Sample care experience</h2>
-                    {demoData ? <>
-                      <p>You are viewing clearly labelled example records so you can explore MAMA’s charts, tasks and care views. They are not health information and are private to this account.</p>
-                      <button className="outline-btn danger-text spaced" disabled={saving} onClick={() => void clearSampleData()}><Trash2 size={16} /> {saving ? 'Removing…' : 'Clear sample data'}</button>
-                    </> : <p>{demoCleared ? 'Sample data has been removed. Add your own records whenever you are ready.' : 'Your care space starts with the records you choose to add.'}</p>}
+                    <h2 className="spaced">Demo care space</h2>
+                    <p>Demo mode contains illustrative MAMA records in a separate view. It never changes, mixes with or exports your personal records.</p>
+                    <div className="demo-space-status"><b>{careMode === 'demo' ? 'Demo mode is active' : 'Personal account is active'}</b><span>{careMode === 'demo' ? 'Demo is view-only.' : 'Only your personal records are shown.'}</span></div>
+                    {!demoAvailable && !demoDeleted && <button className="outline-btn spaced" disabled={saving} onClick={() => void updateDemo('start')}><Sparkles size={16} /> {saving ? 'Preparing…' : 'Start demo mode'}</button>}
+                    {demoAvailable && !demoHidden && careMode === 'account' && <button className="outline-btn spaced" disabled={saving} onClick={() => void updateDemo('demo')}><Sparkles size={16} /> Open demo mode</button>}
+                    {careMode === 'demo' && <button className="outline-btn spaced" disabled={saving} onClick={() => void updateDemo('account')}>Return to personal account</button>}
+                    {demoAvailable && !demoHidden && <button className="text-btn spaced" disabled={saving} onClick={() => void updateDemo('hide')}>Hide demo from my account</button>}
+                    {demoAvailable && demoHidden && <button className="outline-btn spaced" disabled={saving} onClick={() => void updateDemo('show')}>Show demo again</button>}
+                    {demoAvailable && <button className="outline-btn danger-text spaced" disabled={saving} onClick={() => void clearSampleData()}><Trash2 size={16} /> {saving ? 'Deleting…' : 'Permanently delete demo data'}</button>}
+                    {demoDeleted && <p className="helper">Demo data has been permanently deleted. Your personal records remain unchanged.</p>}
                   </section>
                   <section className="card settings-v2-privacy">
                     <LockKeyhole size={23} />

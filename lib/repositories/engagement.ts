@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/supabase/database.types';
+import type { CareMode } from '@/lib/repositories/demo';
 import { defaultEngagementPreferences, type EngagementData, type EngagementPreferences, type JourneyTask, type UserReminder, type Achievement, type InAppNotification, type JourneyTransition } from '@/lib/engagement-model';
 
 type Client = SupabaseClient<Database>;
@@ -16,14 +17,15 @@ function preferencesFrom(row?: Row | null): EngagementPreferences {
     weeklyRecapEnabled: boolean(row.weekly_recap_enabled, true), userRemindersEnabled: boolean(row.user_reminders_enabled, true), pointsEnabled: boolean(row.points_enabled, false) };
 }
 
-export async function getEngagementData(client: Client, userId: string): Promise<EngagementData> {
+export async function getEngagementData(client: Client, userId: string, mode: CareMode = 'account'): Promise<EngagementData> {
+  const isDemo = mode === 'demo';
   const [preferences, tasks, reminders, achievements, notifications, transitions] = await Promise.all([
-    client.from('profile_preferences').select('*').eq('user_id', userId).maybeSingle(),
-    client.from('journey_tasks').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
-    client.from('user_reminders').select('*').eq('user_id', userId).order('remind_at', { ascending: true }),
-    client.from('user_achievements').select('awarded_at, achievement_definitions(code,title,description,category)').eq('user_id', userId).order('awarded_at', { ascending: false }),
-    client.from('notifications').select('*').eq('user_id', userId).order('scheduled_for', { ascending: false }).limit(12),
-    client.from('journey_transitions').select('*').eq('user_id', userId).order('occurred_at', { ascending: false }).limit(8),
+    isDemo ? Promise.resolve({ data: null, error: null }) : client.from('profile_preferences').select('*').eq('user_id', userId).maybeSingle(),
+    client.from('journey_tasks').select('*').eq('user_id', userId).eq('is_demo', isDemo).order('created_at', { ascending: false }),
+    client.from('user_reminders').select('*').eq('user_id', userId).eq('is_demo', isDemo).order('remind_at', { ascending: true }),
+    isDemo ? Promise.resolve({ data: [], error: null }) : client.from('user_achievements').select('awarded_at, achievement_definitions(code,title,description,category)').eq('user_id', userId).order('awarded_at', { ascending: false }),
+    isDemo ? Promise.resolve({ data: [], error: null }) : client.from('notifications').select('*').eq('user_id', userId).order('scheduled_for', { ascending: false }).limit(12),
+    isDemo ? Promise.resolve({ data: [], error: null }) : client.from('journey_transitions').select('*').eq('user_id', userId).order('occurred_at', { ascending: false }).limit(8),
   ]);
   for (const result of [preferences, tasks, reminders, achievements, notifications, transitions]) if (result.error) throw new Error(result.error.message);
   return {
@@ -64,6 +66,6 @@ export async function saveReminder(client: Client, userId: string, reminder: Use
 }
 export async function removeEngagementRecord(client: Client, userId: string, kind: 'task' | 'reminder', id: string) {
   const table = kind === 'task' ? 'journey_tasks' : 'user_reminders';
-  const result = await client.from(table).delete().eq('id', id).eq('user_id', userId);
+  const result = await client.from(table).delete().eq('id', id).eq('user_id', userId).eq('is_demo', false);
   if (result.error) throw new Error(result.error.message);
 }

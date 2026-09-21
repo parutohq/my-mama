@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { validateRecord } from '@/lib/care-model';
+import { resolveCareMode } from '@/lib/repositories/demo';
 import {
   deleteAllCareData,
   deleteCareRecord,
@@ -25,12 +26,13 @@ async function authenticatedClient() {
   return { supabase, user };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const { supabase, user } = await authenticatedClient();
   if (!user) return reply({ error: 'Sign in to access your care space.' }, 401);
 
   try {
-    return reply({ records: await getCareRecords(supabase, user.id) });
+    const mode = await resolveCareMode(supabase, user.id, new URL(request.url).searchParams.get('mode'));
+    return reply({ records: await getCareRecords(supabase, user.id, mode), mode });
   } catch {
     return reply({ error: 'Your records could not be loaded. Please try again.' }, 503);
   }

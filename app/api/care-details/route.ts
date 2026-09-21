@@ -1,16 +1,17 @@
 import { createClient } from '@/lib/supabase/server';
 import { validateInvestigation, validateMedication } from '@/lib/care-details-model';
 import { getCareDetails, removeCareDetail, saveInvestigation, saveMedication } from '@/lib/repositories/care-details';
+import { resolveCareMode } from '@/lib/repositories/demo';
 
 export const dynamic = 'force-dynamic';
 const reply = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'private, no-store' } });
 const hasAllowedOrigin = (request: Request) => { const origin = request.headers.get('origin'); return !origin || origin === new URL(request.url).origin; };
 async function auth() { const supabase = await createClient(); const { data: { user } } = await supabase.auth.getUser(); return { supabase, user }; }
 
-export async function GET() {
+export async function GET(request: Request) {
   const { supabase, user } = await auth();
   if (!user) return reply({ error: 'Sign in to view your care organiser.' }, 401);
-  try { return reply(await getCareDetails(supabase, user.id)); }
+  try { const mode = await resolveCareMode(supabase, user.id, new URL(request.url).searchParams.get('mode')); return reply(mode === 'demo' ? { medications: [], investigations: [], mode } : { ...await getCareDetails(supabase, user.id), mode }); }
   catch { return reply({ error: 'Your care organiser could not be loaded.' }, 503); }
 }
 export async function PUT(request: Request) {
