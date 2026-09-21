@@ -18,18 +18,8 @@ import { Button } from '@/components/ui/button';
 
 export type HomeDesignState = 'cycle' | 'pregnancy' | 'postpartum';
 
-type Metric = {
-  value: string;
-  label: string;
-  detail: string;
-} | null;
-
-type Appointment = {
-  title: string;
-  date: string;
-  time: string;
-  location: string;
-} | null;
+type Metric = { value: string; label: string; detail: string } | null;
+type Appointment = { title: string; date: string; time: string; location: string } | null;
 
 type HomeVisualPrototypeProps = {
   state: HomeDesignState;
@@ -50,249 +40,129 @@ type HomeVisualPrototypeProps = {
   onOpenLearn: () => void;
 };
 
-const content = {
+type StateContent = {
+  label: string;
+  icon: typeof CircleDot;
+  eyebrow: string;
+  title: string;
+  introduction: string;
+  primary: string;
+  previewMetric: Metric;
+  focusLabel: string;
+  focusTitle: string;
+  focusBody: string;
+  insightTitle: string;
+  insightBody: string;
+  footnote: string;
+  points: readonly number[];
+  pointLabels: readonly string[];
+  nextTitle: string;
+  nextBody: string;
+};
+
+const content: Record<HomeDesignState, StateContent> = {
   cycle: {
-    label: 'Cycle tracking',
-    icon: CircleDot,
-    title: 'Make space for your rhythm.',
-    intro:
-      'A private place to notice the patterns that matter to you, one day at a time.',
-    previewValue: 'Day 14',
-    previewLabel: 'of your cycle',
-    previewDetail: 'Illustrative cycle view — not a fertility prediction.',
-    dataLabel: 'Recorded dates',
+    label: 'Cycle tracking', icon: CircleDot, eyebrow: 'Your personal rhythm',
+    title: 'Notice what your body is telling you.',
+    introduction: 'A private space for the patterns, questions and moments you choose to keep.',
     primary: 'Log a period',
-    progress: '56%',
-    progressLabel: 'cycle view',
-    visualTitle: 'Your cycle view',
-    visualDescription: 'Dates you record can form a clearer personal history over time.',
-    visualFootnote: 'Only logged dates are shown. MAMA does not predict fertility.',
-    bars: [32, 48, 37, 66, 53, 70, 58],
-    barLabels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-    careTitle: 'A small check-in can help.',
-    careDescription: 'Notice your mood, symptoms or anything you want to remember.',
-    weeklyTitle: 'For your next conversation',
-    weeklyDescription: 'Keep a question or observation ready for your care team.',
+    previewMetric: { value: 'Day 14', label: 'of your cycle', detail: 'Illustrative timing only — not a fertility prediction.' },
+    focusLabel: 'Today’s focus', focusTitle: 'Make room for a small check-in.',
+    focusBody: 'A few words about your mood, energy or symptoms can make your history more useful to you.',
+    insightTitle: 'Your recorded rhythm', insightBody: 'A view built from dates you choose to log.',
+    footnote: 'Recorded dates only. MAMA does not predict fertility.',
+    points: [30, 48, 37, 67, 54, 72, 58], pointLabels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+    nextTitle: 'Keep a question close', nextBody: 'Save anything you want to remember for your next care conversation.',
   },
   pregnancy: {
-    label: 'Pregnancy',
-    icon: Baby,
-    title: 'A steadier way to feel prepared.',
-    intro:
-      'Your dates, appointments and questions, brought together with care.',
-    previewValue: 'Week 24',
-    previewLabel: 'of pregnancy',
-    previewDetail: 'Illustrative timing — clinical care remains with your care team.',
-    dataLabel: 'Estimated timing',
+    label: 'Pregnancy', icon: Baby, eyebrow: 'Your pregnancy, held with care',
+    title: 'Prepare in ways that feel right for you.',
+    introduction: 'Your chosen dates, care plans and questions stay together in one quiet place.',
     primary: 'Update my journey',
-    progress: '60%',
-    progressLabel: 'your timeline',
-    visualTitle: 'Your pregnancy path',
-    visualDescription: 'A calm view of the stage you are in, based on dates you choose to enter.',
-    visualFootnote: 'Timing can be estimated. Confirm your clinical dates with your care team.',
-    bars: [18, 26, 40, 54, 62, 72, 82],
-    barLabels: ['8', '12', '16', '20', '24', '28', '32'],
-    careTitle: 'How are you feeling today?',
-    careDescription: 'A short check-in can help you prepare for your next appointment.',
-    weeklyTitle: 'Make room for your questions',
-    weeklyDescription: 'Save what you want to discuss so it is there when you need it.',
+    previewMetric: { value: 'Week 24', label: 'of pregnancy', detail: 'Illustrative timing — confirm clinical dates with your care team.' },
+    focusLabel: 'Your body, today', focusTitle: 'How are you feeling right now?',
+    focusBody: 'Keep a private note for yourself, or a question to bring to your next appointment.',
+    insightTitle: 'Your pregnancy path', insightBody: 'A gentle progression based on dates you choose to enter.',
+    footnote: 'Timing may be estimated. Your care team confirms clinical dates.',
+    points: [14, 24, 38, 53, 64, 76, 86], pointLabels: ['8', '12', '16', '20', '24', '28', '32'],
+    nextTitle: 'Your care, within reach', nextBody: 'Appointments, preparation and questions are ready when you are.',
   },
   postpartum: {
-    label: 'Postpartum',
-    icon: Waves,
-    title: 'Rest, recover, reconnect.',
-    intro:
-      'Your recovery belongs to you. Keep only the moments and support that feel useful.',
-    previewValue: '6 weeks',
-    previewLabel: 'at your pace',
-    previewDetail: 'Illustrative recovery view — not a health score or clinical assessment.',
-    dataLabel: 'Your reflection',
+    label: 'Postpartum', icon: Waves, eyebrow: 'Care for you, too',
+    title: 'There is no right pace for this chapter.',
+    introduction: 'A personal place for rest, recovery, support and the things that matter to you today.',
     primary: 'Update my journey',
-    progress: '48%',
-    progressLabel: 'your rhythm',
-    visualTitle: 'Your recovery rhythm',
-    visualDescription: 'A gentle reflection space for what support, rest and follow-up look like for you.',
-    visualFootnote: 'This is not a medical assessment. Contact your care team for clinical concerns.',
-    bars: [52, 43, 60, 38, 55, 64, 51],
-    barLabels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-    careTitle: 'A moment for you, too.',
-    careDescription: 'Check in with yourself in a way that feels manageable today.',
-    weeklyTitle: 'Your support matters',
-    weeklyDescription: 'Keep a care contact or question close for when you need it.',
+    previewMetric: { value: '6 weeks', label: 'since birth', detail: 'Illustrative timing only — not a recovery score or assessment.' },
+    focusLabel: 'A moment for you', focusTitle: 'How are YOU doing today?',
+    focusBody: 'Capture a thought, choose a small support step, or simply make space for what is true today.',
+    insightTitle: 'Your own timeline', insightBody: 'A gentle record of the support and moments you choose to notice.',
+    footnote: 'This is not a medical assessment. Contact your care team with clinical concerns.',
+    points: [48, 42, 60, 39, 55, 64, 52], pointLabels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+    nextTitle: 'Support can stay close', nextBody: 'Keep a trusted contact or care question nearby for when you need it.',
   },
-} as const;
+};
 
-function MiniBars({ bars, labels }: { bars: readonly number[]; labels: readonly string[] }) {
-  return (
-    <div className="home-v2-bars" aria-label="Illustrative progress visual">
-      {bars.map((height, index) => (
-        <div className="home-v2-bar" key={`${labels[index]}-${index}`}>
-          <span style={{ height: `${height}%` }} />
-          <small>{labels[index]}</small>
-        </div>
-      ))}
-    </div>
-  );
+function InsightVisual({ state, points, labels }: { state: HomeDesignState; points: readonly number[]; labels: readonly string[] }) {
+  if (state === 'pregnancy') {
+    return <div className="home-premium-arc" aria-label="Illustrative pregnancy progression"><div className="home-premium-arc-line" />{points.map((_, index) => <i key={labels[index]} style={{ '--point': index } as React.CSSProperties}><span>{labels[index]}</span></i>)}</div>;
+  }
+  if (state === 'postpartum') {
+    return <div className="home-premium-timeline" aria-label="Illustrative postpartum reflection timeline">{['Birth', 'Rest', 'Support', 'Today'].map((item, index) => <div key={item} className={index === 3 ? 'is-now' : ''}><i /><span>{item}</span></div>)}</div>;
+  }
+  return <div className="home-premium-bars" aria-label="Illustrative recorded date visual">{points.map((height, index) => <div key={`${labels[index]}-${index}`}><i style={{ height: `${height}%` }} /><span>{labels[index]}</span></div>)}</div>;
 }
 
 export function HomeVisualPrototype({
-  state,
-  displayName,
-  metric,
-  cycleDay,
-  hasCheckin,
-  appointment,
-  preview,
-  publicDemo = false,
-  showDevelopmentSwitcher,
-  onDevelopmentStateChange,
-  onLogCheckin,
-  onLogPeriod,
-  onUpdateJourney,
-  onOpenCare,
-  onOpenJournal,
-  onOpenLearn,
+  state, displayName, metric, cycleDay, hasCheckin, appointment, preview, publicDemo = false,
+  showDevelopmentSwitcher, onDevelopmentStateChange, onLogCheckin, onLogPeriod, onUpdateJourney,
+  onOpenCare, onOpenJournal, onOpenLearn,
 }: HomeVisualPrototypeProps) {
   const design = content[state];
   const Icon = design.icon;
-  const actualMetric =
-    state === 'cycle' && cycleDay
-      ? {
-          value: `Day ${cycleDay}`,
-          label: 'of your recorded cycle',
-          detail: 'Based on your logged period start. Not a fertility prediction.',
-        }
-      : state !== 'cycle'
-        ? metric
-        : null;
-  const shownMetric = preview ? {
-    value: design.previewValue,
-    label: design.previewLabel,
-    detail: design.previewDetail,
-  } : actualMetric;
-  const primaryAction = state === 'cycle' ? onLogPeriod : onUpdateJourney;
-  const action = publicDemo ? onUpdateJourney : primaryAction;
+  const actualMetric: Metric = state === 'cycle' && cycleDay
+    ? { value: `Day ${cycleDay}`, label: 'of your recorded cycle', detail: 'Based on your logged period start. Not a fertility prediction.' }
+    : state === 'cycle' ? null : metric;
+  const shownMetric = preview ? design.previewMetric : actualMetric;
+  const journeyAction = state === 'cycle' ? onLogPeriod : onUpdateJourney;
+  const primaryAction = publicDemo ? onUpdateJourney : journeyAction;
+  const name = displayName ? displayName.split(' ')[0] : 'there';
 
   return (
-    <section className={`home-v2 home-v2-${state}`} aria-label={`${design.label} home`}>
-      {showDevelopmentSwitcher && (
-        <aside className="home-v2-switcher" aria-label="Development design state switcher">
-          <div>
-            <span>Development preview</span>
-            <p>Illustrative content only. Your saved records are unchanged.</p>
-          </div>
-          <fieldset className="home-v2-switcher-buttons"><legend className="sr-only">Choose a design state</legend>
-            {(['cycle', 'pregnancy', 'postpartum'] as HomeDesignState[]).map((option) => (
-              <button
-                type="button"
-                key={option}
-                aria-pressed={state === option}
-                onClick={() => onDevelopmentStateChange(option)}
-              >
-                {content[option].label}
-              </button>
-            ))}
-          </fieldset>
-        </aside>
-      )}
+    <section className={`home-premium home-premium-${state}`} aria-label={`${design.label} home`}>
+      {showDevelopmentSwitcher && <aside className="home-premium-switcher" aria-label="Development design state switcher">
+        <div><span>Design comparison</span><p>Illustrative content only. Saved records are unchanged.</p></div>
+        <fieldset><legend className="sr-only">Choose a Home state</legend>{(['cycle', 'pregnancy', 'postpartum'] as HomeDesignState[]).map((option) => <button type="button" key={option} aria-pressed={state === option} onClick={() => onDevelopmentStateChange(option)}>{content[option].label}</button>)}</fieldset>
+      </aside>}
 
-      <section className="home-v2-hero">
-        <div className="home-v2-hero-copy">
-          <span className="home-v2-eyebrow"><Icon size={15} /> {design.label}</span>
-          <p className="home-v2-greeting">{displayName ? `Hello, ${displayName.split(' ')[0]}.` : 'Your MAMA space.'}</p>
-          <h2>{design.title}</h2>
-          <p className="home-v2-intro">{design.intro}</p>
-          <div className="home-v2-hero-actions">
-            <Button className="home-v2-primary" onClick={action}>
-              {publicDemo ? 'Create a private care space' : design.primary} <ChevronRight size={17} />
-            </Button>
-            <button type="button" className="home-v2-secondary" onClick={publicDemo ? onUpdateJourney : onOpenCare}>
-              {publicDemo ? 'Sign in' : 'My care'} <ArrowUpRight size={15} />
-            </button>
-          </div>
+      <header className="home-premium-intro">
+        <div><span className="home-premium-kicker"><Icon size={15} /> {design.eyebrow}</span><h2>Hello, {name}.</h2><p>{design.introduction}</p></div>
+        <Button className="home-premium-log" onClick={onLogCheckin}><Plus size={17} /> Log a check-in</Button>
+      </header>
+
+      <section className="home-premium-hero">
+        <div className="home-premium-hero-copy">
+          <span className="home-premium-kicker"><Icon size={15} /> {design.label}</span>
+          <h3>{design.title}</h3>
+          <p>{state === 'postpartum' ? 'Your experience is yours. MAMA keeps space for what helps, without measuring your recovery.' : 'Choose what to record, return when it helps, and keep your care story in your hands.'}</p>
+          <div className="home-premium-hero-actions"><Button onClick={primaryAction}>{publicDemo ? 'Create a private care space' : design.primary} <ChevronRight size={17} /></Button><button type="button" onClick={publicDemo ? onUpdateJourney : onOpenCare}>{publicDemo ? 'Sign in' : 'Open my care'} <ArrowUpRight size={15} /></button></div>
         </div>
-        {state === 'cycle' ? <div className="home-v2-orbit" aria-label={shownMetric ? `${shownMetric.value} ${shownMetric.label}` : 'Your personal timeline'}>
-          <div className="home-v2-orbit-ring" style={{ '--progress': design.progress } as React.CSSProperties}>
-            <Icon size={24} strokeWidth={1.5} /><strong>{shownMetric?.value || 'Your'}</strong><span>{shownMetric?.label || 'timeline'}</span>
-          </div><span className="home-v2-orbit-note">{shownMetric?.detail || 'Add a date to begin your private timeline.'}</span>
-        </div> : state === 'pregnancy' ? <div className="home-v2-temporal" aria-label={shownMetric ? `${shownMetric.value} ${shownMetric.label}` : 'Your pregnancy timeline'}>
-          <span className="home-v2-temporal-label">Your pregnancy path</span><div className="home-v2-arc"><i /><i /><i /><i /><i /></div>
-          <strong>{shownMetric?.value || 'Your timeline'}</strong><span>{shownMetric?.label || 'is personal to you'}</span><small>{shownMetric?.detail || 'Add dates when you are ready.'}</small>
-        </div> : <div className="home-v2-temporal home-v2-postpartum-timeline" aria-label={shownMetric ? `${shownMetric.value} ${shownMetric.label}` : 'Your postpartum timeline'}>
-          <span className="home-v2-temporal-label">Time since birth</span><div className="home-v2-postpartum-line"><i>Birth</i><i>Rest</i><i>Support</i><i>Today</i></div>
-          <strong>{shownMetric?.value || 'Your pace'}</strong><span>{shownMetric?.label || 'is yours'}</span><small>{shownMetric?.detail || 'A reflection, not a recovery score.'}</small>
-        </div>}
+        <div className="home-premium-journey-mark" aria-label={shownMetric ? `${shownMetric.value} ${shownMetric.label}` : 'Your personal journey'}>
+          <span>{state === 'pregnancy' ? 'Your baby' : state === 'postpartum' ? 'Your time' : 'Your cycle'}</span>
+          <strong>{shownMetric?.value || 'Your space'}</strong><b>{shownMetric?.label || 'starts when you are ready'}</b>
+          {state === 'cycle' ? <div className="home-premium-ring" /> : state === 'pregnancy' ? <div className="home-premium-journey-arc"><i /><i /><i /><i /><i /></div> : <div className="home-premium-journey-line"><i /><i /><i /><i /></div>}
+          <small>{shownMetric?.detail || 'Add only what feels useful to you.'}</small>
+        </div>
       </section>
 
-      <section className="home-v2-overview" aria-label="Your day at a glance">
-        <article className="home-v2-overview-item">
-          <span className="home-v2-icon soft"><Heart size={19} /></span>
-          <div>
-            <small>Check-in</small>
-            <strong>{hasCheckin && !preview ? 'Today is captured' : 'Make space for you'}</strong>
-          </div>
-          <button type="button" aria-label="Open daily check-in" onClick={onLogCheckin}><Plus size={18} /></button>
-        </article>
-        <article className="home-v2-overview-item">
-          <span className="home-v2-icon warm"><CalendarDays size={19} /></span>
-          <div>
-            <small>Care plan</small>
-            <strong>{appointment && !preview ? appointment.title : 'Keep your next step close'}</strong>
-          </div>
-          <button type="button" aria-label="Open my care" onClick={onOpenCare}><ChevronRight size={18} /></button>
-        </article>
-        <article className="home-v2-overview-item">
-          <span className="home-v2-icon cool"><BookOpen size={19} /></span>
-          <div>
-            <small>Learn</small>
-            <strong>Guidance at your pace</strong>
-          </div>
-          <button type="button" aria-label="Open learning library" onClick={onOpenLearn}><ChevronRight size={18} /></button>
-        </article>
+      <section className="home-premium-priority" aria-label="Today in My MAMA">
+        <article><span className="home-premium-icon"><Heart size={18} /></span><div><small>{design.focusLabel}</small><h3>{hasCheckin && !preview ? 'You made time for yourself today.' : design.focusTitle}</h3><p>{hasCheckin && !preview ? 'Your check-in is safely saved in your private care space.' : design.focusBody}</p></div><Button variant="outline" onClick={onLogCheckin}>{hasCheckin && !preview ? 'View check-in' : 'Start check-in'} <ChevronRight size={16} /></Button></article>
+        <article className="home-premium-next"><span className="home-premium-icon"><CalendarDays size={18} /></span><div><small>{appointment && !preview ? 'Coming up' : 'Your next step'}</small><h3>{appointment && !preview ? appointment.title : design.nextTitle}</h3><p>{appointment && !preview ? `${appointment.date}${appointment.time ? ` · ${appointment.time}` : ''}` : design.nextBody}</p></div><button type="button" aria-label="Open my care" onClick={onOpenCare}><ChevronRight size={19} /></button></article>
       </section>
 
-      <div className="home-v2-content-grid">
-        <article className="home-v2-card home-v2-visual-card">
-          <div className="home-v2-card-heading">
-            <div>
-              <span className="home-v2-eyebrow muted"><Sparkles size={14} /> Your view</span>
-              <h3>{design.visualTitle}</h3>
-            </div>
-            <span className={`home-v2-data-label ${state === 'pregnancy' ? 'estimated' : ''}`}>
-              {preview ? 'Illustrative preview' : design.dataLabel}
-            </span>
-          </div>
-          <p>{design.visualDescription}</p>
-          <MiniBars bars={design.bars} labels={design.barLabels} />
-          <footer>{design.visualFootnote}</footer>
-        </article>
-
-        <article className="home-v2-card home-v2-checkin-card">
-          <span className="home-v2-icon primary"><Heart size={21} /></span>
-          <h3>{hasCheckin && !preview ? 'You made time for yourself.' : design.careTitle}</h3>
-          <p>{hasCheckin && !preview ? 'Your check-in is saved. You can add more context whenever you need to.' : design.careDescription}</p>
-          <Button variant="outline" className="home-v2-outline" onClick={onLogCheckin}>
-            {hasCheckin && !preview ? 'View today’s check-in' : 'Start a check-in'} <ChevronRight size={16} />
-          </Button>
-        </article>
-
-        <article className="home-v2-card home-v2-week-card">
-          <span className="home-v2-icon neutral"><Moon size={20} /></span>
-          <h3>{design.weeklyTitle}</h3>
-          <p>{design.weeklyDescription}</p>
-          <button type="button" className="home-v2-link" onClick={onOpenJournal}>
-            Open my journal <ArrowUpRight size={16} />
-          </button>
-        </article>
-      </div>
-
-      <section className="home-v2-milestone">
-        <CheckCircle2 size={22} />
-        <div>
-          <span>One thoughtful step</span>
-          <p>Tracking, preparing and following up all count. MAMA does not score health outcomes.</p>
-        </div>
-        <button type="button" onClick={onOpenLearn}>Explore guidance <ChevronRight size={16} /></button>
+      <section className="home-premium-lower">
+        <article className="home-premium-insight"><header><div><span className="home-premium-kicker muted"><Sparkles size={14} /> Your view</span><h3>{design.insightTitle}</h3><p>{design.insightBody}</p></div><span className="home-premium-chip">{preview ? 'Illustrative view' : state === 'pregnancy' ? 'Estimated timing' : state === 'postpartum' ? 'Your reflection' : 'Recorded dates'}</span></header><InsightVisual state={state} points={design.points} labels={design.pointLabels} /><footer>{design.footnote}</footer></article>
+        <article className="home-premium-prompt"><span className="home-premium-icon"><BookOpen size={19} /></span><small>At your pace</small><h3>{state === 'pregnancy' ? 'A question is worth keeping.' : state === 'postpartum' ? 'Your care deserves gentleness.' : 'Keep what feels useful.'}</h3><p>{state === 'pregnancy' ? 'Save a thought for your next appointment.' : state === 'postpartum' ? 'A quiet note can help you notice what support feels right.' : 'Your journal is ready for the details only you can know.'}</p><button type="button" onClick={onOpenJournal}>Open my journal <ArrowUpRight size={15} /></button></article>
+        <article className="home-premium-action"><span className="home-premium-icon"><CheckCircle2 size={19} /></span><small>A thoughtful next step</small><h3>Tracking, preparing and following up all count.</h3><p>MAMA never scores health outcomes or asks you to keep a streak.</p><button type="button" onClick={onOpenLearn}>Explore guidance <ChevronRight size={16} /></button></article>
       </section>
     </section>
   );
