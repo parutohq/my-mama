@@ -1657,3 +1657,43 @@ html[data-theme=dark] .home-premium-bars span,html[data-theme=dark] .home-premiu
 .premium-auth{display:grid;grid-template-columns:minmax(380px,1fr) minmax(440px,1fr);min-height:100svh;background:var(--mama-page)}.auth-story{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;padding:42px 8%;color:#fff;background:radial-gradient(circle at 80% 15%,#d792ad 0,transparent 22%),linear-gradient(145deg,#2f2039,#5d314a 55%,#9b5372)}.auth-story:after{position:absolute;z-index:-1;right:-140px;bottom:-170px;width:540px;height:540px;border:1px solid #fff4;border-radius:50%;content:''}.auth-story .auth-brand{color:#fff;font-size:2.2rem}.auth-story h1{margin:15px 0;color:#fff;font-family:var(--mama-font-editorial);font-size:clamp(3.7rem,6vw,6.3rem);font-weight:400;letter-spacing:-.07em;line-height:.88}.auth-story h1 i{color:#f6d3e0}.auth-story p{max-width:430px;color:#ffeaf1;font-size:1.05rem;line-height:1.65}.auth-story-orbit{display:flex;align-items:center;justify-content:space-between;width:230px;height:230px;border:1px solid #fff6;border-radius:50%;padding:35px;color:#ffeaf1;font-size:.78rem}.auth-panel{display:grid;place-items:center;padding:48px;background:var(--mama-page)}.premium-auth .auth-card{width:min(430px,100%);border:0;padding:0;background:transparent;box-shadow:none}.premium-auth .auth-card h2{margin:12px 0 10px;color:var(--mama-text);font-family:var(--mama-font-editorial);font-size:clamp(2.6rem,4vw,3.7rem);font-weight:400;letter-spacing:-.055em}.premium-auth .auth-card>p{color:var(--mama-muted);line-height:1.55}.premium-auth form{display:grid;gap:17px;margin-top:30px}.premium-auth form label{display:grid;gap:7px;color:var(--mama-text);font-size:.8rem;font-weight:850}.premium-auth input{min-height:50px;border:1px solid var(--mama-border);border-radius:12px;padding:0 14px;background:var(--mama-surface);color:var(--mama-text);font:inherit}.premium-auth input:focus{outline:3px solid #eec1d0;outline-offset:1px}.password-input{display:flex;align-items:center;border:1px solid var(--mama-border);border-radius:12px;background:var(--mama-surface)}.password-input input{flex:1;border:0!important}.password-input button{display:grid;place-items:center;width:44px;border:0;color:var(--mama-brand);background:transparent}.auth-submit{min-height:52px;border:0;border-radius:99px;color:#fff;background:var(--mama-brand);font-weight:900;box-shadow:0 12px 22px #6e324826}.auth-submit:disabled{opacity:.65}.auth-helper{display:flex;gap:7px;color:var(--mama-muted);font-size:.75rem;line-height:1.45}.auth-message{display:block;margin-top:18px;padding:12px 14px;border:1px solid var(--mama-border);border-radius:12px;background:var(--mama-surface-soft);color:var(--mama-text);font-size:.83rem;line-height:1.5}.auth-actions{display:flex;justify-content:space-between;gap:12px;margin-top:20px}.auth-actions .text-button,.auth-resend{color:var(--mama-brand);font-weight:800}.auth-mobile-brand{display:none}.premium-auth .auth-kicker{color:var(--mama-brand)}.auth-story .auth-kicker{color:#ffe8f1}
 @media(max-width:800px){.premium-auth{display:block}.auth-story{display:none}.auth-panel{min-height:100svh;align-content:start;padding:28px 22px}.auth-mobile-brand{display:block;width:min(430px,100%);margin-bottom:70px}.auth-mobile-brand .auth-brand{color:var(--mama-brand);font-size:2rem}.first-data-flow{grid-template-columns:1fr}.first-data-visual{min-height:0;padding:34px 27px}.first-data-visual small{display:none}.first-data-form{padding:30px 23px}.journey-choice-grid{grid-template-columns:1fr}.first-data-actions{align-items:flex-start;flex-direction:column}.account-menu{right:-8px}.topbar-actions{gap:8px}.topbar-actions .help-link{display:none}}
 .auth-theme{margin:1.35rem 0 0;padding:0;border:0;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}.auth-theme legend{font-size:.76rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.auth-theme label{font-size:.84rem;display:inline-flex;align-items:center;gap:.28rem;margin:0;color:var(--ink)}.auth-theme input{width:1rem;height:1rem;accent-color:var(--plum)}
+
+/* Urgent-care guidance must remain legible even when the app is dimmed behind its dialog. */
+.help-dialog {
+  color: #302c34;
+  background: #fff;
+}
+.help-dialog [data-slot='dialog-title'] {
+  color: #3f2838;
+}
+.help-dialog [data-slot='dialog-description'] {
+  color: #5d5360;
+}
+.help-content section h3 {
+  color: #493747;
+  font-weight: 750;
+}
+.help-content section p {
+  color: #514956;
+}
+.help-content section a {
+  color: #75354f;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.help-content .helper {
+  color: #5f5661;
+}
+.urgent-box {
+  color: #7d2438;
+  background: #fff1f2;
+  border-color: #e7aebb;
+}
+.urgent-box h3 {
+  color: #84253c;
+  font-weight: 800;
+}
+.urgent-box p {
+  color: #582d3b;
+}
