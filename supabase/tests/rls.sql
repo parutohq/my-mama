@@ -1,5 +1,5 @@
 begin;
-select plan(10);
+select plan(13);
 
 select tests.create_supabase_user('patient_a');
 select tests.create_supabase_user('patient_b');
@@ -67,5 +67,8 @@ select is_empty(
 );
 
 reset role;
+select ok(has_column('public', 'profile_preferences', 'theme'), 'profile preferences persist the chosen appearance');
+select ok(has_column('public', 'user_journeys', 'anchor_kind'), 'journeys persist a transparent first-data anchor');
+select ok(has_table_privilege('anon', 'public.profile_preferences', 'select') = false, 'anonymous users cannot read profile preferences');
 select * from finish();
 rollback;

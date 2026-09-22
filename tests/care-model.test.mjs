@@ -57,6 +57,14 @@ test('gestation derives from chosen due date and retains its source', () => {
   assert.match(m.detail, /Clinician-established/);
   assert.equal(journeyMetric({ ...p, date: '' }, now), null);
 });
+test('validates first-data profile choices without manufacturing health data', () => {
+  const cycle = validateRecord({ ...emptyProfile, stage: 'cycle', date: '2026-09-01', anchorKind: 'period_start', cyclePattern: 'varies' }, now);
+  assert.equal(cycle.anchorKind, 'period_start');
+  assert.equal(cycle.cyclePattern, 'varies');
+  const pregnancy = validateRecord({ ...emptyProfile, stage: 'pregnancy', date: '2026-12-30', anchorKind: 'due_date' }, now);
+  assert.equal(pregnancy.anchorKind, 'due_date');
+  assert.throws(() => validateRecord({ ...emptyProfile, stage: 'cycle', anchorKind: 'invented' }, now));
+});
 test('recovery hides pregnancy countdown; postpartum date cannot be future', () => {
   assert.equal(
     journeyMetric(
@@ -135,6 +143,9 @@ test('validates engagement records without accepting medical content as notifica
   const preferences = validatePreferences({ discreetNotifications: false, pointsEnabled: true, timezone: 'Africa/Lagos' });
   assert.equal(preferences.discreetNotifications, false);
   assert.equal(preferences.pointsEnabled, true);
+  assert.equal(preferences.theme, 'system');
+  assert.equal(validatePreferences({ theme: 'dark' }).theme, 'dark');
+  assert.equal(validatePreferences({ theme: 'neon' }).theme, 'system');
 });
 import { validateInvestigation, validateMedication } from '../lib/care-details-model.ts';
 test('validates private care organiser entries without clinical interpretation', () => {

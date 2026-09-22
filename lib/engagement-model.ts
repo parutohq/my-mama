@@ -11,13 +11,14 @@ export type EngagementPreferences = {
   weeklyRecapEnabled: boolean;
   userRemindersEnabled: boolean;
   pointsEnabled: boolean;
+  theme: 'light' | 'dark' | 'system';
 };
 
 export const defaultEngagementPreferences: EngagementPreferences = {
   timezone: 'Africa/Lagos', locale: 'en-NG', discreetNotifications: true,
   journeyUpdatesEnabled: true, appointmentRemindersEnabled: true,
   consultationRemindersEnabled: true, weeklyRecapEnabled: true,
-  userRemindersEnabled: true, pointsEnabled: false,
+  userRemindersEnabled: true, pointsEnabled: false, theme: 'system',
 };
 
 export type JourneyTask = {
@@ -75,5 +76,6 @@ export function validatePreferences(input: unknown): EngagementPreferences {
     discreetNotifications: bool('discreetNotifications', true), journeyUpdatesEnabled: bool('journeyUpdatesEnabled', true),
     appointmentRemindersEnabled: bool('appointmentRemindersEnabled', true), consultationRemindersEnabled: bool('consultationRemindersEnabled', true),
     weeklyRecapEnabled: bool('weeklyRecapEnabled', true), userRemindersEnabled: bool('userRemindersEnabled', true), pointsEnabled: bool('pointsEnabled', false),
+    theme: value.theme === 'light' || value.theme === 'dark' || value.theme === 'system' ? value.theme : 'system',
   };
 }

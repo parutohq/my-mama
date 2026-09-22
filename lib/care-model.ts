@@ -21,6 +21,9 @@ export type Profile = {
   dateSource: 'estimate' | 'clinician';
   contactName: string;
   phone: string;
+  anchorKind?: 'period_start' | 'due_date' | 'last_period' | 'birth_date' | 'none';
+  cyclePattern?: 'regular' | 'varies' | 'not_sure';
+  memberSince?: string;
 };
 export type Checkin = {
   kind: 'checkin';
@@ -66,6 +69,8 @@ export const emptyProfile: Profile = {
   dateSource: 'estimate',
   contactName: '',
   phone: '',
+  anchorKind: 'none',
+  cyclePattern: 'not_sure',
 };
 export const moodOptions = ['Good', 'Okay', 'Mixed', 'Low', 'Struggling'];
 export const symptomOptions = [
@@ -107,6 +112,12 @@ export function prettyDate(v: string) {
 export function journeyMetric(p: Profile, now = today()) {
   if (!validDate(p.date)) return null;
   if (p.stage === 'pregnancy') {
+    if (p.anchorKind === 'last_period') {
+      const elapsed = daysBetween(p.date, now);
+      return elapsed >= 0 && elapsed <= 308
+        ? { value: String(Math.floor(elapsed / 7)), label: `weeks + ${elapsed % 7} days`, detail: `Estimated from your recorded last period · ${prettyDate(p.date)}` }
+        : { value: '—', label: 'Check your dates', detail: 'Discuss pregnancy dates with your care team.' };
+    }
     const elapsed = 280 - daysBetween(now, p.date);
     return elapsed >= 0 && elapsed <= 308
       ? {
@@ -125,7 +136,7 @@ export function journeyMetric(p: Profile, now = today()) {
     return days >= 0
       ? {
           value: String(days + 1),
-          label: 'day of recovery',
+          label: 'days since birth',
           detail: `Birth date · ${prettyDate(p.date)}`,
         }
       : null;
@@ -189,6 +200,8 @@ export function validateRecord(raw: unknown, now = today()): CareRecord {
       dateSource: choice(r.dateSource, ['estimate', 'clinician']),
       contactName: str(r.contactName, 100),
       phone: str(r.phone, 30),
+      anchorKind: choice(r.anchorKind ?? 'none', ['period_start', 'due_date', 'last_period', 'birth_date', 'none'] as const),
+      cyclePattern: choice(r.cyclePattern ?? 'not_sure', ['regular', 'varies', 'not_sure'] as const),
     };
   }
   if (id === 'profile') throw new Error('Reserved record ID.');

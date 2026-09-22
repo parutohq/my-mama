@@ -89,6 +89,7 @@ import { careViews, MamaNavigation, type MamaView } from '@/components/mama/navi
 import { MobileBottomNavigation } from '@/components/mama/mobile-bottom-navigation';
 import { InsightCard } from '@/components/mama/insight-card';
 import { HomeVisualPrototype, type HomeDesignState } from '@/components/mama/home-visual-prototype';
+import { FirstDataOnboarding } from '@/components/mama/first-data-onboarding';
 import { defaultEngagementPreferences, type EngagementData, type JourneyTask, type UserReminder } from '@/lib/engagement-model';
 import { type Investigation, type Medication } from '@/lib/care-details-model';
 type View = MamaView;
@@ -172,6 +173,7 @@ export default function MamaApp() {
     [investigations, setInvestigations] = useState<Investigation[]>([]),
     [developmentHomeState, setDevelopmentHomeState] = useState<HomeDesignState>('cycle'),
     [homeDesignPreviewEnabled, setHomeDesignPreviewEnabled] = useState(isLocalDevelopment);
+  const [showSetup, setShowSetup] = useState(false), [setupDeferred, setSetupDeferred] = useState(false), [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [modal, setModal] = useState<Modal>(null),
     [article, setArticle] = useState<Article | null>(null),
     [deletion, setDeletion] = useState<string | null>(null),
@@ -220,16 +222,17 @@ export default function MamaApp() {
   const cycleMode =
     ['first_period', 'cycle', 'reproductive_health', 'preconception', 'trying_to_conceive', 'perimenopause', 'menopause'].includes(profile.stage);
   const actualHomeDesignState: HomeDesignState | null =
-    profile.stage === 'pregnancy'
+    profile.stage === 'pregnancy' && Boolean(profile.date)
       ? 'pregnancy'
-      : profile.stage === 'postpartum'
+      : profile.stage === 'postpartum' && Boolean(profile.date)
         ? 'postpartum'
-        : ['first_period', 'cycle', 'reproductive_health', 'preconception', 'trying_to_conceive', 'perimenopause', 'menopause'].includes(profile.stage)
+        : ['first_period', 'cycle', 'reproductive_health', 'preconception', 'trying_to_conceive', 'perimenopause', 'menopause'].includes(profile.stage) && periods.length
           ? 'cycle'
           : null;
   const homeDesignState = homeDesignPreviewEnabled
     ? developmentHomeState
     : actualHomeDesignState;
+  const needsSetup = careMode === 'account' && (profile.stage === 'none' || (['cycle', 'first_period', 'trying_to_conceive'].includes(profile.stage) && !periods.length) || (['pregnancy', 'postpartum'].includes(profile.stage) && !profile.date));
   const relevant = articles
     .filter((a) => a.stages.includes(profile.stage))
     .slice(0, 3);
@@ -272,6 +275,15 @@ export default function MamaApp() {
     const timer = setTimeout(() => setNotice(''), 4500);
     return () => clearTimeout(timer);
   }, [notice]);
+  useEffect(() => {
+    const preference = engagement.preferences.theme;
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const resolve = () => preference === 'system' ? (media.matches ? 'dark' : 'light') : preference;
+    const apply = () => { document.documentElement.dataset.theme = resolve(); document.documentElement.style.colorScheme = resolve(); };
+    apply();
+    media.addEventListener('change', apply);
+    return () => media.removeEventListener('change', apply);
+  }, [engagement.preferences.theme]);
   useEffect(() => {
     if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !('serviceWorker' in navigator)) return;
     void navigator.serviceWorker.getRegistration('/mama-push-sw.js').then((registration) => registration?.pushManager.getSubscription()).then((subscription) => setPushSubscribed(Boolean(subscription))).catch(() => undefined);
@@ -420,6 +432,22 @@ export default function MamaApp() {
     setProfileDraft({ ...profile });
     setError('');
     setModal('profile');
+  }
+  async function completeFirstData(nextProfile: Profile, firstPeriod?: { start: string; end: string }) {
+    const profileResponse = await fetch('/api/records', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(nextProfile) });
+    const profileData = await profileResponse.json() as { error?: string };
+    if (!profileResponse.ok) throw new Error(profileData.error || 'Could not save your journey.');
+    if (firstPeriod) {
+      const period: Period = { kind: 'period', id: crypto.randomUUID(), start: firstPeriod.start, end: firstPeriod.end, notes: '' };
+      const periodResponse = await fetch('/api/records', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(period) });
+      const periodData = await periodResponse.json() as { error?: string };
+      if (!periodResponse.ok) throw new Error(periodData.error || 'Your period date could not be saved.');
+    }
+    await load('account');
+    setNotice('Your private MAMA space is ready.');
+  }
+  function applyTheme(theme: 'light' | 'dark' | 'system') {
+    void updateEngagement('preferences', { ...engagement.preferences, theme }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Could not save appearance preference.'));
   }
   function openQuestion(existing?: CareQuestion, initialQuestion = '') {
     if (!requireAccountMode()) return;
@@ -763,9 +791,10 @@ export default function MamaApp() {
             <span>Your daily companion</span>
           </div>
           <div className="topbar-actions">
-            <button className="account-link" onClick={() => go('Settings')}>
-              <UserRound size={17} /> Profile & privacy
-            </button>
+            <div className="account-menu-wrap">
+              <button className="account-avatar" aria-expanded={accountMenuOpen} aria-label="Open My MAMA Profile" onClick={() => setAccountMenuOpen((open) => !open)}>{profile.name.trim().split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase() || <UserRound size={20} />}</button>
+              {accountMenuOpen && <div className="account-menu" role="menu"><div className="account-menu-head"><span>{profile.name || 'My MAMA Profile'}</span><small>{stages[profile.stage]}</small></div><button role="menuitem" onClick={() => { setAccountMenuOpen(false); go('Settings'); }}>View profile</button><button role="menuitem" onClick={() => { setAccountMenuOpen(false); go('Settings'); }}>Appearance · {engagement.preferences.theme}</button><button role="menuitem" onClick={() => { setAccountMenuOpen(false); go('Settings'); }}>Notifications</button><hr /><button role="menuitem" className="danger-text" onClick={() => void signOut()}>Sign out</button></div>}
+            </div>
             <button
               className="help-link"
               onClick={() => {
@@ -797,7 +826,7 @@ export default function MamaApp() {
                     ? `Hello, ${profile.name}`
                     : 'Welcome to your space'
                   : view === 'Settings'
-                    ? 'My profile & privacy'
+                    ? 'My MAMA Profile'
                     : view}
                 <span>.</span>
               </h1>
@@ -894,7 +923,9 @@ export default function MamaApp() {
           ) : (
             <>
               {view === 'Today' && (
-                homeDesignState ? (
+                needsSetup && (showSetup || !setupDeferred) ? (
+                  <FirstDataOnboarding profile={profile} onComplete={completeFirstData} onDefer={() => { setShowSetup(false); setSetupDeferred(true); }} />
+                ) : homeDesignState ? (
                   <HomeVisualPrototype
                     state={homeDesignState}
                     displayName={profile.name}
@@ -978,7 +1009,7 @@ export default function MamaApp() {
                         </p>
                         <Button
                           className="white-btn"
-                          onClick={cycleMode ? () => openPeriod() : openProfile}
+                          onClick={profile.stage === 'none' ? () => setShowSetup(true) : cycleMode ? () => openPeriod() : openProfile}
                         >
                           {cycleMode
                             ? 'Log a period'
@@ -1447,8 +1478,8 @@ export default function MamaApp() {
                     )}
                   </section>
                   <section className="card care-v2-consultation" aria-labelledby="consultation-access-title">
-                    <div><span>CONSULTATION ACCESS</span><h2 id="consultation-access-title">Bring your existing care relationship.</h2><p>MAMA does not match you with clinicians or make clinical decisions. A manually provisioned clinician may access only an accepted consultation or a sharing permission you can revoke.</p></div>
-                    <button className="outline-btn" onClick={openProfile}><Pencil size={16} /> Keep my care contact handy</button>
+                    <div><span>FEATURED CONSULTANT</span><h2 id="consultation-access-title">Consult Dr Peace</h2><p>When Dr Peace&apos;s professional profile, consultation types and times are provisioned, they will appear here. MAMA does not display invented availability or use bookings for urgent care.</p><div className="consultation-service-chips"><span>30-minute consultation</span><span>60-minute consultation</span></div><small>New consultation times will appear here when available.</small></div>
+                    <button className="outline-btn" onClick={() => openQuestion(undefined, 'I would like to ask about a consultation with Dr Peace.')}><CircleHelp size={16} /> Prepare a question</button>
                   </section>
                   <section className="card contact-card care-v2-contact">
                     <Phone size={22} />
@@ -1723,6 +1754,12 @@ export default function MamaApp() {
                       <p>{stages[profile.stage]} · Your records are private to your signed-in account.</p>
                     </div>
                     <button className="outline-btn" onClick={openProfile}><Pencil size={16} /> Edit profile</button>
+                  </section>
+                  <section className="card settings-v2-appearance">
+                    <Sparkles size={23} />
+                    <h2 className="spaced">Appearance</h2>
+                    <p>Choose the light that feels right for your MAMA space. Your signed-in preference follows your account.</p>
+                    <fieldset className="appearance-options"><legend className="sr-only">Choose appearance</legend>{(['light', 'dark', 'system'] as const).map((theme) => <label key={theme}><input aria-label={`${theme} appearance`} type="radio" name="mama-theme" checked={engagement.preferences.theme === theme} onChange={() => applyTheme(theme)} /> <span><b>{theme[0].toUpperCase() + theme.slice(1)}</b><small>{theme === 'system' ? 'Follow this device' : `${theme[0].toUpperCase() + theme.slice(1)} appearance`}</small></span></label>)}</fieldset>
                   </section>
                   <section className="card settings-v2-journey">
                     <span className="icon-box">
@@ -2005,50 +2042,45 @@ export default function MamaApp() {
                   </p>
                 </div>
               )}
-              {(profileDraft.stage === 'pregnancy' ||
-                profileDraft.stage === 'postpartum') && (
+              {profileDraft.stage === 'cycle' && (
                 <>
-                  <label htmlFor="mama-control-4" className="field">
-                    <span>
-                      {profileDraft.stage === 'pregnancy'
-                        ? 'Estimated due date'
-                        : 'Date of birth'}{' '}
-                      <small>Optional if uncertain</small>
-                    </span>
-                    <Input
-                      id="mama-control-4"
-                      type="date"
-                      max={
-                        profileDraft.stage === 'postpartum'
-                          ? currentDay
-                          : undefined
-                      }
-                      value={profileDraft.date}
-                      onChange={(e) =>
-                        setProfileDraft({
-                          ...profileDraft,
-                          date: e.target.value,
-                        })
-                      }
-                    />
+                  <Choice
+                    label="What best describes your cycle?"
+                    value={profileDraft.cyclePattern || 'not_sure'}
+                    options={{ regular: 'Usually regular', varies: 'It varies', not_sure: 'Not sure yet' }}
+                    onChange={(v) => setProfileDraft({ ...profileDraft, cyclePattern: v as Profile['cyclePattern'] })}
+                  />
+                  <label htmlFor="mama-cycle-start" className="field">
+                    <span>Most recent period start <small>Optional</small></span>
+                    <Input id="mama-cycle-start" type="date" max={currentDay} value={profileDraft.date} onChange={(e) => setProfileDraft({ ...profileDraft, date: e.target.value, anchorKind: 'period_start' })} />
                   </label>
-                  {profileDraft.stage === 'pregnancy' && (
-                    <Choice
-                      label="Where did this date come from?"
-                      value={profileDraft.dateSource}
-                      options={{
-                        estimate: 'My estimate',
-                        clinician: 'Established by my clinician',
-                      }}
-                      onChange={(v) =>
-                        setProfileDraft({
-                          ...profileDraft,
-                          dateSource: v as Profile['dateSource'],
-                        })
-                      }
-                    />
-                  )}
                 </>
+              )}
+              {profileDraft.stage === 'pregnancy' && (
+                <>
+                  <Choice
+                    label="Which date are you recording?"
+                    value={profileDraft.anchorKind === 'last_period' ? 'last_period' : 'due_date'}
+                    options={{ due_date: 'Estimated due date', last_period: 'First day of last period' }}
+                    onChange={(v) => setProfileDraft({ ...profileDraft, anchorKind: v as Profile['anchorKind'], date: '' })}
+                  />
+                  <label htmlFor="mama-control-4" className="field">
+                    <span>{profileDraft.anchorKind === 'last_period' ? 'First day of last period' : 'Estimated due date'} <small>Optional if uncertain</small></span>
+                    <Input id="mama-control-4" type="date" value={profileDraft.date} onChange={(e) => setProfileDraft({ ...profileDraft, date: e.target.value })} />
+                  </label>
+                  <Choice
+                    label="Where did this date come from?"
+                    value={profileDraft.dateSource}
+                    options={{ estimate: 'My estimate', clinician: 'Established by my clinician' }}
+                    onChange={(v) => setProfileDraft({ ...profileDraft, dateSource: v as Profile['dateSource'] })}
+                  />
+                </>
+              )}
+              {profileDraft.stage === 'postpartum' && (
+                <label htmlFor="mama-control-4" className="field">
+                  <span>Date of birth <small>Optional if uncertain</small></span>
+                  <Input id="mama-control-4" type="date" max={currentDay} value={profileDraft.date} onChange={(e) => setProfileDraft({ ...profileDraft, date: e.target.value, anchorKind: 'birth_date' })} />
+                </label>
               )}
               <div className="form-divider" />
               <label htmlFor="mama-control-5" className="field">

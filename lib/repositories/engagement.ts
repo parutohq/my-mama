@@ -14,7 +14,7 @@ function preferencesFrom(row?: Row | null): EngagementPreferences {
   return { timezone: text(row.timezone, 'Africa/Lagos'), locale: text(row.locale, 'en-NG'),
     discreetNotifications: boolean(row.discreet_notifications, true), journeyUpdatesEnabled: boolean(row.journey_updates_enabled, true),
     appointmentRemindersEnabled: boolean(row.appointment_reminders_enabled, true), consultationRemindersEnabled: boolean(row.consultation_reminders_enabled, true),
-    weeklyRecapEnabled: boolean(row.weekly_recap_enabled, true), userRemindersEnabled: boolean(row.user_reminders_enabled, true), pointsEnabled: boolean(row.points_enabled, false) };
+    weeklyRecapEnabled: boolean(row.weekly_recap_enabled, true), userRemindersEnabled: boolean(row.user_reminders_enabled, true), pointsEnabled: boolean(row.points_enabled, false), theme: ['light', 'dark', 'system'].includes(text(row.theme)) ? text(row.theme) as EngagementPreferences['theme'] : 'system' };
 }
 
 export async function getEngagementData(client: Client, userId: string, mode: CareMode = 'account'): Promise<EngagementData> {
@@ -50,7 +50,7 @@ export async function savePreferences(client: Client, userId: string, preference
   const result = await client.from('profile_preferences').upsert({ user_id: userId, timezone: preferences.timezone, locale: preferences.locale,
     discreet_notifications: preferences.discreetNotifications, journey_updates_enabled: preferences.journeyUpdatesEnabled,
     appointment_reminders_enabled: preferences.appointmentRemindersEnabled, consultation_reminders_enabled: preferences.consultationRemindersEnabled,
-    weekly_recap_enabled: preferences.weeklyRecapEnabled, user_reminders_enabled: preferences.userRemindersEnabled, points_enabled: preferences.pointsEnabled,
+    weekly_recap_enabled: preferences.weeklyRecapEnabled, user_reminders_enabled: preferences.userRemindersEnabled, points_enabled: preferences.pointsEnabled, theme: preferences.theme,
     updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
   if (result.error) throw new Error(result.error.message);
 }

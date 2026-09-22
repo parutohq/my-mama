@@ -29,6 +29,9 @@ function profileFromRows(profile?: Row | null, journey?: Row | null): Profile | 
     dateSource: journey.date_source === 'clinician' ? 'clinician' : 'estimate',
     contactName: text(journey.contact_name),
     phone: text(journey.contact_phone),
+    anchorKind: ['period_start', 'due_date', 'last_period', 'birth_date', 'none'].includes(text(journey.anchor_kind)) ? text(journey.anchor_kind) as Profile['anchorKind'] : 'none',
+    cyclePattern: ['regular', 'varies', 'not_sure'].includes(text(journey.cycle_pattern)) ? text(journey.cycle_pattern) as Profile['cyclePattern'] : 'not_sure',
+    memberSince: text(profile.created_at),
   };
 }
 
@@ -90,7 +93,7 @@ export async function getCareRecords(client: Client, userId: string, mode: CareM
 }
 
 export async function saveProfile(client: Client, userId: string, profile: Profile) {
-  const existingJourney = await client.from('user_journeys').select('stage').eq('user_id', userId).eq('is_demo', false).eq('is_current', true).maybeSingle();
+  const existingJourney = await client.from('user_journeys').select('id,stage').eq('user_id', userId).eq('is_demo', false).eq('is_current', true).maybeSingle();
   if (existingJourney.error) throw new Error(existingJourney.error.message);
   const previousStage = text((existingJourney.data as Row | null)?.stage, 'none');
   const profileResult = await client.from('profiles').upsert(
@@ -100,10 +103,31 @@ export async function saveProfile(client: Client, userId: string, profile: Profi
 
   const journeyResult = await client.from('user_journeys').upsert({
     user_id: userId, stage: profile.stage, anchor_date: profile.date || null,
-    date_source: profile.dateSource, contact_name: profile.contactName || null,
+    date_source: profile.dateSource, anchor_kind: profile.anchorKind || 'none', cycle_pattern: profile.cyclePattern || 'not_sure', contact_name: profile.contactName || null,
     contact_phone: profile.phone || null, is_current: true, is_demo: false,
   }, { onConflict: 'user_id,is_current' });
   if (journeyResult.error) throw new Error(journeyResult.error.message);
+  const journey = await client.from('user_journeys').select('id').eq('user_id', userId).eq('is_demo', false).eq('is_current', true).maybeSingle();
+  if (journey.error) throw new Error(journey.error.message);
+  const journeyId = text((journey.data as Row | null)?.id);
+  if (profile.stage === 'pregnancy' && profile.date && journeyId) {
+    const existingPregnancy = await client.from('pregnancies').select('id').eq('journey_id', journeyId).maybeSingle();
+    if (existingPregnancy.error) throw new Error(existingPregnancy.error.message);
+    const pregnancyData = { user_id: userId, journey_id: journeyId, due_date: profile.anchorKind === 'due_date' ? profile.date : null, due_date_source: profile.dateSource, status: 'active' };
+    const pregnancy = existingPregnancy.data
+      ? await client.from('pregnancies').update(pregnancyData).eq('id', text((existingPregnancy.data as Row).id))
+      : await client.from('pregnancies').insert(pregnancyData);
+    if (pregnancy.error) throw new Error(pregnancy.error.message);
+  }
+  if (profile.stage === 'postpartum' && profile.date && journeyId) {
+    const existingPostpartum = await client.from('postpartum_profiles').select('id').eq('journey_id', journeyId).maybeSingle();
+    if (existingPostpartum.error) throw new Error(existingPostpartum.error.message);
+    const postpartumData = { user_id: userId, journey_id: journeyId, birth_date: profile.date };
+    const postpartum = existingPostpartum.data
+      ? await client.from('postpartum_profiles').update(postpartumData).eq('id', text((existingPostpartum.data as Row).id))
+      : await client.from('postpartum_profiles').insert(postpartumData);
+    if (postpartum.error) throw new Error(postpartum.error.message);
+  }
   if (previousStage !== profile.stage) {
     const transition = await client.from('journey_transitions').insert({
       user_id: userId, from_stage: previousStage === 'none' ? null : previousStage,

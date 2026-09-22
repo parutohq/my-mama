@@ -9,7 +9,6 @@ import {
   ChevronRight,
   CircleDot,
   Heart,
-  Moon,
   Plus,
   Sparkles,
   Waves,
