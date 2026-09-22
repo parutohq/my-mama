@@ -16,7 +16,7 @@ export function PublicLanding() {
           <span><Sparkles size={15} /> YOUR LIFE. YOUR PACE.</span>
           <h1>For every stage<br />of <em>womanhood.</em></h1>
           <p>Understand your body, track what matters, prepare for care and know when to get help.</p>
-          <div className="landing-actions"><Link className="landing-primary" href="/sign-in?mode=sign-up">Start my journey <ArrowRight size={17} /></Link><Link className="landing-secondary" href="/sign-in">Already with MAMA? Sign in</Link></div>
+          <div className="landing-actions"><Link className="landing-primary" href="/start">Start my journey <ArrowRight size={17} /></Link><Link className="landing-secondary" href="/sign-in">Already with MAMA? Sign in</Link></div>
           <div className="landing-hero-note"><LockKeyhole size={15} /> Your personal information stays in your private care space.</div>
         </div>
         <div className="landing-art" aria-label="A visual journey through the stages MAMA supports">
@@ -48,7 +48,7 @@ export function PublicLanding() {
         <article><LockKeyhole size={22} /><h2>Private by design.</h2><p>Your records belong to your signed-in account. Clinician access requires an accepted care relationship or sharing permission you can revoke.</p></article>
         <article><Heart size={22} /><h2>Care, not diagnosis.</h2><p>MAMA helps you record, prepare and learn. It does not diagnose, prescribe or replace urgent medical care.</p></article>
       </section>
-      <section className="landing-cta"><span>YOUR NEXT CHAPTER</span><h2>Start with what matters to you.</h2><p>A private space for your health, questions and care.</p><Link className="landing-primary" href="/sign-in?mode=sign-up">Create my MAMA space <ArrowRight size={17} /></Link></section>
+      <section className="landing-cta"><span>YOUR NEXT CHAPTER</span><h2>Start with what matters to you.</h2><p>A private space for your health, questions and care.</p><Link className="landing-primary" href="/start">Create my MAMA space <ArrowRight size={17} /></Link></section>
       <footer className="landing-footer"><span>© MAMA</span><span>Educational support, not an emergency service.</span><Link href="/sign-in">Sign in</Link></footer>
     </main>
   );

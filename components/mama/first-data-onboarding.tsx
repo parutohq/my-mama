@@ -1,6 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { parsePublicStartIntent } from '@/lib/public-start-intent';
 import { ArrowRight, CheckCircle2, Flower2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { type Profile, type Stage } from '@/lib/care-model';
@@ -28,6 +30,15 @@ export function FirstDataOnboarding({ profile, onComplete, onDefer }: Props) {
   const [complete, setComplete] = useState(false);
   const [error, setError] = useState('');
   const choice = useMemo(() => choices.find((item) => item.stage === selected) || choices[1], [selected]);
+
+  useEffect(() => {
+    void createClient().auth.getUser().then(({ data: { user } }) => {
+      const intent = parsePublicStartIntent(user?.user_metadata?.mama_start_intent);
+      if (!intent || profile.stage !== 'none') return;
+      setSelected(intent.stage);
+      if (intent.name && !profile.name) setName(intent.name);
+    });
+  }, [profile.name, profile.stage]);
 
   async function submit() {
     setError('');
