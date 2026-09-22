@@ -1,0 +1,12 @@
+.page { min-height: 100svh; padding: 0 0 40px; background: radial-gradient(circle at 82% 3%, #efd9e3 0, transparent 21%), var(--mama-page); color: var(--mama-text); }
+.nav, .intro, .flow, .footer { width: min(1160px, calc(100% - 48px)); margin-inline: auto; }
+.nav { display: flex; align-items: center; justify-content: space-between; min-height: 84px; }
+.signIn { display: inline-flex; align-items: center; gap: 8px; color: var(--mama-brand); font-weight: 850; }
+.intro { padding: 58px 0 34px; }
+.kicker { color: var(--mama-brand); font-size: .72rem; font-weight: 900; letter-spacing: .13em; }
+.intro h1 { max-width: 720px; margin: 12px 0; color: var(--mama-text); font-family: var(--mama-font-editorial); font-size: clamp(3rem, 6vw, 5.7rem); font-weight: 400; letter-spacing: -.065em; line-height: .88; }
+.intro h1 i { color: #ad5d7b; }
+.intro p { max-width: 520px; color: var(--mama-muted); font-size: 1.03rem; line-height: 1.6; }
+.flow { max-width: 1160px; }
+.footer { margin-top: 28px; color: var(--mama-muted); font-size: .68rem; text-align: center; }
+@media (max-width: 800px) { .nav, .intro, .flow, .footer { width: min(100% - 32px, 1160px); } .nav { min-height: 72px; } .intro { padding: 32px 0 24px; } .intro h1 { font-size: 3.25rem; } }

@@ -5,6 +5,7 @@ import { ArrowRight, Flower2, Heart, LockKeyhole } from 'lucide-react';
 import { useState } from 'react';
 import { publicJourneyChoices, publicStartIntentKey, type PublicStartIntent } from '@/lib/public-start-intent';
 import type { Stage } from '@/lib/care-model';
+import styles from './public-journey-start.module.css';
 
 export function PublicJourneyStart() {
   const [stage, setStage] = useState<Stage>('cycle');
@@ -17,17 +18,17 @@ export function PublicJourneyStart() {
     window.location.assign('/sign-in?mode=sign-up&from=start');
   }
 
-  return <main id="main-content" className="public-start-page">
-    <header className="public-start-nav">
+  return <main id="main-content" className={styles.page}>
+    <header className={styles.nav}>
       <Link href="/" className="landing-brand"><Heart fill="currentColor" size={20} />mama.</Link>
-      <Link href="/sign-in" className="public-start-sign-in">Sign in <ArrowRight size={16} /></Link>
+      <Link href="/sign-in" className={styles.signIn}>Sign in <ArrowRight size={16} /></Link>
     </header>
-    <section className="public-start-intro">
-      <span>YOUR LIFE. YOUR PACE.</span>
+    <section className={styles.intro}>
+      <span className={styles.kicker}>YOUR LIFE. YOUR PACE.</span>
       <h1>Start with the chapter<br />that feels like <i>you.</i></h1>
       <p>Choose your journey first. Your private MAMA account comes next.</p>
     </section>
-    <section className="first-data-flow public-start-flow" aria-label="Choose your MAMA journey before creating an account">
+    <section className={`first-data-flow ${styles.flow}`} aria-label="Choose your MAMA journey before creating an account">
       <div className="first-data-visual">
         <Flower2 size={25} /><span>WELCOME TO MAMA</span>
         <h2>Let&apos;s make this yours.</h2>
@@ -45,6 +46,6 @@ export function PublicJourneyStart() {
         <div className="first-data-actions"><button type="button" className="button" onClick={continueToAccount}>Continue to create account <ArrowRight size={17} /></button><Link href="/sign-in">I already have an account</Link></div>
       </div>
     </section>
-    <footer className="public-start-footer">MAMA is educational support and not an emergency service.</footer>
+    <footer className={styles.footer}>MAMA is educational support and not an emergency service.</footer>
   </main>;
 }
