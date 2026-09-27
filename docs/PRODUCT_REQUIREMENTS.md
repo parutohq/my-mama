@@ -2,7 +2,7 @@
 
 > Last verified against code: 2026-09-24  
 > Repository branch: `design/mymama-premium-ui`  
-> Commit: `1e35386`
+> Commit: `98d8246`
 
 ## Current requirements evidenced by the repository
 
@@ -13,6 +13,12 @@
 - Notifications are opt-in by category, discreet by default, generic on a lock screen, and modeled for in-app/push delivery.
 - Clinical content is educational and must not present diagnosis, prescription, fertility prediction, emergency monitoring, or a substitute for professional care.
 - Sensitive journey transitions can suppress celebration/streak behaviour.
+- Profile and privacy controls must be prominent and reachable from authenticated navigation, with editable identity, journey, appearance, notification, sharing, export, deletion, and sign-out controls where applicable.
+- A visitor may choose a journey and provide an optional name before account creation; that intent is carried into onboarding as a personalisation hint and is not a health record until the user saves it in the authenticated care space.
+- Demo mode is an explicitly labelled, opt-in illustrative care space. It must remain isolated from the account space, switchable, hideable, and deletable by the account owner without changing personal records.
+- Authentication must provide accessible, responsive sign-in, registration, recovery, and email-confirmation states that preserve the selected journey intent without exposing private care data before authentication.
+- Users must be able to choose Light, Dark, or System appearance, with the account preference as the canonical persisted setting and system mode following the device preference.
+- The Design Lab is a preview-only, fixture-backed surface for comparing representative states; it must not read or mutate patient records and must not be treated as a production care route.
 
 ## Intended product requirements
 
@@ -32,3 +38,16 @@ The intended future experience should preserve the existing patient-care foundat
 - Idempotent payment/webhook operations and auditable state transitions.
 - Preview verification before production promotion.
 - No real-health-data release until security, clinical governance, privacy, retention, and incident-response gates are closed.
+
+## Cycle intelligence and journey-care requirements (intended)
+
+- My MAMA may provide a menstrual calendar built from supported recorded period, symptom, care, medication, investigation, and note data.
+- Day details must show recorded information only; missing data remains unknown.
+- Calculated cycle dates are estimates and must be labelled as such.
+- Educational hormone curves for estrogen, progesterone, LH, and FSH must be labelled “Typical hormone pattern” and never presented as measured personal levels.
+- The product must not diagnose conditions, infer hormone levels, confirm ovulation, or present fertile windows as contraception-safe days.
+- Journey changes preserve longitudinal history and use only the stages supported by the current model.
+- Journey context should shape Home, Track, Learn, Prepare, and Care with truthful empty states where depth is not implemented.
+- “Food for Your Journey” is a future clinically reviewed educational nutrition experience, not a therapeutic diet service.
+- “MAMA Products” is a future non-prescription commerce capability kept separate from clinical guidance.
+- Consultation entry points may use generic O&G language and feature Dr Peace when real provider data exists; paid consultation implementation remains governed by the consultation execution plan.

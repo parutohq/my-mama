@@ -1,10 +1,14 @@
 # Current Supabase/PostgreSQL database
 
-> Last verified against code: 2026-09-24  
+> Last verified against code: 2026-09-25
 > Repository branch: `design/mymama-premium-ui`  
-> Commit: `1e35386`
+> Commit: `98d8246`
 
 The schema is defined by seven versioned migrations under `supabase/migrations/`. This document describes repository SQL; it does not assert that every migration has been applied to a hosted project.
+
+## Hosted environment topology
+
+Vercel Preview and Vercel Production intentionally use one shared Supabase project for now. The currently identified dashboard project reference is `fdgfiiymnpvtlkauzaos`. Preview is therefore not a staging database and shares tables, RLS policies, migrations, and records with Production. Verification must use dedicated synthetic accounts and must not perform destructive resets, test-only migrations, mass deletion, or ambiguous fake health-data seeding.
 
 ## Core tables and relationships
 

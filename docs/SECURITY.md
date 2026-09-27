@@ -1,8 +1,8 @@
 # Security and privacy boundaries
 
-> Last verified against code: 2026-09-24  
+> Last verified against code: 2026-09-25
 > Repository branch: `design/mymama-premium-ui`  
-> Commit: `1e35386`
+> Commit: `98d8246`
 
 ## Authentication
 
@@ -28,12 +28,30 @@ The notification schema stores subscriptions and delivery history with owner RLS
 
 The current repository has no Paystack or Whereby implementation. Before adding it: initialize Paystack only server-side; verify transaction status with Paystack, amount, currency, reference, and expected user/booking; make callbacks and webhooks idempotent; authenticate and replay-protect webhooks; never trust browser success redirects; keep payment records separate from clinical records; encrypt/minimize meeting data; issue short-lived authorized join links; and log security-relevant state transitions without sensitive clinical content.
 
+## Shared Preview/Production database boundary
+
+Vercel Preview and Vercel Production intentionally point at the same shared Supabase project for the current phase. Preview must therefore never be described or treated as staging. The shared project reference observed in the authenticated Supabase dashboard is `fdgfiiymnpvtlkauzaos`; credentials and complete environment values remain private.
+
+Because Preview is not database-isolated:
+
+- use dedicated synthetic test accounts only;
+- never use real patient information;
+- do not run destructive migrations, resets, mass deletion, or destructive admin tests;
+- do not apply test-only migrations or seed records that could be mistaken for genuine health records;
+- do not weaken RLS for testing;
+- do not run bulk notification or live payment tests against the shared project;
+- clearly label test accounts and records wherever the product supports labels.
+
 ## Release gates
 
-Do not accept real health data or launch paid consultation until hosted migrations and RLS tests pass, auth/callback/email delivery are smoke-tested, secrets are configured, notification scheduling is reviewed, privacy/retention/incident-response and clinical governance are approved, and production observability is in place.
+Do not accept real health data or launch paid consultation until hosted migrations and RLS tests pass, auth/callback/email delivery are smoke-tested, secrets are configured, notification scheduling is reviewed, privacy/retention/incident-response and clinical governance are approved, and production observability is in place. Shared Preview/Production use does not remove these gates; it narrows verification to synthetic, reversible, non-destructive tests.
 
 ## Current versus required
 
 **Currently implemented:** Supabase Auth wiring, cookie sessions, owner-scoped RLS, provider relationship checks, patient-controlled sharing, private storage policy, demo separation, notification minimization, and environment examples.
 
 **Required before production consultation:** complete RBAC surfaces, hosted RLS execution, Paystack webhook/idempotency/refund controls, private Whereby authorization, clinician-note publication controls, audit coverage for financial/consultation transitions, and verified monitoring/incident procedures. No compliance certification or legal compliance claim is made here.
+
+## Cycle and journey data boundaries
+
+Cycle visualisations must distinguish recorded, estimated, typical educational, and measured values. Missing health data must remain unknown. Typical hormone curves and calculated dates must not be used as diagnostic, fertility, or contraception-safe outputs. Calendar/day-detail queries must use the existing authenticated repositories and RLS rather than client-only filtering. Future nutrition or product experiences must not send unnecessary health data to external services or allow merchandising to influence clinical guidance.

@@ -90,6 +90,7 @@ import { MobileBottomNavigation } from '@/components/mama/mobile-bottom-navigati
 import { InsightCard } from '@/components/mama/insight-card';
 import { HomeVisualPrototype, type HomeDesignState } from '@/components/mama/home-visual-prototype';
 import { FirstDataOnboarding } from '@/components/mama/first-data-onboarding';
+import { CareCalendar } from '@/components/mama/care-calendar';
 import { defaultEngagementPreferences, type EngagementData, type JourneyTask, type UserReminder } from '@/lib/engagement-model';
 import { type Investigation, type Medication } from '@/lib/care-details-model';
 type View = MamaView;
@@ -459,7 +460,7 @@ export default function MamaApp() {
     setError('');
     setModal('question');
   }
-  function openCheckin(mood = 'Okay', existing?: Checkin) {
+  function openCheckin(mood = 'Okay', existing?: Checkin, date = currentDay) {
     if (!requireAccountMode()) return;
     setCheckinDraft(
       existing
@@ -467,7 +468,7 @@ export default function MamaApp() {
         : {
             kind: 'checkin',
             id: crypto.randomUUID(),
-            date: today(),
+            date,
             mood,
             symptoms: [],
             bleeding: 'Not recorded',
@@ -1199,6 +1200,7 @@ export default function MamaApp() {
                       <Plus size={18} aria-hidden="true" />
                     </button>
                   </section>
+                  {cycleMode && <CareCalendar periods={periods} checkins={checkins} care={care} investigations={investigations} currentDay={currentDay} cycleDay={stats.day} cyclePattern={profile.cyclePattern} onAddCheckin={(date) => openCheckin('Okay', undefined, date)} onAddPeriod={() => openPeriod()} />}
                   <Tabs
                     value={journalTab}
                     onValueChange={(v) => setJournalTab(String(v))}

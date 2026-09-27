@@ -4,15 +4,17 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { AlertTriangle, ArrowLeft, Heart, LoaderCircle, ShieldCheck } from 'lucide-react';
 import { HomeVisualPrototype, type HomeDesignState } from '@/components/mama/home-visual-prototype';
+import { TypicalHormonePattern } from '@/components/mama/typical-hormone-pattern';
 import styles from '@/app/design-preview/design-preview.module.css';
 
 export function DesignPreviewClient() {
   const [state, setState] = useState<HomeDesignState>('cycle');
-  const [labPanel, setLabPanel] = useState<'home' | 'states'>('home');
+  const [labPanel, setLabPanel] = useState<'home' | 'states' | 'hormones'>('home');
   const [focus, setFocus] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
   const [dataState, setDataState] = useState<'no-data' | 'first-data' | 'partial' | 'established'>('established');
   const [consultState, setConsultState] = useState<'no-availability' | 'availability'>('no-availability');
+  const [hormoneContext, setHormoneContext] = useState<'typical' | 'marker' | 'none' | 'variable'>('typical');
   useEffect(() => { const resolved = theme === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme; document.documentElement.dataset.theme = resolved; return () => { document.documentElement.dataset.theme = 'light'; }; }, [theme]);
   const signIn = () => { window.location.assign('/sign-in'); };
 
@@ -30,8 +32,10 @@ export function DesignPreviewClient() {
       {!focus && <div className={styles.labTabs} role="tablist" aria-label="Design Lab panels">
         <button type="button" role="tab" aria-selected={labPanel === 'home'} onClick={() => setLabPanel('home')}>Home states</button>
         <button type="button" role="tab" aria-selected={labPanel === 'states'} onClick={() => setLabPanel('states')}>System states</button>
+        <button type="button" role="tab" aria-selected={labPanel === 'hormones'} onClick={() => setLabPanel('hormones')}>Cycle education</button>
       </div>}
       {!focus && <section className={styles.labControls} aria-label="Design Lab controls"><label>Theme<select value={theme} onChange={(event) => setTheme(event.target.value as typeof theme)}><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></label><label>Data state<select value={dataState} onChange={(event) => setDataState(event.target.value as typeof dataState)}><option value="no-data">No data</option><option value="first-data">First data required</option><option value="partial">Partial history</option><option value="established">Established history</option></select></label><label>Consultation<select value={consultState} onChange={(event) => setConsultState(event.target.value as typeof consultState)}><option value="no-availability">Dr Peace · no availability</option><option value="availability">Dr Peace · fixture availability</option></select></label></section>}
+      {!focus && labPanel === 'hormones' && <section className={styles.hormoneLabControls} aria-label="Hormone education fixture controls"><label>Cycle context<select value={hormoneContext} onChange={(event) => setHormoneContext(event.target.value as typeof hormoneContext)}><option value="typical">Typical reference only</option><option value="marker">Recorded day marker</option><option value="none">No cycle-day context</option><option value="variable">Variable cycle context</option></select></label><p>Illustrative Design Lab content only. Nothing here is written to an account.</p></section>}
       {!focus && <button type="button" className={styles.focusToggle} onClick={() => setFocus(true)}>Open Focus Preview</button>}
       {focus && <button type="button" className={styles.focusExit} onClick={() => setFocus(false)}>Exit Focus Preview</button>}
       {labPanel === 'home' ? <>{dataState !== 'established' && <section className={styles.labStateBanner}><b>{dataState === 'no-data' ? 'New user / no journey' : dataState === 'first-data' ? 'Journey selected / first data needed' : 'Partial history'}</b><span>{dataState === 'no-data' ? 'Choose a journey before MAMA personalises this space.' : dataState === 'first-data' ? 'Add a first record to replace illustrative content.' : 'Keep tracking and MAMA will show more of your recorded patterns here.'}</span></section>}<HomeVisualPrototype
@@ -51,7 +55,7 @@ export function DesignPreviewClient() {
         onOpenCare={signIn}
         onOpenJournal={signIn}
         onOpenLearn={signIn}
-      /><section className={styles.consultFixture}><span>CONSULT DR PEACE</span><h2>{consultState === 'availability' ? 'Development fixture availability' : 'New consultation times will appear here when available.'}</h2><p>{consultState === 'availability' ? 'Fixture only: a 30-minute and a 60-minute consultation are shown solely for Design Lab review.' : 'No appointment times are being invented in this preview.'}</p></section></> : <section className={styles.stateLab} aria-label="Illustrative interface states">
+      /><section className={styles.consultFixture}><span>CONSULT DR PEACE</span><h2>{consultState === 'availability' ? 'Development fixture availability' : 'New consultation times will appear here when available.'}</h2><p>{consultState === 'availability' ? 'Fixture only: a 30-minute and a 60-minute consultation are shown solely for Design Lab review.' : 'No appointment times are being invented in this preview.'}</p></section></> : labPanel === 'hormones' ? <section className={styles.hormoneLab} aria-label="Illustrative hormone pattern states"><TypicalHormonePattern cycleDay={hormoneContext === 'marker' ? 8 : undefined} cyclePattern={hormoneContext === 'variable' ? 'varies' : undefined} /></section> : <section className={styles.stateLab} aria-label="Illustrative interface states">
         <header><span>COMPONENT STATES</span><h1>Designed for the moments around care.</h1><p>These preview-only examples test empty, loading, long-content and safety treatment without using health data.</p></header>
         <div className={styles.stateGrid}>
           <article><span className={styles.stateLabel}>EMPTY</span><h2>Your story starts with one record.</h2><p>When you are ready, a small note can help you notice your own pattern over time.</p><button type="button" onClick={signIn}>Create a private space</button></article>
