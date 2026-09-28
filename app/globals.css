@@ -1998,3 +1998,16 @@ body { color: #111827; }
   .mobile-bottom-nav button.active { color: #2563eb !important; background: #eaf2ff !important; }
   .mobile-bottom-nav button:nth-child(4).active { color: #fff !important; background: #2563eb !important; }
 }
+
+/* Contrast correction for expressive hero panels. */
+.journey-progress-card, .journey-v2-hero, .care-v2-hero, .journal-v2-hero { color: #fff !important; }
+.journey-progress-card h2, .journey-v2-hero h2, .care-v2-hero h2, .journal-v2-hero h2,
+.journey-progress-card p, .journey-v2-hero p, .care-v2-hero p, .journal-v2-hero p { color: #fff !important; }
+.journey-v2-hero .journey-v2-meta span { color: #fff !important; border-color: #ffffff55; background: #ffffff1f; }
+.journey-progress-card .progress-orb { color: #111827 !important; }
+.journey-progress-card .progress-orb span { color: #667085 !important; }
+.care-v2-hero .white-btn, .journal-v2-hero .white-btn, .journey-v2-hero .white-btn { color: #2563eb !important; background: #fff !important; }
+.demo-mode-banner, .demo-space-status { color: #344054 !important; background: #fff !important; border-color: #dbe5f1 !important; }
+.demo-mode-banner .text-btn, .demo-space-status b { color: #2563eb !important; }
+.account-avatar { background: #2563eb !important; border-color: #2563eb !important; }
+.brand-dot, .landing-brand .brand-dot { color: #2563eb !important; }
