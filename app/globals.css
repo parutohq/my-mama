@@ -2059,6 +2059,59 @@ body { color: #111827; }
 .mobile-bottom-nav[data-mobile-nav='true'] {
   box-shadow: 0 -10px 30px rgb(16 24 40 / .10);
 }
+
+/* Elevated product polish: modern depth is reserved for moments that carry
+   information or invite an action. */
+.topbar {
+  background: rgb(255 255 255 / 0.82) !important;
+  box-shadow: 0 1px 0 rgb(16 24 40 / .06), 0 10px 30px rgb(16 24 40 / .035) !important;
+}
+.page-heading { position: relative; }
+.page-heading::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 6px;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(37 99 235 / .12), transparent 68%);
+  pointer-events: none;
+}
+.page-heading h1 span { color: #2563eb !important; }
+.primary-btn, .button, .landing-primary, .auth-submit, .home-premium-log {
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.primary-btn:hover, .button:hover, .landing-primary:hover, .auth-submit:hover, .home-premium-log:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.08);
+  box-shadow: 0 12px 24px rgb(37 99 235 / .25) !important;
+}
+.home-v2-card, .home-v2-milestone, .insight-card, .card {
+  border-color: #e1e7f0;
+}
+.home-v2-card:nth-child(3n+1), .insight-card:nth-child(3n+1) { background: linear-gradient(145deg, #fff, #f5f9ff) !important; }
+.home-v2-card:nth-child(3n+2), .insight-card:nth-child(3n+2) { background: linear-gradient(145deg, #fff, #fbf7ff) !important; }
+.home-v2-card:nth-child(3n), .insight-card:nth-child(3n) { background: linear-gradient(145deg, #fff, #fff9f4) !important; }
+.home-v2-card, .insight-card { position: relative; overflow: hidden; }
+.home-v2-card::before, .insight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+  opacity: .9;
+}
+.home-v2-card:nth-child(3n+2)::before, .insight-card:nth-child(3n+2)::before { background: linear-gradient(90deg, #7c3aed, #c4b5fd); }
+.home-v2-card:nth-child(3n)::before, .insight-card:nth-child(3n)::before { background: linear-gradient(90deg, #ea580c, #fdba74); }
+.home-v2-card:hover { transform: translateY(-4px); box-shadow: 0 18px 38px rgb(16 24 40 / .1) !important; }
+.section-title h2, .journey-v2-section-heading h2 { letter-spacing: -.045em; }
+.mobile-bottom-nav[data-mobile-nav='true'] button { transition: transform .18s ease, background .18s ease, color .18s ease; }
+.mobile-bottom-nav[data-mobile-nav='true'] button.active { transform: translateY(-3px); box-shadow: 0 8px 18px rgb(37 99 235 / .14); }
+@media (max-width: 560px) {
+  .page-heading::after { width: 64px; height: 64px; top: 0; right: 4px; }
+  .page-heading h1 { font-size: clamp(2.1rem, 10vw, 3rem); }
+}
 .journey-progress-card .progress-orb span { color: #667085 !important; }
 .care-v2-hero .white-btn, .journal-v2-hero .white-btn, .journey-v2-hero .white-btn { color: #2563eb !important; background: #fff !important; }
 .demo-mode-banner, .demo-space-status { color: #344054 !important; background: #fff !important; border-color: #dbe5f1 !important; }
