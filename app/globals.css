@@ -1955,3 +1955,46 @@ body { background: #f4f6f8; color: #111827; }
   .topbar { padding-inline: 14px !important; }
   .page { width: 100%; padding-inline: 14px !important; }
 }
+
+/* Final palette correction: plum is no longer an interaction or navigation
+   color. Keep the wordmark editorial; use product colors for the interface. */
+:root {
+  --primary: #2563eb;
+  --brand: #2563eb;
+  --brand-soft: #eaf2ff;
+  --mama-brand: #2563eb;
+  --mama-brand-soft: #eaf2ff;
+  --accent: #eaf2ff;
+}
+body { color: #111827; }
+.brand, .landing-brand, .auth-brand { color: #172554 !important; }
+.nav-item[data-active], .nav-item.selected { color: #2563eb !important; background: #eaf2ff !important; border-color: #cfe0ff !important; }
+.text-button, .landing-secondary, .home-premium-prompt button, .home-premium-action button,
+.home-v2-link, .care-v2-contact > svg, .public-start-sign-in { color: #2563eb !important; }
+.button, .landing-primary, .auth-submit, .home-premium-log, .white-btn,
+.public-start-flow .first-data-actions .button { color: #fff !important; background: #2563eb !important; border-color: #2563eb !important; box-shadow: 0 8px 18px #2563eb2e !important; }
+.home-premium-hero { background: linear-gradient(135deg, #172554 0%, #2563eb 58%, #60a5fa 100%) !important; }
+.home-premium-pregnancy .home-premium-hero { background: linear-gradient(135deg, #7c2d12, #ea580c 62%, #fdba74) !important; }
+.home-premium-postpartum .home-premium-hero { background: linear-gradient(135deg, #312e81, #7c3aed 62%, #c4b5fd) !important; }
+.journey-progress-card, .journey-v2-hero, .care-v2-hero, .journal-v2-hero { border-color: #dbe5f1 !important; }
+.journey-progress-card, .journey-v2-hero { background: linear-gradient(135deg, #172554, #2563eb 65%, #60a5fa) !important; }
+.care-v2-hero { background: linear-gradient(135deg, #7c2d12, #ea580c 65%, #fdba74) !important; }
+.journal-v2-hero { background: linear-gradient(135deg, #312e81, #7c3aed 65%, #c4b5fd) !important; color: #fff !important; }
+.journal-v2-hero h2, .journal-v2-hero p { color: #fff !important; }
+.home-v2-icon, .home-premium-icon { color: #2563eb !important; background: #eaf2ff !important; }
+.home-v2-icon.warm, .home-premium-next .home-premium-icon { color: #ea580c !important; background: #fff1e7 !important; }
+.home-v2-icon.cool, .home-premium-action .home-premium-icon { color: #7c3aed !important; background: #f1edff !important; }
+.data-label, .home-premium-chip, .home-v2-data-label { color: #2563eb !important; background: #eaf2ff !important; }
+.task-count { color: #2563eb !important; background: #eaf2ff !important; }
+.achievement-strip { border-color: #d9f99d !important; background: #f7fee7 !important; }
+.care-calendar-day.selected { background: #eaf2ff !important; box-shadow: inset 0 0 0 2px #2563eb !important; }
+.care-calendar-day.today b { background: #2563eb !important; }
+.auth-story, .first-data-visual, .public-start-flow .first-data-visual { background: linear-gradient(135deg, #172554, #2563eb 60%, #60a5fa) !important; }
+.landing-art-card-main { background: linear-gradient(135deg, #172554, #2563eb 60%, #60a5fa) !important; }
+.landing-art-card-cycle { background: #2563ebdd !important; }
+.landing-art-card-pregnancy { background: #ea580cdd !important; }
+.landing-cta { background: linear-gradient(135deg, #172554, #2563eb) !important; }
+@media (max-width: 1024px) {
+  .mobile-bottom-nav button.active { color: #2563eb !important; background: #eaf2ff !important; }
+  .mobile-bottom-nav button:nth-child(4).active { color: #fff !important; background: #2563eb !important; }
+}
