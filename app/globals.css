@@ -1891,3 +1891,45 @@ body { background: #f4f6f8; color: #111827; }
   .home-v2-card, .home-v2-milestone, .journey-v2-timeline, .journal-v2-quick-actions > button { border-radius: 18px; }
   .home-v2-card { min-height: 220px; padding: 20px; }
 }
+
+/* Final mobile-first propagation for legacy v1 surfaces. */
+.journey-progress-card,
+.journey-v2-hero,
+.care-v2-hero,
+.journal-v2-hero { color: #111827; background: #fff !important; border: 1px solid #e4e8ee; box-shadow: 0 14px 32px #1720330d; }
+.journey-progress-card h2,
+.journey-v2-hero h2,
+.care-v2-hero h2,
+.journal-v2-hero h2 { color: #111827 !important; }
+.journey-progress-card p,
+.journey-v2-hero p,
+.care-v2-hero p,
+.journal-v2-hero p { color: #667085 !important; }
+.journey-progress-card.quiet { background: #fff !important; }
+.journey-progress-card::after,
+.journey-v2-hero::after,
+.care-v2-hero::after { border-color: #dbe5f1; }
+.progress-orb { background: radial-gradient(circle at center, #fff 58%, transparent 59%), conic-gradient(#2563eb var(--progress), #dbeafe 0); color: #111827; box-shadow: 0 12px 28px #2563eb20; }
+.progress-orb span { color: #667085; }
+.insight-card { background: #fff !important; border-color: #e4e8ee; box-shadow: 0 12px 30px #1720330d; }
+.bar-track span { background: linear-gradient(#60a5fa, #2563eb); }
+.task-count { color: #2563eb; background: #eaf2ff; }
+.journey-task { border-color: #e4e8ee; background: #fff; }
+.journey-task.completed { background: #f3f7fb; }
+.achievement-strip { border-color: #d6e5ff; background: #f7fbff; }
+.ask-mama-intro { background: #fff !important; }
+.ask-guides div { background: #f8fafc; }
+.mobile-bottom-nav { display: none; }
+@media (max-width: 1024px) {
+  .page { padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
+  .mobile-bottom-nav { position: fixed; inset: auto 0 0; z-index: 100; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-height: calc(72px + env(safe-area-inset-bottom)); padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid #dfe6ef; background: rgb(255 255 255 / 94%); backdrop-filter: blur(20px); box-shadow: 0 -12px 30px #17203314; }
+  .mobile-bottom-nav button { min-width: 48px; min-height: 52px; display: grid; justify-items: center; align-content: center; gap: 4px; border: 0; border-radius: 16px; color: #8290a3; background: transparent; font-size: 10px; font-weight: 750; }
+  .mobile-bottom-nav button svg { width: 21px; height: 21px; }
+  .mobile-bottom-nav button.active { color: #2563eb; background: #eaf2ff; }
+  .mobile-bottom-nav button:nth-child(4).active { color: #fff; background: #2563eb; box-shadow: 0 8px 18px #2563eb38; }
+  .topbar { position: sticky; top: 0; z-index: 90; }
+  .sidebar { display: none; }
+}
+@media (min-width: 1025px) {
+  .app-main { background: #f4f6f8; }
+}
