@@ -277,13 +277,8 @@ export default function MamaApp() {
     return () => clearTimeout(timer);
   }, [notice]);
   useEffect(() => {
-    const preference = engagement.preferences.theme;
-    const media = window.matchMedia('(prefers-color-scheme: dark)');
-    const resolve = () => preference === 'system' ? (media.matches ? 'dark' : 'light') : preference;
-    const apply = () => { document.documentElement.dataset.theme = resolve(); document.documentElement.style.colorScheme = resolve(); };
-    apply();
-    media.addEventListener('change', apply);
-    return () => media.removeEventListener('change', apply);
+    document.documentElement.dataset.theme = 'light';
+    document.documentElement.style.colorScheme = 'light';
   }, [engagement.preferences.theme]);
   useEffect(() => {
     if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !('serviceWorker' in navigator)) return;
@@ -447,8 +442,8 @@ export default function MamaApp() {
     await load('account');
     setNotice('Your private MAMA space is ready.');
   }
-  function applyTheme(theme: 'light' | 'dark' | 'system') {
-    void updateEngagement('preferences', { ...engagement.preferences, theme }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Could not save appearance preference.'));
+  function applyTheme(_theme: 'light') {
+    void updateEngagement('preferences', { ...engagement.preferences, theme: 'light' }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Could not save appearance preference.'));
   }
   function openQuestion(existing?: CareQuestion, initialQuestion = '') {
     if (!requireAccountMode()) return;
@@ -1761,7 +1756,7 @@ export default function MamaApp() {
                     <Sparkles size={23} />
                     <h2 className="spaced">Appearance</h2>
                     <p>Choose the light that feels right for your MAMA space. Your signed-in preference follows your account.</p>
-                    <fieldset className="appearance-options"><legend className="sr-only">Choose appearance</legend>{(['light', 'dark', 'system'] as const).map((theme) => <label key={theme}><input aria-label={`${theme} appearance`} type="radio" name="mama-theme" checked={engagement.preferences.theme === theme} onChange={() => applyTheme(theme)} /> <span><b>{theme[0].toUpperCase() + theme.slice(1)}</b><small>{theme === 'system' ? 'Follow this device' : `${theme[0].toUpperCase() + theme.slice(1)} appearance`}</small></span></label>)}</fieldset>
+                    <fieldset className="appearance-options"><legend className="sr-only">Choose appearance</legend><label><input aria-label="Light appearance" type="radio" name="mama-theme" checked readOnly onChange={() => applyTheme('light')} /> <span><b>Light</b><small>Bright MAMA appearance</small></span></label></fieldset>
                   </section>
                   <section className="card settings-v2-journey">
                     <span className="icon-box">

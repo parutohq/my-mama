@@ -11,11 +11,11 @@ export function DesignPreviewClient() {
   const [state, setState] = useState<HomeDesignState>('cycle');
   const [labPanel, setLabPanel] = useState<'home' | 'states' | 'hormones'>('home');
   const [focus, setFocus] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
+  const theme = 'light' as const;
   const [dataState, setDataState] = useState<'no-data' | 'first-data' | 'partial' | 'established'>('established');
   const [consultState, setConsultState] = useState<'no-availability' | 'availability'>('no-availability');
   const [hormoneContext, setHormoneContext] = useState<'typical' | 'marker' | 'none' | 'variable'>('typical');
-  useEffect(() => { const resolved = theme === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme; document.documentElement.dataset.theme = resolved; return () => { document.documentElement.dataset.theme = 'light'; }; }, [theme]);
+  useEffect(() => { document.documentElement.dataset.theme = 'light'; document.documentElement.style.colorScheme = 'light'; }, []);
   const signIn = () => { window.location.assign('/sign-in'); };
 
   return (
@@ -34,7 +34,7 @@ export function DesignPreviewClient() {
         <button type="button" role="tab" aria-selected={labPanel === 'states'} onClick={() => setLabPanel('states')}>System states</button>
         <button type="button" role="tab" aria-selected={labPanel === 'hormones'} onClick={() => setLabPanel('hormones')}>Cycle education</button>
       </div>}
-      {!focus && <section className={styles.labControls} aria-label="Design Lab controls"><label>Theme<select value={theme} onChange={(event) => setTheme(event.target.value as typeof theme)}><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></label><label>Data state<select value={dataState} onChange={(event) => setDataState(event.target.value as typeof dataState)}><option value="no-data">No data</option><option value="first-data">First data required</option><option value="partial">Partial history</option><option value="established">Established history</option></select></label><label>Consultation<select value={consultState} onChange={(event) => setConsultState(event.target.value as typeof consultState)}><option value="no-availability">Dr Peace · no availability</option><option value="availability">Dr Peace · fixture availability</option></select></label></section>}
+      {!focus && <section className={styles.labControls} aria-label="Design Lab controls"><label>Theme<select value={theme} aria-label="Theme"><option value="light">Light</option></select></label><label>Data state<select value={dataState} onChange={(event) => setDataState(event.target.value as typeof dataState)}><option value="no-data">No data</option><option value="first-data">First data required</option><option value="partial">Partial history</option><option value="established">Established history</option></select></label><label>Consultation<select value={consultState} onChange={(event) => setConsultState(event.target.value as typeof consultState)}><option value="no-availability">Dr Peace · no availability</option><option value="availability">Dr Peace · fixture availability</option></select></label></section>}
       {!focus && labPanel === 'hormones' && <section className={styles.hormoneLabControls} aria-label="Hormone education fixture controls"><label>Cycle context<select value={hormoneContext} onChange={(event) => setHormoneContext(event.target.value as typeof hormoneContext)}><option value="typical">Typical reference only</option><option value="marker">Recorded day marker</option><option value="none">No cycle-day context</option><option value="variable">Variable cycle context</option></select></label><p>Illustrative Design Lab content only. Nothing here is written to an account.</p></section>}
       {!focus && <button type="button" className={styles.focusToggle} onClick={() => setFocus(true)}>Open Focus Preview</button>}
       {focus && <button type="button" className={styles.focusExit} onClick={() => setFocus(false)}>Exit Focus Preview</button>}

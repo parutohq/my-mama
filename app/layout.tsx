@@ -15,7 +15,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <script
-          dangerouslySetInnerHTML={{ __html: "(function(){try{var t=localStorage.getItem('mama-theme')||'system';var r=t==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.dataset.theme=r;document.documentElement.style.colorScheme=r}catch(e){}})()" }}
+          dangerouslySetInnerHTML={{ __html: "(function(){try{document.documentElement.dataset.theme='light';document.documentElement.style.colorScheme='light';localStorage.setItem('mama-theme','light')}catch(e){}})()" }}
         />
       </head>
       <body>
