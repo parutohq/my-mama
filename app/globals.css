@@ -1933,3 +1933,25 @@ body { background: #f4f6f8; color: #111827; }
 @media (min-width: 1025px) {
   .app-main { background: #f4f6f8; }
 }
+
+/* Mobile shell: the primary navigation is a first-class app surface, never a
+   hidden enhancement. */
+@media (max-width: 1024px) {
+  html, body { min-width: 0; overflow-x: hidden; }
+  .app-shell, .app-layout, .app-main { min-width: 0; width: 100%; }
+  .mobile-bottom-nav[data-mobile-nav='true'] {
+    display: flex !important;
+    align-items: stretch;
+    justify-content: space-around;
+    gap: 4px;
+  }
+  .mobile-bottom-nav[data-mobile-nav='true'] button { flex: 1 1 0; }
+  .mobile-bottom-nav[data-mobile-nav='true'] button span { white-space: nowrap; }
+}
+@media (max-width: 560px) {
+  .mobile-bottom-nav[data-mobile-nav='true'] { padding-inline: 5px; }
+  .mobile-bottom-nav[data-mobile-nav='true'] button { border-radius: 14px; font-size: 9px; }
+  .mobile-bottom-nav[data-mobile-nav='true'] button svg { width: 22px; height: 22px; }
+  .topbar { padding-inline: 14px !important; }
+  .page { width: 100%; padding-inline: 14px !important; }
+}

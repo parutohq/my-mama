@@ -11,7 +11,7 @@ const navigation = [
 ] as const;
 
 export function MobileBottomNavigation({ view, onNavigate }: { view: MamaView; onNavigate: (view: MamaView) => void }) {
-  return <nav className="mobile-bottom-nav" aria-label="Primary care navigation">
+  return <nav className="mobile-bottom-nav" data-mobile-nav="true" aria-label="Primary care navigation">
     {navigation.map(([target, label, Icon]) => <button key={target} type="button" className={view === target ? 'active' : ''}
       aria-current={view === target ? 'page' : undefined} onClick={() => onNavigate(target)}>
       <Icon aria-hidden="true" strokeWidth={view === target ? 2.35 : 1.9} />
