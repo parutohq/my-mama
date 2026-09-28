@@ -1471,9 +1471,10 @@ fieldset {
    viewport and the form itself owns scrolling above the fixed tab bar. */
 @media (max-width: 767px) {
   .mama-dialog {
-    top: max(12px, env(safe-area-inset-top));
-    max-height: calc(100dvh - 88px - env(safe-area-inset-top));
-    height: auto;
+    top: env(safe-area-inset-top);
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    max-height: none;
+    height: calc(100dvh - 76px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     overflow-y: auto !important;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
@@ -2195,6 +2196,18 @@ body { color: #111827; }
 .section-title h2, .journey-v2-section-heading h2 { letter-spacing: -.045em; }
 .mobile-bottom-nav[data-mobile-nav='true'] button { transition: transform .18s ease, background .18s ease, color .18s ease; }
 .mobile-bottom-nav[data-mobile-nav='true'] button.active { transform: translateY(-3px); box-shadow: 0 8px 18px rgb(37 99 235 / .14); }
+.journal-v2 > .care-calendar {
+  margin: 0;
+  border: 2px solid #d8e5fb !important;
+  box-shadow: 0 18px 42px rgb(37 99 235 / .09) !important;
+}
+.journal-v2 > .care-calendar .care-calendar-header h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); }
+.journal-v2 > .care-calendar .care-calendar-month { padding-top: 10px; }
+.journal-v2 > .care-calendar .care-calendar-day { min-height: 76px; }
+@media (max-width: 640px) {
+  .journal-v2 > .care-calendar { padding: 19px; }
+  .journal-v2 > .care-calendar .care-calendar-day { min-height: 58px; }
+}
 @media (max-width: 560px) {
   .page-heading::after { width: 64px; height: 64px; top: 0; right: 4px; }
   .page-heading h1 { font-size: clamp(2.1rem, 10vw, 3rem); }

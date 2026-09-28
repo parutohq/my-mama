@@ -1178,6 +1178,7 @@ export default function MamaApp() {
                       <button className="white-btn" onClick={() => openCheckin()}><Plus size={16} /> Add a check-in</button>
                     </div>
                   </section>
+                  {cycleMode && <CareCalendar periods={periods} checkins={checkins} care={care} investigations={investigations} currentDay={currentDay} cycleDay={stats.day} cyclePattern={profile.cyclePattern} onAddCheckin={(date) => openCheckin('Okay', undefined, date)} onAddPeriod={() => openPeriod()} />}
                   <section className="journal-v2-quick-actions" aria-label="Quick private tracking actions">
                     <button type="button" onClick={() => openCheckin()}>
                       <span className="journal-v2-quick-icon checkin"><Heart size={18} /></span>
@@ -1195,7 +1196,6 @@ export default function MamaApp() {
                       <Plus size={18} aria-hidden="true" />
                     </button>
                   </section>
-                  {cycleMode && <CareCalendar periods={periods} checkins={checkins} care={care} investigations={investigations} currentDay={currentDay} cycleDay={stats.day} cyclePattern={profile.cyclePattern} onAddCheckin={(date) => openCheckin('Okay', undefined, date)} onAddPeriod={() => openPeriod()} />}
                   <Tabs
                     value={journalTab}
                     onValueChange={(v) => setJournalTab(String(v))}
