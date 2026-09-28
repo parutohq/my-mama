@@ -1760,3 +1760,87 @@ html[data-theme='dark'] {
   background: var(--mama-page);
   color: var(--mama-text);
 }
+
+/* Premium dashboard visual system: neutral canvas, expressive data accents. */
+:root {
+  --mama-page: #f4f6f8;
+  --mama-surface: #ffffff;
+  --mama-surface-soft: #f8fafc;
+  --mama-text: #111827;
+  --mama-muted: #667085;
+  --mama-border: #e4e8ee;
+  --mama-brand: #6f344f;
+  --mama-brand-soft: #f7edf2;
+  --mama-shadow: #17203314;
+  --background: #f4f6f8;
+  --foreground: #111827;
+  --card: #ffffff;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --surface-muted: #f1f4f7;
+  --muted: #eef2f6;
+  --muted-foreground: #667085;
+  --border: #e4e8ee;
+  --border-strong: #d3dbe5;
+  --primary: #6f344f;
+  --brand: #6f344f;
+  --brand-soft: #f7edf2;
+}
+html[data-theme='dark'] {
+  --mama-page: #f4f6f8;
+  --mama-surface: #ffffff;
+  --mama-surface-soft: #f8fafc;
+  --mama-text: #111827;
+  --mama-muted: #667085;
+  --mama-border: #e4e8ee;
+  --mama-brand: #6f344f;
+  --mama-brand-soft: #f7edf2;
+  --background: #f4f6f8;
+  --foreground: #111827;
+  --card: #ffffff;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --surface-muted: #f1f4f7;
+  --muted: #eef2f6;
+  --muted-foreground: #667085;
+  --border: #e4e8ee;
+}
+body { background: #f4f6f8; color: #111827; }
+.topbar { background: rgb(255 255 255 / 92%); border-bottom: 1px solid #e4e8ee; backdrop-filter: blur(18px); }
+.sidebar { background: #fff; border-right-color: #e4e8ee; }
+.nav-item { border-radius: 14px; min-height: 46px; }
+.nav-item[data-active], .nav-item.selected { background: #eef4ff; border-color: #cfe0ff; color: #2563eb; }
+.card, .home-premium-lower > article, .home-premium-priority article, .first-data-flow, .landing-trust article { border-color: #e4e8ee; border-radius: 22px; box-shadow: 0 12px 30px #1720330d; }
+.button, .landing-primary, .auth-submit { border-radius: 14px; }
+.button { box-shadow: 0 8px 18px #6f344f1c; }
+.home-premium { background: #f4f6f8; }
+.home-premium-hero { border-radius: 28px; box-shadow: 0 22px 44px #1720331c; }
+.home-premium-priority article:first-child { background: #fff; }
+.home-premium-icon { color: #2563eb; background: #eaf2ff; }
+.home-premium-next .home-premium-icon { color: #e87824; background: #fff1e7; }
+.home-premium-bars i { background: linear-gradient(180deg, #60a5fa, #2563eb); }
+.home-premium-chip { color: #2563eb; background: #eaf2ff; }
+.home-premium-prompt { background: #fff !important; }
+.home-premium-action { background: #fff !important; }
+.landing { background: #f4f6f8; }
+.landing-hero:before { background: radial-gradient(ellipse at center, #e5eefc 0%, #f4f6f8 52%, transparent 72%); }
+.landing-art-card-main { background: linear-gradient(145deg, #173b75, #2563eb 62%, #73b8ff); }
+.landing-art-card-cycle { background: #2563ebdd; }
+.landing-art-card-pregnancy { background: #ec7a4ddd; }
+.landing-product-cards article { background: linear-gradient(145deg, #164e63, #0ea5a5); }
+.landing-product-cards article.pregnancy { background: linear-gradient(145deg, #a44d36, #f59e72); }
+.landing-product-cards article.postpartum { background: linear-gradient(145deg, #4c3a83, #8b7ad8); }
+.landing-cta { background: linear-gradient(120deg, #172554, #2563eb); }
+.first-data-flow { background: #fff; }
+.first-data-form, .auth-panel { background: #fff; }
+.first-data-visual { background: radial-gradient(circle at 85% 13%, #77b8ff 0, transparent 25%), linear-gradient(150deg, #172554, #2563eb 57%, #60a5fa); }
+.journey-choice-grid button { background: #f8fafc; }
+.journey-choice-grid button.selected { background: #eef4ff; border-color: #2563eb; }
+.care-calendar, .typical-hormone-pattern { background: #fff; border-color: #e4e8ee; }
+@media (max-width: 700px) {
+  body { background: #f4f6f8; }
+  .topbar { min-height: 62px; }
+  .home-premium-hero { border-radius: 22px; padding: 26px 22px; }
+  .home-premium-priority, .home-premium-lower { gap: 12px; }
+  .landing-hero h1 { font-size: 3.25rem; }
+}
