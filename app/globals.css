@@ -2011,3 +2011,19 @@ body { color: #111827; }
 .demo-mode-banner .text-btn, .demo-space-status b { color: #2563eb !important; }
 .account-avatar { background: #2563eb !important; border-color: #2563eb !important; }
 .brand-dot, .landing-brand .brand-dot { color: #2563eb !important; }
+
+/* Keep page structure neutral; reserve saturated color for data and actions. */
+.journey-v2-hero, .journal-v2-hero, .care-v2-hero,
+.journey-progress-card { color: #111827 !important; background: #fff !important; border: 1px solid #dfe6ef !important; box-shadow: 0 14px 32px #1720330d !important; }
+.journey-v2-hero { border-top: 4px solid #2563eb !important; }
+.journal-v2-hero { border-top: 4px solid #7c3aed !important; }
+.care-v2-hero { border-top: 4px solid #ea580c !important; }
+.journey-v2-hero h2, .journal-v2-hero h2, .care-v2-hero h2,
+.journey-v2-hero p, .journal-v2-hero p, .care-v2-hero p,
+.journey-progress-card h2, .journey-progress-card p { color: #111827 !important; }
+.journey-v2-hero span, .journal-v2-hero span, .care-v2-hero span { color: #667085 !important; }
+.journey-v2-hero .journey-v2-meta span { color: #2563eb !important; border-color: #cfe0ff; background: #eaf2ff; }
+.journey-v2-hero::after, .care-v2-hero::after, .journey-progress-card::after { border-color: #dbe5f1; }
+.journal-v2-hero::after { border-color: #ddd6fe; }
+.care-v2-hero .white-btn, .journal-v2-hero .white-btn, .journey-v2-hero .white-btn { color: #fff !important; background: #2563eb !important; }
+.journey-progress-card .progress-orb { color: #111827 !important; }
