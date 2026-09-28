@@ -1844,3 +1844,50 @@ body { background: #f4f6f8; color: #111827; }
   .home-premium-priority, .home-premium-lower { gap: 12px; }
   .landing-hero h1 { font-size: 3.25rem; }
 }
+
+/* Cross-surface propagation: every authenticated surface shares the same
+   neutral dashboard canvas and uses color only for data, status, and actions. */
+.app-main, .page, .settings-page, .care-page, .journey-page, .journal-page,
+.public-start-page, .auth-page { background: #f4f6f8 !important; color: #111827; }
+.app-main main, .page main { background: transparent; }
+.home-v2, .home-v2-shell, .journey-v2, .journal-v2, .settings-v2,
+.care-v2, .care-summary-v2 { color: #111827; }
+.home-v2-card, .home-v2-milestone, .journey-v2-timeline,
+.journal-v2-quick-actions > button, .settings-v2-care-team,
+.settings-v2-achievements, .settings-v2-notification-centre,
+.care-v2-consultation { background: #fff !important; border-color: #e4e8ee !important; box-shadow: 0 12px 30px #1720330d; }
+.home-v2-icon { color: #2563eb; background: #eaf2ff; }
+.home-v2-icon.warm { color: #e87824; background: #fff1e7; }
+.home-v2-icon.cool { color: #6954d9; background: #f0edff; }
+.home-v2-icon.primary { color: #fff; background: #2563eb; }
+.home-v2-bar span { background: linear-gradient(180deg, #60a5fa, #2563eb); }
+.home-v2-pregnancy .home-v2-bar span { background: linear-gradient(180deg, #fbab78, #ed6a4e); }
+.home-v2-postpartum .home-v2-bar span { background: linear-gradient(180deg, #a78bfa, #6954d9); }
+.home-v2-data-label { color: #2563eb; background: #eaf2ff; }
+.home-v2-data-label.estimated { color: #b45309; background: #fff1df; }
+.home-v2-milestone { border-left: 4px solid #2563eb !important; background: #fff !important; }
+.journey-v2-timeline { background: #fff !important; }
+.journey-v2-timeline li { background: #f8fafc !important; }
+.journey-v2-timeline li.complete > span { background: #2563eb; border-color: #2563eb; }
+.journal-v2-quick-icon { color: #2563eb; background: #eaf2ff; }
+.journal-v2-quick-icon.period { color: #e87824; background: #fff1e7; }
+.journal-v2-quick-icon.reminder { color: #6954d9; background: #f0edff; }
+.settings-v2-care-team, .settings-v2-achievements, .settings-v2-notification-centre { background: #fff !important; }
+.care-v2-consultation { border-left-color: #2563eb !important; background: #fff !important; }
+.care-calendar-day.selected { background: #eaf2ff !important; box-shadow: inset 0 0 0 2px #2563eb; }
+.care-calendar-day.today b { background: #2563eb; }
+.care-calendar-markers i.period, .care-calendar-legend i.period { background: #ed4f78; }
+.care-calendar-markers i.checkin, .care-calendar-legend i.checkin { background: #f59e0b; }
+.care-calendar-markers i.care, .care-calendar-legend i.care { background: #6954d9; }
+.auth-page { background: #f4f6f8 !important; }
+.auth-story { background: linear-gradient(145deg, #172554, #2563eb 58%, #60a5fa) !important; }
+.auth-panel { background: #fff !important; }
+.auth-story h1, .auth-story p, .auth-story .auth-brand { color: #fff; }
+.auth-story h1 i { color: #dbeafe; }
+.public-start-page { background: #f4f6f8 !important; }
+.public-start-flow .first-data-visual { background: linear-gradient(145deg, #172554, #2563eb 58%, #60a5fa) !important; }
+@media (max-width: 740px) {
+  .app-main, .page, .settings-page, .care-page, .journey-page, .journal-page { padding-bottom: 5.5rem; }
+  .home-v2-card, .home-v2-milestone, .journey-v2-timeline, .journal-v2-quick-actions > button { border-radius: 18px; }
+  .home-v2-card { min-height: 220px; padding: 20px; }
+}
