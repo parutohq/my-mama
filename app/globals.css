@@ -2005,6 +2005,60 @@ body { color: #111827; }
 .journey-progress-card p, .journey-v2-hero p, .care-v2-hero p, .journal-v2-hero p { color: #fff !important; }
 .journey-v2-hero .journey-v2-meta span { color: #fff !important; border-color: #ffffff55; background: #ffffff1f; }
 .journey-progress-card .progress-orb { color: #111827 !important; }
+
+/* Signature surface treatment: quiet structure, expressive data accents. */
+.page {
+  background:
+    radial-gradient(circle at 92% 4%, rgb(37 99 235 / 0.055), transparent 24rem),
+    #f6f8fb;
+}
+.page-heading h1 { letter-spacing: -0.055em; }
+.journey-v2-hero, .journal-v2-hero, .care-v2-hero {
+  isolation: isolate;
+  overflow: hidden;
+  box-shadow: 0 18px 42px rgb(16 24 40 / 0.08) !important;
+}
+.journey-v2-hero::before, .journal-v2-hero::before, .care-v2-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 7px;
+  z-index: -1;
+  background: linear-gradient(180deg, #2563eb, #60a5fa);
+}
+.journal-v2-hero::before { background: linear-gradient(180deg, #7c3aed, #c4b5fd); }
+.care-v2-hero::before { background: linear-gradient(180deg, #ea580c, #fdba74); }
+.journey-v2-hero::after, .journal-v2-hero::after, .care-v2-hero::after {
+  opacity: .7;
+  box-shadow: 0 0 0 18px rgb(255 255 255 / .45), 0 0 70px rgb(37 99 235 / .08);
+}
+.journal-v2-hero::after { box-shadow: 0 0 0 18px rgb(255 255 255 / .45), 0 0 70px rgb(124 58 237 / .08); }
+.care-v2-hero::after { box-shadow: 0 0 0 18px rgb(255 255 255 / .45), 0 0 70px rgb(234 88 12 / .08); }
+.journey-v2-hero > div, .journal-v2-hero > div, .care-v2-hero > div { position: relative; z-index: 1; }
+.journey-v2-hero .pill.light, .journal-v2-eyebrow, .care-v2-hero > div > span {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #f4f7fb;
+  color: #2563eb !important;
+}
+.journal-v2-eyebrow { color: #7c3aed !important; background: #f3efff; }
+.care-v2-hero > div > span { color: #ea580c !important; background: #fff4ec; }
+.journey-v2-hero h2, .journal-v2-hero h2, .care-v2-hero h2 { max-width: 680px; }
+.journey-v2-meta span { box-shadow: 0 3px 9px rgb(37 99 235 / .08); }
+.journal-v2-quick-actions > button, .care-v2-columns > .card, .ask-v2 > .card,
+.journey-v2-tasks, .journey-v2-insights .insight-card {
+  box-shadow: 0 12px 30px rgb(16 24 40 / .055) !important;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.journal-v2-quick-actions > button:hover, .care-v2-columns > .card:hover,
+.ask-v2 > .card:hover, .journey-v2-tasks:hover, .journey-v2-insights .insight-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 38px rgb(16 24 40 / .10) !important;
+  border-color: #cfe0ff;
+}
+.mobile-bottom-nav[data-mobile-nav='true'] {
+  box-shadow: 0 -10px 30px rgb(16 24 40 / .10);
+}
 .journey-progress-card .progress-orb span { color: #667085 !important; }
 .care-v2-hero .white-btn, .journal-v2-hero .white-btn, .journey-v2-hero .white-btn { color: #2563eb !important; background: #fff !important; }
 .demo-mode-banner, .demo-space-status { color: #344054 !important; background: #fff !important; border-color: #dbe5f1 !important; }
