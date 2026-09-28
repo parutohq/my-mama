@@ -1956,6 +1956,26 @@ body { background: #f4f6f8; color: #111827; }
   .page { width: 100%; padding-inline: 14px !important; }
 }
 
+/* Touch-first interaction language inspired by Apple's direct manipulation
+   principles: every control gives an immediate pressed and focused response. */
+button, [role='button'], a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+button:not(:disabled), [role='button'], a { cursor: pointer; }
+button:not(:disabled):active, [role='button']:active, a:active {
+  transform: scale(.97);
+  transition-duration: .08s;
+}
+button:focus-visible, [role='button']:focus-visible, a:focus-visible {
+  outline: 3px solid rgb(37 99 235 / .35);
+  outline-offset: 3px;
+}
+.mobile-bottom-nav[data-mobile-nav='true'] button:active { transform: translateY(-1px) scale(.95); }
+.mobile-bottom-nav[data-mobile-nav='true'] button { min-height: 52px; }
+.journal-v2-quick-actions > button, .ask-v2-prompts > button, .care-v2-checklist button,
+.journey-task, .outline-btn, .primary-btn, .text-btn { min-height: 44px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
 /* Final palette correction: plum is no longer an interaction or navigation
    color. Keep the wordmark editorial; use product colors for the interface. */
 :root {
