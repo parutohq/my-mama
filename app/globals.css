@@ -659,6 +659,49 @@ svg {
     margin-top: 25px;
   }
 }
+
+/* Premium refinement: a quieter canvas, deliberate rhythm, and tactile
+   surfaces give the product a composed, high-trust feel. */
+:root {
+  --premium-ink: #101828;
+  --premium-muted: #667085;
+  --premium-line: #e4e9f1;
+  --premium-surface: #ffffff;
+}
+body { background: #f5f7fa; color: var(--premium-ink); }
+.app-main { background: linear-gradient(180deg, #f8fafc 0%, #f4f6f9 100%); }
+.page { max-width: 1440px; margin-inline: auto; }
+.page-heading { padding-top: clamp(1.25rem, 3vw, 2.5rem); }
+.page-heading .eyebrow { color: #667085; letter-spacing: .14em; }
+.page-heading h1 { color: var(--premium-ink); font-weight: 500; }
+.page-heading > div > p:last-child { color: var(--premium-muted); }
+.card, .home-v2-card, .home-v2-milestone, .insight-card, .journal-v2-quick-actions > button {
+  background: var(--premium-surface) !important;
+  border: 1px solid var(--premium-line) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 10px 28px rgb(16 24 40 / .045) !important;
+}
+.section-title h2, .card h2 { color: var(--premium-ink); }
+.helper, .card p, .journal-v2-quick-actions small { color: var(--premium-muted); }
+.field input, .field select, .field textarea, input, textarea, select {
+  border-color: #dfe5ee;
+  border-radius: 13px;
+  background: #fbfcfe;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.field input:focus, .field select:focus, .field textarea:focus, input:focus, textarea:focus, select:focus {
+  border-color: #7aa7ff;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgb(37 99 235 / .11);
+  outline: none;
+}
+.demo-mode-banner, .demo-space-status { border-radius: 16px !important; box-shadow: 0 6px 18px rgb(16 24 40 / .035); }
+.account-avatar { box-shadow: 0 8px 18px rgb(37 99 235 / .22); }
+.topbar-title > span { color: #667085; font-weight: 600; letter-spacing: -.01em; }
+@media (max-width: 767px) {
+  .page { padding-top: 4px; }
+  .card, .home-v2-card, .home-v2-milestone, .insight-card { border-radius: 20px !important; }
+}
 @media (prefers-reduced-motion: reduce) {
   * {
     animation: none !important;
