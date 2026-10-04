@@ -2353,3 +2353,19 @@ body, .app-main { background: #f5f5f7 !important; color: #1d1d1f !important; }
 .mama-dialog { background: #fff !important; border-color: #d2d2d7 !important; color: #1d1d1f !important; }
 .field input, .field select, .field textarea, input, textarea, select { background: #fff !important; border-color: #d2d2d7 !important; color: #1d1d1f !important; }
 .field input:focus, .field select:focus, .field textarea:focus, input:focus, textarea:focus, select:focus { border-color: #007aff !important; box-shadow: 0 0 0 4px rgb(0 122 255 / .16) !important; }
+.home-premium-hero, .home-premium-pregnancy .home-premium-hero, .home-premium-postpartum .home-premium-hero,
+.journey-progress-card, .journey-v2-hero, .care-v2-hero, .journal-v2-hero,
+.auth-story, .first-data-visual, .public-start-flow .first-data-visual, .landing-cta {
+  background: #fff !important;
+  color: #1d1d1f !important;
+  border-color: #d2d2d7 !important;
+}
+.home-premium-hero *, .journey-progress-card *, .journey-v2-hero *, .care-v2-hero *, .journal-v2-hero * { color: #1d1d1f !important; }
+.home-premium-hero .button, .home-premium-hero .primary-btn, .journey-v2-hero .white-btn,
+.care-v2-hero .white-btn, .journal-v2-hero .white-btn { color: #fff !important; background: #007aff !important; }
+.home-premium-hero::before, .journey-v2-hero::before { background: linear-gradient(180deg, #007aff, #5ac8fa) !important; }
+.journal-v2-hero::before { background: linear-gradient(180deg, #5856d6, #af52de) !important; }
+.care-v2-hero::before { background: linear-gradient(180deg, #ff9500, #ffcc00) !important; }
+.auth-story h1, .auth-story p, .auth-story .auth-brand { color: #1d1d1f !important; }
+.auth-story h1 i { color: #007aff !important; }
+.home-premium-hero .home-premium-chip, .home-premium-hero .data-label { color: #007aff !important; background: #eaf3ff !important; }
