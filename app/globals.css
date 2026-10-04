@@ -660,6 +660,83 @@ svg {
   }
 }
 
+/* Unified v3 visual system. Keep this block last so older screen-specific
+   rules cannot reintroduce the previous plum-heavy interface. */
+:root {
+  --brand-v3: #2563eb;
+  --ink-v3: #0f172a;
+  --muted-v3: #64748b;
+  --line-v3: #e2e8f0;
+  --canvas-v3: #f7f9fc;
+}
+body { background: var(--canvas-v3); color: var(--ink-v3); }
+.app-main { background: var(--canvas-v3) !important; }
+.topbar { min-height: 72px; background: rgb(255 255 255 / .86) !important; border-bottom: 1px solid var(--line-v3) !important; }
+.topbar-title > span { color: var(--muted-v3) !important; font-size: .88rem; }
+.topbar-brand-lockup { display: grid; gap: 1px; }
+.topbar-brand-lockup strong { color: var(--ink-v3); font-family: var(--mama-font-editorial); font-size: 1.35rem; font-weight: 600; letter-spacing: -.05em; line-height: 1; }
+.topbar-brand-lockup strong span { color: var(--brand-v3); }
+.topbar-brand-lockup > span { color: var(--muted-v3); font-size: .72rem; font-weight: 600; letter-spacing: .01em; }
+.page { width: min(100%, 1240px); padding-top: 28px; padding-bottom: 112px; }
+.page-heading { align-items: end; gap: 20px; margin-bottom: 24px; }
+.page-heading h1 { color: var(--ink-v3) !important; font-size: clamp(2.35rem, 4vw, 3.4rem); line-height: 1.03; }
+.page-heading h1 > span { color: var(--brand-v3) !important; }
+.page-heading > div > p:last-child { max-width: 620px; color: var(--muted-v3) !important; font-size: 1rem; }
+.eyebrow { color: #64748b !important; font-size: .68rem; letter-spacing: .16em; }
+.card, .home-v2-card, .home-v2-milestone, .insight-card, .care-calendar,
+.journal-v2-quick-actions > button, .journey-v2-timeline {
+  border: 1px solid var(--line-v3) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 14px 34px rgb(15 23 42 / .055) !important;
+}
+.primary-btn, .button, .outline-btn, .text-btn { border-radius: 12px; }
+.primary-btn, .button { background: var(--brand-v3) !important; border-color: var(--brand-v3) !important; }
+.account-avatar { background: var(--brand-v3) !important; border-color: var(--brand-v3) !important; }
+.journal-v2 > .care-calendar { border: 2px solid #cfe0ff !important; background: #fff !important; }
+.care-calendar-day.selected { background: #eaf2ff !important; box-shadow: inset 0 0 0 2px var(--brand-v3) !important; }
+.care-calendar-day.today b { background: var(--brand-v3) !important; }
+.care-calendar-day { min-height: 72px; }
+.mobile-bottom-nav[data-mobile-nav='true'] { border-top: 1px solid var(--line-v3); background: rgb(255 255 255 / .92); backdrop-filter: blur(24px); }
+.mobile-bottom-nav[data-mobile-nav='true'] button { color: #8391a7; }
+.mobile-bottom-nav[data-mobile-nav='true'] button.active { color: var(--brand-v3) !important; background: #eaf2ff !important; }
+.mobile-bottom-nav[data-mobile-nav='true'] button:nth-child(4).active { color: #fff !important; background: var(--brand-v3) !important; }
+@media (max-width: 767px) {
+  .topbar { min-height: 58px; }
+  .page { padding: 16px 14px calc(112px + env(safe-area-inset-bottom)); }
+  .page-heading { display: grid; gap: 14px; margin-bottom: 18px; }
+  .page-heading > .primary-btn { width: 100%; justify-content: center; }
+  .topbar-brand-lockup > span { display: none; }
+  .topbar-brand-lockup strong { font-size: 1.22rem; }
+  .card, .home-v2-card, .home-v2-milestone, .insight-card, .care-calendar { border-radius: 18px !important; }
+  .care-calendar-day { min-height: 58px; }
+}
+@media (max-width: 560px) {
+  .page-heading::after { width: 64px; height: 64px; top: 0; right: 4px; }
+  .page-heading h1 { font-size: clamp(2.1rem, 10vw, 3rem); }
+}
+.journey-progress-card .progress-orb span { color: #667085 !important; }
+.care-v2-hero .white-btn, .journal-v2-hero .white-btn, .journey-v2-hero .white-btn { color: #2563eb !important; background: #fff !important; }
+.demo-mode-banner, .demo-space-status { color: #344054 !important; background: #fff !important; border-color: #dbe5f1 !important; }
+.demo-mode-banner .text-btn, .demo-space-status b { color: #2563eb !important; }
+.account-avatar { background: #2563eb !important; border-color: #2563eb !important; }
+.brand-dot, .landing-brand .brand-dot { color: #2563eb !important; }
+
+/* Keep page structure neutral; reserve saturated color for data and actions. */
+.journey-v2-hero, .journal-v2-hero, .care-v2-hero,
+.journey-progress-card { color: #111827 !important; background: #fff !important; border: 1px solid #dfe6ef !important; box-shadow: 0 14px 32px #1720330d !important; }
+.journey-v2-hero { border-top: 4px solid #2563eb !important; }
+.journal-v2-hero { border-top: 4px solid #7c3aed !important; }
+.care-v2-hero { border-top: 4px solid #ea580c !important; }
+.journey-v2-hero h2, .journal-v2-hero h2, .care-v2-hero h2,
+.journey-v2-hero p, .journal-v2-hero p, .care-v2-hero p,
+.journey-progress-card h2, .journey-progress-card p { color: #111827 !important; }
+.journey-v2-hero span, .journal-v2-hero span, .care-v2-hero span { color: #667085 !important; }
+.journey-v2-hero .journey-v2-meta span { color: #2563eb !important; border-color: #cfe0ff; background: #eaf2ff; }
+.journey-v2-hero::after, .care-v2-hero::after, .journey-progress-card::after { border-color: #dbe5f1; }
+.journal-v2-hero::after { border-color: #ddd6fe; }
+.care-v2-hero .white-btn, .journal-v2-hero .white-btn, .journey-v2-hero .white-btn { color: #fff !important; background: #2563eb !important; }
+.journey-progress-card .progress-orb { color: #111827 !important; }
+
 /* Premium refinement: a quieter canvas, deliberate rhythm, and tactile
    surfaces give the product a composed, high-trust feel. */
 :root {
@@ -2209,79 +2286,70 @@ body { color: #111827; }
   .journal-v2 > .care-calendar .care-calendar-day { min-height: 58px; }
 }
 
-/* Unified v3 visual system. Keep this block last so older screen-specific
-   rules cannot reintroduce the previous plum-heavy interface. */
+/* Apple-inspired semantic color system. Structure stays neutral; color is
+   reserved for actions, state, and recorded health data. */
 :root {
-  --brand-v3: #2563eb;
-  --ink-v3: #0f172a;
-  --muted-v3: #64748b;
-  --line-v3: #e2e8f0;
-  --canvas-v3: #f7f9fc;
+  --background: #f5f5f7 !important;
+  --foreground: #1d1d1f !important;
+  --card: #ffffff !important;
+  --surface: #ffffff !important;
+  --surface-elevated: #ffffff !important;
+  --surface-muted: #f2f2f7 !important;
+  --muted: #f2f2f7 !important;
+  --muted-foreground: #6e6e73 !important;
+  --text-primary: #1d1d1f !important;
+  --text-secondary: #6e6e73 !important;
+  --text-muted: #86868b !important;
+  --primary: #007aff !important;
+  --brand: #007aff !important;
+  --brand-soft: #eaf3ff !important;
+  --accent: #eaf3ff !important;
+  --border: #d2d2d7 !important;
+  --border-strong: #b8b8bd !important;
+  --success: #34c759 !important;
+  --warning: #ff9500 !important;
+  --danger: #ff3b30 !important;
+  --info: #5856d6 !important;
+  --canvas-v3: #f5f5f7 !important;
+  --ink-v3: #1d1d1f !important;
+  --muted-v3: #6e6e73 !important;
+  --line-v3: #d2d2d7 !important;
+  --brand-v3: #007aff !important;
 }
-body { background: var(--canvas-v3); color: var(--ink-v3); }
-.app-main { background: var(--canvas-v3) !important; }
-.topbar { min-height: 72px; background: rgb(255 255 255 / .86) !important; border-bottom: 1px solid var(--line-v3) !important; }
-.topbar-title > span { color: var(--muted-v3) !important; font-size: .88rem; }
-.topbar-brand-lockup { display: grid; gap: 1px; }
-.topbar-brand-lockup strong { color: var(--ink-v3); font-family: var(--mama-font-editorial); font-size: 1.35rem; font-weight: 600; letter-spacing: -.05em; line-height: 1; }
-.topbar-brand-lockup strong span { color: var(--brand-v3); }
-.topbar-brand-lockup > span { color: var(--muted-v3); font-size: .72rem; font-weight: 600; letter-spacing: .01em; }
-.page { width: min(100%, 1240px); padding-top: 28px; padding-bottom: 112px; }
-.page-heading { align-items: end; gap: 20px; margin-bottom: 24px; }
-.page-heading h1 { color: var(--ink-v3) !important; font-size: clamp(2.35rem, 4vw, 3.4rem); line-height: 1.03; }
-.page-heading h1 > span { color: var(--brand-v3) !important; }
-.page-heading > div > p:last-child { max-width: 620px; color: var(--muted-v3) !important; font-size: 1rem; }
-.eyebrow { color: #64748b !important; font-size: .68rem; letter-spacing: .16em; }
+body, .app-main { background: #f5f5f7 !important; color: #1d1d1f !important; }
+.topbar, .sidebar { background: rgb(255 255 255 / .92) !important; border-color: #d2d2d7 !important; }
+.brand, .brand > span, .brand > svg { color: #1d1d1f !important; }
+.brand-dot, .landing-brand .brand-dot, .page-heading h1 > span { color: #007aff !important; }
+.nav-item, .topbar-title > span, .topbar-brand-lockup > span { color: #6e6e73 !important; }
+.nav-item[data-active], .nav-item.selected { color: #007aff !important; background: #eaf3ff !important; border-color: #c7e0ff !important; }
+.account-avatar, .primary-btn, .button, .landing-primary, .auth-submit { background: #007aff !important; border-color: #007aff !important; }
+.text-btn, .home-v2-link, .help-link, .public-start-sign-in { color: #007aff !important; }
 .card, .home-v2-card, .home-v2-milestone, .insight-card, .care-calendar,
-.journal-v2-quick-actions > button, .journey-v2-timeline {
-  border: 1px solid var(--line-v3) !important;
-  border-radius: 20px !important;
-  box-shadow: 0 14px 34px rgb(15 23 42 / .055) !important;
+.journal-v2-quick-actions > button, .journey-v2-timeline, .demo-mode-banner {
+  background: #fff !important; border-color: #d2d2d7 !important;
 }
-.primary-btn, .button, .outline-btn, .text-btn { border-radius: 12px; }
-.primary-btn, .button { background: var(--brand-v3) !important; border-color: var(--brand-v3) !important; }
-.account-avatar { background: var(--brand-v3) !important; border-color: var(--brand-v3) !important; }
-.journal-v2 > .care-calendar { border: 2px solid #cfe0ff !important; background: #fff !important; }
-.care-calendar-day.selected { background: #eaf2ff !important; box-shadow: inset 0 0 0 2px var(--brand-v3) !important; }
-.care-calendar-day.today b { background: var(--brand-v3) !important; }
-.care-calendar-day { min-height: 72px; }
-.mobile-bottom-nav[data-mobile-nav='true'] { border-top: 1px solid var(--line-v3); background: rgb(255 255 255 / .92); backdrop-filter: blur(24px); }
-.mobile-bottom-nav[data-mobile-nav='true'] button { color: #8391a7; }
-.mobile-bottom-nav[data-mobile-nav='true'] button.active { color: var(--brand-v3) !important; background: #eaf2ff !important; }
-.mobile-bottom-nav[data-mobile-nav='true'] button:nth-child(4).active { color: #fff !important; background: var(--brand-v3) !important; }
-@media (max-width: 767px) {
-  .topbar { min-height: 58px; }
-  .page { padding: 16px 14px calc(112px + env(safe-area-inset-bottom)); }
-  .page-heading { display: grid; gap: 14px; margin-bottom: 18px; }
-  .page-heading > .primary-btn { width: 100%; justify-content: center; }
-  .topbar-brand-lockup > span { display: none; }
-  .topbar-brand-lockup strong { font-size: 1.22rem; }
-  .card, .home-v2-card, .home-v2-milestone, .insight-card, .care-calendar { border-radius: 18px !important; }
-  .care-calendar-day { min-height: 58px; }
-}
-@media (max-width: 560px) {
-  .page-heading::after { width: 64px; height: 64px; top: 0; right: 4px; }
-  .page-heading h1 { font-size: clamp(2.1rem, 10vw, 3rem); }
-}
-.journey-progress-card .progress-orb span { color: #667085 !important; }
-.care-v2-hero .white-btn, .journal-v2-hero .white-btn, .journey-v2-hero .white-btn { color: #2563eb !important; background: #fff !important; }
-.demo-mode-banner, .demo-space-status { color: #344054 !important; background: #fff !important; border-color: #dbe5f1 !important; }
-.demo-mode-banner .text-btn, .demo-space-status b { color: #2563eb !important; }
-.account-avatar { background: #2563eb !important; border-color: #2563eb !important; }
-.brand-dot, .landing-brand .brand-dot { color: #2563eb !important; }
-
-/* Keep page structure neutral; reserve saturated color for data and actions. */
-.journey-v2-hero, .journal-v2-hero, .care-v2-hero,
-.journey-progress-card { color: #111827 !important; background: #fff !important; border: 1px solid #dfe6ef !important; box-shadow: 0 14px 32px #1720330d !important; }
-.journey-v2-hero { border-top: 4px solid #2563eb !important; }
-.journal-v2-hero { border-top: 4px solid #7c3aed !important; }
-.care-v2-hero { border-top: 4px solid #ea580c !important; }
-.journey-v2-hero h2, .journal-v2-hero h2, .care-v2-hero h2,
-.journey-v2-hero p, .journal-v2-hero p, .care-v2-hero p,
-.journey-progress-card h2, .journey-progress-card p { color: #111827 !important; }
-.journey-v2-hero span, .journal-v2-hero span, .care-v2-hero span { color: #667085 !important; }
-.journey-v2-hero .journey-v2-meta span { color: #2563eb !important; border-color: #cfe0ff; background: #eaf2ff; }
-.journey-v2-hero::after, .care-v2-hero::after, .journey-progress-card::after { border-color: #dbe5f1; }
-.journal-v2-hero::after { border-color: #ddd6fe; }
-.care-v2-hero .white-btn, .journal-v2-hero .white-btn, .journey-v2-hero .white-btn { color: #fff !important; background: #2563eb !important; }
-.journey-progress-card .progress-orb { color: #111827 !important; }
+.page-heading .eyebrow, .eyebrow { color: #6e6e73 !important; }
+.page-heading h1, .card h2, .card h3, .section-title h2 { color: #1d1d1f !important; }
+.page-heading > div > p:last-child, .helper, .card p { color: #6e6e73 !important; }
+.care-calendar-day { background: #fff !important; color: #1d1d1f !important; border-color: #d2d2d7 !important; }
+.care-calendar-day.selected { background: #eaf3ff !important; box-shadow: inset 0 0 0 2px #007aff !important; }
+.care-calendar-day.today b { background: #007aff !important; }
+.care-calendar-markers i.period, .care-calendar-legend i.period { background: #ff375f !important; }
+.care-calendar-markers i.checkin, .care-calendar-legend i.checkin { background: #ff9500 !important; }
+.care-calendar-markers i.care, .care-calendar-legend i.care { background: #5856d6 !important; }
+.journal-v2-quick-icon.checkin { color: #007aff !important; background: #eaf3ff !important; }
+.journal-v2-quick-icon.period { color: #ff375f !important; background: #fff0f3 !important; }
+.journal-v2-quick-icon.reminder { color: #5856d6 !important; background: #f0efff !important; }
+.home-v2-card::before, .insight-card::before { background: linear-gradient(90deg, #007aff, #5ac8fa) !important; }
+.home-v2-card:nth-child(3n+2)::before, .insight-card:nth-child(3n+2)::before { background: linear-gradient(90deg, #5856d6, #af52de) !important; }
+.home-v2-card:nth-child(3n)::before, .insight-card:nth-child(3n)::before { background: linear-gradient(90deg, #ff9500, #ffcc00) !important; }
+.journey-v2-hero { border-top-color: #007aff !important; }
+.journal-v2-hero { border-top-color: #5856d6 !important; }
+.care-v2-hero { border-top-color: #ff9500 !important; }
+.mobile-bottom-nav[data-mobile-nav='true'] { background: rgb(255 255 255 / .94) !important; border-color: #d2d2d7 !important; }
+.mobile-bottom-nav[data-mobile-nav='true'] button { color: #86868b !important; }
+.mobile-bottom-nav[data-mobile-nav='true'] button.active { color: #007aff !important; background: #eaf3ff !important; }
+.mobile-bottom-nav[data-mobile-nav='true'] button:nth-child(4).active { color: #fff !important; background: #007aff !important; }
+.mama-dialog { background: #fff !important; border-color: #d2d2d7 !important; color: #1d1d1f !important; }
+.field input, .field select, .field textarea, input, textarea, select { background: #fff !important; border-color: #d2d2d7 !important; color: #1d1d1f !important; }
+.field input:focus, .field select:focus, .field textarea:focus, input:focus, textarea:focus, select:focus { border-color: #007aff !important; box-shadow: 0 0 0 4px rgb(0 122 255 / .16) !important; }
