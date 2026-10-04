@@ -784,7 +784,10 @@ export default function MamaApp() {
         <header className="topbar">
           <div className="topbar-title">
             <SidebarTrigger />
-            <span>Your daily companion</span>
+            <div className="topbar-brand-lockup">
+              <strong>mama<span>.</span></strong>
+              <span>Your daily companion</span>
+            </div>
           </div>
           <div className="topbar-actions">
             <div className="account-menu-wrap">
