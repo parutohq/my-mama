@@ -1856,7 +1856,7 @@ export default function MamaApp() {
           </footer>
         </div>
       </main>
-      <MobileBottomNavigation view={view} onNavigate={go} />
+      <MobileBottomNavigation view={view} onNavigate={go} onAction={() => openCheckin()} />
       <Dialog
         open={modal !== null}
         onOpenChange={(open) => {
