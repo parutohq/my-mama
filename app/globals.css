@@ -2369,3 +2369,24 @@ body, .app-main { background: #f5f5f7 !important; color: #1d1d1f !important; }
 .auth-story h1, .auth-story p, .auth-story .auth-brand { color: #1d1d1f !important; }
 .auth-story h1 i { color: #007aff !important; }
 .home-premium-hero .home-premium-chip, .home-premium-hero .data-label { color: #007aff !important; background: #eaf3ff !important; }
+.home-premium { position: relative; overflow: clip; }
+.home-premium::before, .home-premium::after { content: ''; position: absolute; z-index: -1; pointer-events: none; border-radius: 50%; filter: blur(.2px); }
+.home-premium::before { width: 360px; height: 360px; top: -190px; right: -130px; background: #eef4ff; }
+.home-premium::after { width: 280px; height: 280px; bottom: 120px; left: -170px; background: #f5f1ff; }
+.home-premium-intro { position: relative; z-index: 1; }
+.home-premium-hero { border: 1px solid #d2d2d7 !important; border-left: 6px solid #007aff !important; box-shadow: 0 18px 44px rgb(0 122 255 / .10) !important; }
+.home-premium-hero-copy .home-premium-kicker { color: #007aff !important; }
+.home-premium-hero h3 { color: #1d1d1f !important; }
+.home-premium-hero-copy > p { color: #6e6e73 !important; }
+.home-premium-hero-actions .button { color: #fff !important; background: #007aff !important; }
+.home-premium-hero-actions button:not(.button) { color: #007aff !important; }
+.home-premium-journey-mark { padding: 22px; border: 1px solid #d2d2d7; border-radius: 24px; background: #f5f9ff; }
+.home-premium-journey-mark > span, .home-premium-journey-mark b, .home-premium-journey-mark small { color: #6e6e73 !important; }
+.home-premium-ring { border-color: #007aff; border-left-color: #b9d7ff; border-bottom-color: #b9d7ff; }
+@media (max-width: 760px) {
+  .home-premium { gap: 16px; }
+  .home-premium-hero { border-left-width: 4px !important; }
+  .home-premium-hero h3 { font-size: 2.45rem; }
+  .home-premium-journey-mark { margin-inline: 0; border-radius: 20px; }
+  .home-premium-priority article, .home-premium-lower > article { box-shadow: 0 10px 25px rgb(15 23 42 / .06) !important; }
+}
