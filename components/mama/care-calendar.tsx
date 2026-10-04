@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, History, Plus } from 'lucide-react';
 import type { Checkin, CareItem, Period } from '@/lib/care-model';
 import type { Investigation } from '@/lib/care-details-model';
 import { calendarDays, recordedMarkers } from '@/lib/care-calendar-model';
@@ -40,6 +40,10 @@ export function CareCalendar({ periods, checkins, care, investigations, currentD
     <div className="care-calendar-header">
       <div><span className="eyebrow">YOUR RECORDED HISTORY</span><h2 id="calendar-title">Calendar</h2><p>Recorded dates are shown as entries. Estimated dates, when supported, are labelled separately.</p></div>
       <div className="care-calendar-actions"><button className="icon-button" aria-label="Previous month" onClick={() => move(-1)}><ChevronLeft size={18} /></button><button className="outline-btn" onClick={() => { setMonth(new Date(`${currentDay}T12:00:00`)); setSelected(currentDay); }}>Today</button><button className="icon-button" aria-label="Next month" onClick={() => move(1)}><ChevronRight size={18} /></button></div>
+    </div>
+    <div className="care-calendar-toolbar" aria-label="Calendar view">
+      <div className="care-calendar-segmented"><button type="button" className="active" aria-pressed="true">Month</button><button type="button" disabled title="Year history is coming soon">Year</button></div>
+      <button type="button" className="care-calendar-history" aria-label="Recorded history" disabled><History size={19} /></button>
     </div>
     <div className="care-calendar-month"><h3>{monthLabel(month)}</h3><button className="text-btn" onClick={onAddPeriod}><Plus size={15} /> Record period</button></div>
     <div className="care-calendar-grid" role="grid" aria-label={monthLabel(month)}>

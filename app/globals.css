@@ -2396,6 +2396,33 @@ body, .app-main { background: #f5f5f7 !important; color: #1d1d1f !important; }
 .home-premium::before { background: #fff1f7; }
 .home-premium::after { background: #f0edff; }
 .home-premium-ring { border-color: var(--mama-pink); border-left-color: #f8c2d8; border-bottom-color: #f8c2d8; }
+.care-calendar { gap: 0; padding: 0 !important; overflow: hidden; }
+.care-calendar-header { padding: 24px 24px 14px; }
+.care-calendar-header h2 { color: #1d1d1f !important; font-size: 1.7rem; }
+.care-calendar-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 6px 24px 18px; }
+.care-calendar-segmented { display: inline-flex; padding: 4px; border: 1px solid #e2dff0; border-radius: 999px; background: #f3f1f9; }
+.care-calendar-segmented button { min-width: 74px; height: 34px; border: 0; border-radius: 999px; color: #6e6e73; background: transparent; font-size: .82rem; font-weight: 750; }
+.care-calendar-segmented button.active { color: var(--mama-purple); background: #fff; box-shadow: 0 3px 10px rgb(91 75 183 / .16); }
+.care-calendar-history { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; color: var(--mama-purple); background: var(--mama-purple-soft); }
+.care-calendar-month { padding: 0 24px 14px; }
+.care-calendar-month h3 { color: #1d1d1f; font-size: 1.15rem; }
+.care-calendar-grid { border-color: #ebe9f0; }
+.care-calendar-weekday { padding: 8px 5px; color: var(--mama-purple); font-size: .7rem; font-weight: 750; }
+.care-calendar-day { min-height: 72px; padding: 10px 8px; border-color: #ebe9f0; }
+.care-calendar-day:has(.period) { background: #fff0f5 !important; }
+.care-calendar-day:has(.period) b { color: var(--mama-pink); }
+.care-calendar-day:has(.period.selected), .care-calendar-day.selected:has(.period) { background: var(--mama-pink) !important; color: #fff; }
+.care-calendar-day.selected:has(.period) b { color: #fff; }
+.care-calendar-details { margin-top: 18px; padding: 20px 24px 24px; background: #fbfaff; border-top: 1px solid #ebe9f0; }
+.care-calendar-details-heading h3 { color: #1d1d1f; font-size: 1.15rem; }
+.care-calendar-empty { border-color: #ddd8f5; background: #f7f5ff; }
+@media (max-width: 640px) {
+  .care-calendar-header { padding: 20px 17px 10px; }
+  .care-calendar-toolbar { padding-inline: 17px; }
+  .care-calendar-month { padding-inline: 17px; }
+  .care-calendar-day { min-height: 60px; padding: 8px 5px; }
+  .care-calendar-details { padding-inline: 17px; }
+}
 .mama-dialog { background: #fff !important; border-color: #d2d2d7 !important; color: #1d1d1f !important; }
 .field input, .field select, .field textarea, input, textarea, select { background: #fff !important; border-color: #d2d2d7 !important; color: #1d1d1f !important; }
 .field input:focus, .field select:focus, .field textarea:focus, input:focus, textarea:focus, select:focus { border-color: #007aff !important; box-shadow: 0 0 0 4px rgb(0 122 255 / .16) !important; }
