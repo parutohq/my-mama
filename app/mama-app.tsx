@@ -242,19 +242,9 @@ export default function MamaApp() {
     setArticle(null);
     setTimeout(() => heading.current?.focus(), 0);
   }, []);
-  const load = useCallback((requestedMode?: 'account' | 'demo') => {
-    return fetch('/api/demo', { cache: 'no-store' })
-      .then(async (demoResponse) => {
-        const demo = await demoResponse.json() as { available?: boolean; hidden?: boolean; deleted?: boolean; activeMode?: 'account' | 'demo' };
-        if (!demoResponse.ok) throw new Error('Could not load your care-space settings.');
-        const mode = requestedMode === 'demo' && demo.available && !demo.hidden ? 'demo' : requestedMode || demo.activeMode || 'account';
-        setCareMode(mode);
-        setDemoAvailable(Boolean(demo.available));
-        setDemoHidden(Boolean(demo.hidden));
-        setDemoDeleted(Boolean(demo.deleted));
-        const query = mode === 'demo' ? '?mode=demo' : '';
-        return Promise.all([fetch(`/api/records${query}`, { cache: 'no-store' }), fetch(`/api/engagement${query}`, { cache: 'no-store' }), fetch('/api/sharing', { cache: 'no-store' }), fetch(`/api/care-details${query}`, { cache: 'no-store' })]);
-      })
+  const load = useCallback((_requestedMode?: 'account' | 'demo') => {
+    setCareMode('account');
+    return Promise.all([fetch('/api/records', { cache: 'no-store' }), fetch('/api/engagement', { cache: 'no-store' }), fetch('/api/sharing', { cache: 'no-store' }), fetch('/api/care-details', { cache: 'no-store' })])
       .then(async ([recordsResponse, engagementResponse, sharingResponse, careDetailsResponse]) => {
         const recordsData = await recordsResponse.json() as { records?: CareRecord[]; error?: string };
         const engagementData = await engagementResponse.json() as { engagement?: EngagementData; error?: string };
@@ -873,12 +863,6 @@ export default function MamaApp() {
           )}
           {!loading && !loadError && !engagementReady && (
             <output className="engagement-pending" aria-live="polite">MAMA’s new journey tools are being prepared for this preview. Your existing care records remain available.</output>
-          )}
-          {!loading && !loadError && careMode === 'demo' && (
-            <output className="engagement-pending demo-mode-banner" aria-live="polite"><b>Demo mode</b> — illustrative records only. Your personal care records are not shown, changed or exported here. <button className="text-btn" onClick={() => void updateDemo('account')}>Return to personal account</button></output>
-          )}
-          {!loading && !loadError && careMode === 'account' && demoAvailable && !demoHidden && (
-            <output className="engagement-pending demo-mode-banner" aria-live="polite">Want to compare the experience? <button className="text-btn" onClick={() => void updateDemo('demo')}>Open demo mode</button></output>
           )}
           {loading ? (
             <div
@@ -1814,19 +1798,6 @@ export default function MamaApp() {
                     <Trophy size={23} />
                     <h2 className="spaced">Your care moments</h2>
                     {sensitiveJourney ? <p>Care moments are paused here so you can keep only what feels useful.</p> : engagement.achievements.length ? <div className="settings-v2-achievement-list">{engagement.achievements.slice(0, 4).map((achievement) => <div key={achievement.code}><b>{achievement.title}</b><span>{achievement.description}</span></div>)}</div> : <p>Constructive moments such as tracking, learning, preparation and follow-up can appear here. MAMA never rewards medical outcomes.</p>}
-                  </section>
-                  <section className="card settings-v2-demo">
-                    <Sparkles size={23} />
-                    <h2 className="spaced">Demo care space</h2>
-                    <p>Demo mode contains illustrative MAMA records in a separate view. It never changes, mixes with or exports your personal records.</p>
-                    <div className="demo-space-status"><b>{careMode === 'demo' ? 'Demo mode is active' : 'Personal account is active'}</b><span>{careMode === 'demo' ? 'Demo is view-only.' : 'Only your personal records are shown.'}</span></div>
-                    {!demoAvailable && !demoDeleted && <button className="outline-btn spaced" disabled={saving} onClick={() => void updateDemo('start')}><Sparkles size={16} /> {saving ? 'Preparing…' : 'Start demo mode'}</button>}
-                    {demoAvailable && !demoHidden && careMode === 'account' && <button className="outline-btn spaced" disabled={saving} onClick={() => void updateDemo('demo')}><Sparkles size={16} /> Open demo mode</button>}
-                    {careMode === 'demo' && <button className="outline-btn spaced" disabled={saving} onClick={() => void updateDemo('account')}>Return to personal account</button>}
-                    {demoAvailable && !demoHidden && <button className="text-btn spaced" disabled={saving} onClick={() => void updateDemo('hide')}>Hide demo from my account</button>}
-                    {demoAvailable && demoHidden && <button className="outline-btn spaced" disabled={saving} onClick={() => void updateDemo('show')}>Show demo again</button>}
-                    {demoAvailable && <button className="outline-btn danger-text spaced" disabled={saving} onClick={() => void clearSampleData()}><Trash2 size={16} /> {saving ? 'Deleting…' : 'Permanently delete demo data'}</button>}
-                    {demoDeleted && <p className="helper">Demo data has been permanently deleted. Your personal records remain unchanged.</p>}
                   </section>
                   <section className="card settings-v2-privacy">
                     <LockKeyhole size={23} />
