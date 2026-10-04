@@ -2366,6 +2366,36 @@ body, .app-main { background: #f5f5f7 !important; color: #1d1d1f !important; }
 }
 .mobile-bottom-nav[data-mobile-nav='true'] .mobile-bottom-nav-action:hover { background: #ff2d55 !important; }
 .mobile-bottom-nav[data-mobile-nav='true'] .mobile-bottom-nav-action:active { transform: translateY(2px) scale(.94); }
+
+/* MAMA feminine accent palette: pink carries cycle/action emphasis, purple
+   carries selected and care states, while structure remains neutral. */
+:root {
+  --mama-pink: #f45b93;
+  --mama-pink-soft: #fff0f5;
+  --mama-purple: #5b4bb7;
+  --mama-purple-soft: #f0edff;
+}
+.page-heading h1 > span, .brand-dot { color: var(--mama-pink) !important; }
+.primary-btn, .button, .account-avatar { background: var(--mama-purple) !important; border-color: var(--mama-purple) !important; }
+.text-btn, .help-link, .home-v2-link { color: var(--mama-purple) !important; }
+.mobile-bottom-nav[data-mobile-nav='true'] button.active { color: var(--mama-pink) !important; background: var(--mama-pink-soft) !important; }
+.mobile-bottom-nav[data-mobile-nav='true'] .mobile-bottom-nav-action { background: var(--mama-pink) !important; box-shadow: 0 10px 24px rgb(244 91 147 / .32); }
+.care-calendar-day.selected { background: var(--mama-purple-soft) !important; box-shadow: inset 0 0 0 2px var(--mama-purple) !important; }
+.care-calendar-day.today b { background: var(--mama-purple) !important; }
+.care-calendar-markers i.period, .care-calendar-legend i.period { background: var(--mama-pink) !important; }
+.care-calendar-markers i.checkin, .care-calendar-legend i.checkin { background: #f2a93b !important; }
+.care-calendar-markers i.care, .care-calendar-legend i.care { background: var(--mama-purple) !important; }
+.care-calendar-month .text-btn, .care-calendar-details-heading .outline-btn { color: var(--mama-purple) !important; border-color: #d9d1ff !important; }
+.journal-v2-quick-icon.period { color: var(--mama-pink) !important; background: var(--mama-pink-soft) !important; }
+.journal-v2-quick-icon.reminder { color: var(--mama-purple) !important; background: var(--mama-purple-soft) !important; }
+.home-premium-hero { border-left-color: var(--mama-pink) !important; }
+.home-premium-hero-copy .home-premium-kicker { color: var(--mama-purple) !important; }
+.home-premium-hero-actions .button { background: var(--mama-purple) !important; }
+.home-premium-hero-actions button:not(.button) { color: var(--mama-purple) !important; }
+.home-premium-hero::before { background: linear-gradient(180deg, var(--mama-pink), #f9a8c7) !important; }
+.home-premium::before { background: #fff1f7; }
+.home-premium::after { background: #f0edff; }
+.home-premium-ring { border-color: var(--mama-pink); border-left-color: #f8c2d8; border-bottom-color: #f8c2d8; }
 .mama-dialog { background: #fff !important; border-color: #d2d2d7 !important; color: #1d1d1f !important; }
 .field input, .field select, .field textarea, input, textarea, select { background: #fff !important; border-color: #d2d2d7 !important; color: #1d1d1f !important; }
 .field input:focus, .field select:focus, .field textarea:focus, input:focus, textarea:focus, select:focus { border-color: #007aff !important; box-shadow: 0 0 0 4px rgb(0 122 255 / .16) !important; }
