@@ -94,6 +94,7 @@ import { CareCalendar } from '@/components/mama/care-calendar';
 import { defaultEngagementPreferences, type EngagementData, type JourneyTask, type UserReminder } from '@/lib/engagement-model';
 import { type Investigation, type Medication } from '@/lib/care-details-model';
 import { PregnancyJourneyHome } from '@/components/mama/pregnancy-journey-home';
+import { ImmersiveMamaHome } from '@/components/mama/immersive-mama-home';
 type View = MamaView;
 type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'question' | 'help' | 'reminder' | 'medication' | 'investigation' | null;
 type SharingPermission = { id: string; provider_user_id: string; scopes: string[]; granted_at: string; expires_at: string | null; revoked_at: string | null };
@@ -909,6 +910,8 @@ export default function MamaApp() {
               {view === 'Today' && (
                 needsSetup && (showSetup || !setupDeferred) ? (
                   <FirstDataOnboarding profile={profile} onComplete={completeFirstData} onDefer={() => { setShowSetup(false); setSetupDeferred(true); }} />
+                ) : profile.stage === 'pregnancy' ? (
+                  <ImmersiveMamaHome profile={profile} checkins={checkins} tasks={engagement.tasks} appointments={appointments} onNavigate={go} />
                 ) : homeDesignState ? (
                   <HomeVisualPrototype
                     state={homeDesignState}
