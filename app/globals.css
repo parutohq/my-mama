@@ -2468,3 +2468,157 @@ body, .app-main { background: #f5f5f7 !important; color: #1d1d1f !important; }
   .home-premium-journey-mark { margin-inline: 0; border-radius: 20px; }
   .home-premium-priority article, .home-premium-lower > article { box-shadow: 0 10px 25px rgb(15 23 42 / .06) !important; }
 }
+
+/* Authenticated MAMA World: one material and motion language across rooms. */
+.world-app-shell {
+  --world-ink: #2d2029;
+  --world-muted: #766a72;
+  --world-plum: #603953;
+  --world-rose: #e9aab7;
+  --world-paper: #fbf6f3;
+  --world-line: #e7d9da;
+}
+.world-app-shell .app-main[data-world-ui='true'],
+.world-app-shell .app-main[data-world-ui='true'] .page {
+  background: var(--world-paper) !important;
+  color: var(--world-ink) !important;
+}
+.world-app-shell .app-main[data-world-ui='true'] .page {
+  padding-top: 20px;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+.world-app-shell .sidebar {
+  background: #281a25 !important;
+  border-color: #493140 !important;
+  color: #f5e9e6 !important;
+}
+.world-app-shell .sidebar .brand,
+.world-app-shell .sidebar .brand > span,
+.world-app-shell .sidebar .brand > svg,
+.world-app-shell .sidebar .brand-dot { color: #f6e9e6 !important; }
+.world-app-shell .sidebar .brand-dot { color: var(--world-rose) !important; }
+.world-app-shell .sidebar .eyebrow,
+.world-app-shell .sidebar .privacy-note,
+.world-app-shell .sidebar .sidebar-note,
+.world-app-shell .sidebar .sidebar-note span { color: #d6becb !important; }
+.world-app-shell .sidebar .nav-item { color: #e2d4dc !important; transition: transform .22s ease, background .22s ease; }
+.world-app-shell .sidebar .nav-item:hover,
+.world-app-shell .sidebar .nav-item:focus-visible { transform: translateX(4px); background: #ffffff1c !important; color: #fff !important; }
+.world-app-shell .sidebar .nav-item[data-active],
+.world-app-shell .sidebar .nav-item.selected { color: #2f1e29 !important; background: #efc7cf !important; border-color: #fff0 !important; }
+.world-app-shell .topbar {
+  background: #281a25ed !important;
+  border-color: #493140 !important;
+  color: #fff !important;
+  backdrop-filter: blur(18px);
+}
+.world-app-shell .topbar .topbar-brand-lockup strong,
+.world-app-shell .topbar .topbar-brand-lockup > span,
+.world-app-shell .topbar .help-link,
+.world-app-shell .topbar .topbar-title { color: #fff !important; }
+.world-app-shell .topbar .topbar-brand-lockup strong span { color: var(--world-rose) !important; }
+.world-app-shell .account-avatar { background: #e9aab7 !important; color: #311f2b !important; border-color: #f8d4d9 !important; }
+.world-app-shell .app-main[data-world-ui='true'] .card,
+.world-app-shell .app-main[data-world-ui='true'] .insight-card,
+.world-app-shell .app-main[data-world-ui='true'] .journey-v2-timeline,
+.world-app-shell .app-main[data-world-ui='true'] .care-calendar,
+.world-app-shell .app-main[data-world-ui='true'] .journal-v2-quick-actions > button,
+.world-app-shell .app-main[data-world-ui='true'] .settings-v2-care-team,
+.world-app-shell .app-main[data-world-ui='true'] .settings-v2-achievements,
+.world-app-shell .app-main[data-world-ui='true'] .settings-v2-notification-centre {
+  background: #fffcfa !important;
+  border-color: var(--world-line) !important;
+  box-shadow: 0 15px 38px #40263812 !important;
+  color: var(--world-ink) !important;
+}
+.world-app-shell .app-main[data-world-ui='true'] .journey-v2-hero,
+.world-app-shell .app-main[data-world-ui='true'] .journal-v2-hero,
+.world-app-shell .app-main[data-world-ui='true'] .care-v2-hero {
+  background: linear-gradient(145deg, #fffaf7, #f7ebed) !important;
+  border: 1px solid var(--world-line) !important;
+  color: var(--world-ink) !important;
+}
+.world-app-shell .app-main[data-world-ui='true'] .card h2,
+.world-app-shell .app-main[data-world-ui='true'] .card h3,
+.world-app-shell .app-main[data-world-ui='true'] .section-title h2 { color: var(--world-ink) !important; }
+.world-app-shell .app-main[data-world-ui='true'] .card p,
+.world-app-shell .app-main[data-world-ui='true'] .helper { color: var(--world-muted) !important; }
+.world-app-shell .app-main[data-world-ui='true'] .primary-btn,
+.world-app-shell .app-main[data-world-ui='true'] .button,
+.world-app-shell .app-main[data-world-ui='true'] .white-btn {
+  background: var(--world-plum) !important;
+  border-color: var(--world-plum) !important;
+  color: #fff !important;
+  border-radius: 14px;
+}
+.world-app-shell .app-main[data-world-ui='true'] .text-btn,
+.world-app-shell .app-main[data-world-ui='true'] .home-v2-link { color: var(--world-plum) !important; }
+.world-app-shell .app-main[data-world-ui='true'] .eyebrow,
+.world-app-shell .app-main[data-world-ui='true'] .section-title > span { color: #98647e !important; }
+.world-app-shell .app-main[data-world-ui='true'] .journey-v2-hero::before,
+.world-app-shell .app-main[data-world-ui='true'] .journal-v2-hero::before,
+.world-app-shell .app-main[data-world-ui='true'] .care-v2-hero::before,
+.world-app-shell .app-main[data-world-ui='true'] .home-v2-card::before,
+.world-app-shell .app-main[data-world-ui='true'] .insight-card::before {
+  background: linear-gradient(180deg, #dda2b2, #77516c) !important;
+}
+.world-app-shell .app-main[data-world-ui='true'] .journal-v2 > .care-calendar { border-color: var(--world-line) !important; }
+.world-app-shell .app-main[data-world-ui='true'] .care-calendar-day.selected { background: #f5e5ec !important; box-shadow: inset 0 0 0 2px var(--world-plum) !important; }
+.world-app-shell .app-main[data-world-ui='true'] .care-calendar-day.today b { background: var(--world-plum) !important; }
+.world-app-shell .mobile-bottom-nav[data-mobile-nav='true'] {
+  background: #281a25f2 !important;
+  border-color: #5c3b4e !important;
+  box-shadow: 0 -12px 34px #2a172949;
+  backdrop-filter: blur(18px);
+}
+.world-app-shell .mobile-bottom-nav[data-mobile-nav='true'] button { color: #dcc7d1 !important; }
+.world-app-shell .mobile-bottom-nav[data-mobile-nav='true'] button.active,
+.world-app-shell .mobile-bottom-nav[data-mobile-nav='true'] button:nth-child(4).active {
+  color: #301f2a !important;
+  background: #efbdc9 !important;
+  box-shadow: 0 5px 18px #130b1333 !important;
+}
+.world-app-shell .mobile-bottom-nav[data-mobile-nav='true'] .mobile-bottom-nav-action {
+  color: #301f2a !important;
+  background: #efbdc9 !important;
+  border-color: #281a25 !important;
+  box-shadow: 0 10px 24px #130b1373 !important;
+}
+.world-app-shell .mobile-bottom-nav[data-mobile-nav='true'] button:active,
+.world-app-shell .app-main[data-world-ui='true'] button:active { transform: scale(.97); }
+@media(max-width:767px) {
+  .world-app-shell .app-main[data-world-ui='true'] .page { padding-top: 0; }
+  .world-app-shell .app-main[data-world-ui='true'] .card,
+  .world-app-shell .app-main[data-world-ui='true'] .insight-card { border-radius: 20px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .world-app-shell .sidebar .nav-item { transition: none !important; }
+  .world-app-shell .app-main[data-world-ui='true'] * { scroll-behavior: auto !important; }
+}
+
+/* Dialogs live in a portal, outside the signed-in shell. */
+.mama-dialog {
+  background: #fffaf8 !important;
+  border: 1px solid #e8d8dd !important;
+  color: #33232e !important;
+  box-shadow: 0 28px 90px #29131d3d !important;
+}
+.mama-dialog [data-slot='dialog-title'] { color: #33232e !important; }
+.mama-dialog [data-slot='dialog-description'],
+.mama-dialog .field small { color: #71616b !important; }
+.mama-dialog .field input,
+.mama-dialog .field select,
+.mama-dialog .field textarea {
+  background: #fff !important;
+  border-color: #e1cfd6 !important;
+  color: #33232e !important;
+}
+.mama-dialog .field input:focus,
+.mama-dialog .field select:focus,
+.mama-dialog .field textarea:focus {
+  border-color: #8d5472 !important;
+  box-shadow: 0 0 0 4px #d9afc642 !important;
+}
+.mama-dialog .primary-btn { background: #673b55 !important; color: #fff !important; }
+.mama-dialog .primary-btn:hover { background: #7b4a66 !important; }

@@ -1,5 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState, useId } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   Heart,
   CalendarDays,
@@ -95,6 +96,7 @@ import { defaultEngagementPreferences, type EngagementData, type JourneyTask, ty
 import { type Investigation, type Medication } from '@/lib/care-details-model';
 import { PregnancyJourneyHome } from '@/components/mama/pregnancy-journey-home';
 import { ImmersiveMamaHome } from '@/components/mama/immersive-mama-home';
+import { WorldDestinationHeader } from '@/components/mama/world-destination-header';
 type View = MamaView;
 type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'question' | 'help' | 'reminder' | 'medication' | 'investigation' | null;
 type SharingPermission = { id: string; provider_user_id: string; scopes: string[]; granted_at: string; expires_at: string | null; revoked_at: string | null };
@@ -156,6 +158,7 @@ function Blank({
   );
 }
 export default function MamaApp() {
+  const reducedMotion = useReducedMotion();
   const [view, setView] = useState<View>('Today'),
     [records, setRecords] = useState<CareRecord[]>([]),
     [loading, setLoading] = useState(true),
@@ -242,7 +245,11 @@ export default function MamaApp() {
   const go = useCallback((v: View) => {
     setView(v);
     setArticle(null);
-    setTimeout(() => heading.current?.focus(), 0);
+    setTimeout(() => {
+      const roomTitle = document.querySelector<HTMLElement>('[data-world-room-title]');
+      if (roomTitle) roomTitle.focus();
+      else heading.current?.focus();
+    }, 0);
   }, []);
   const load = useCallback((_requestedMode?: 'account' | 'demo') => {
     setCareMode('account');
@@ -767,12 +774,13 @@ export default function MamaApp() {
   }
   return (
     <SidebarProvider
+      className="world-app-shell"
       style={{ '--sidebar-width': '15.5rem' } as React.CSSProperties}
     >
       <Sidebar>
         <MamaNavigation view={view} onNavigate={go} />
       </Sidebar>
-      <main id="main-content" className="app-main" tabIndex={-1}>
+      <main id="main-content" className="app-main" data-world-ui={profile.stage !== 'none' ? 'true' : undefined} tabIndex={-1}>
         <header className="topbar">
           <div className="topbar-title">
             <SidebarTrigger />
@@ -797,8 +805,9 @@ export default function MamaApp() {
             </button>
           </div>
         </header>
-        <div className="page">
-          <div className="page-heading" style={view === 'Today' && profile.stage !== 'none' && !needsSetup ? { display: 'none' } : undefined}>
+        <motion.div key={view} className="page" initial={reducedMotion ? false : { opacity: 0, x: 34, rotateY: -5, scale: .985 }} animate={{ opacity: 1, x: 0, rotateY: 0, scale: 1 }} transition={{ duration: reducedMotion ? 0 : .42, ease: [0.2, 0.7, 0.1, 1] }}>
+          {!loading && !loadError && profile.stage !== 'none' && view !== 'Today' && <WorldDestinationHeader view={view} profile={profile} onNavigate={go} primaryAction={view === 'My journal' ? { label: 'Log a check-in', onClick: () => openCheckin() } : view === 'My care' ? { label: 'Add appointment', onClick: () => openCare() } : undefined} />}
+          <div className="page-heading" style={profile.stage !== 'none' && (view !== 'Today' || !needsSetup || setupDeferred) ? { display: 'none' } : undefined}>
             <div>
               <p className="eyebrow">
                 {view === 'Today'
@@ -1859,7 +1868,7 @@ export default function MamaApp() {
               or emergency service.
             </span>
           </footer>
-        </div>
+        </motion.div>
       </main>
       <MobileBottomNavigation view={view} onNavigate={go} onAction={() => openCheckin()} />
       <Dialog
