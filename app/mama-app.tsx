@@ -798,7 +798,7 @@ export default function MamaApp() {
           </div>
         </header>
         <div className="page">
-          <div className="page-heading">
+          <div className="page-heading" style={view === 'Today' && profile.stage !== 'none' && !needsSetup ? { display: 'none' } : undefined}>
             <div>
               <p className="eyebrow">
                 {view === 'Today'
@@ -911,7 +911,7 @@ export default function MamaApp() {
                 needsSetup && (showSetup || !setupDeferred) ? (
                   <FirstDataOnboarding profile={profile} onComplete={completeFirstData} onDefer={() => { setShowSetup(false); setSetupDeferred(true); }} />
                 ) : profile.stage !== ('none' as Stage) ? (
-                  <ImmersiveMamaHome profile={profile} checkins={checkins} tasks={engagement.tasks} appointments={appointments} onNavigate={go} />
+                  <ImmersiveMamaHome profile={profile} checkins={checkins} tasks={engagement.tasks} appointments={appointments} medications={medications} investigations={investigations} onNavigate={go} />
                 ) : homeDesignState ? (
                   <HomeVisualPrototype
                     state={homeDesignState}
