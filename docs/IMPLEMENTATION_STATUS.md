@@ -29,6 +29,8 @@ This ledger is based on the current repository contents and versioned migrations
 
 ## In progress
 
+- Pregnancy Journey Engine: IMPLEMENTED / TECHNICALLY VERIFIED in code. `lib/journey-engine.ts` provides reusable journey definitions, milestones, goal statuses, week calculation, and non-clinical progress calculations. `components/mama/pregnancy-journey-home.tsx` provides the mobile-first pregnancy journey home, map, goals, learning placeholder, scenario placeholder, and MAMA context hooks using existing records. Clinical content, wellbeing escalation rules, and reviewed scenario answers remain outstanding.
+
 - Consultation product architecture: provider discovery fields and booking tables exist, but the application flow, payments, meeting rooms, and operational tooling are absent. See [the active plan](exec-plans/active/consultation-platform-v1.md).
 - Production notification delivery: generic in-app queueing is present; secure scheduled execution and external push delivery remain deployment work.
 - Clinical/privacy release hardening: hosted RLS tests, retention, incident response, governance review, and transactional email delivery require controlled environment evidence.

@@ -71,7 +71,7 @@
 
 ## Phase 4 — journey-aware Home, Track, Learn, Prepare, and Care
 
-**Status:** PARTIALLY IMPLEMENTED.
+**Status:** IMPLEMENTED / TECHNICALLY VERIFIED for the first Pregnancy Journey surface; broader journey depth remains in progress.
 
 **Current state:** `app/mama-app.tsx` and `lib/education.ts` already vary content for cycle, pregnancy, postpartum, recovery, preconception, and midlife-related stages. Depth is uneven and some states are descriptive only.
 
@@ -88,6 +88,10 @@
 **Security / clinical safety:** Urgent pathways override routine CTAs; sensitive transitions suppress celebratory content.
 
 **Known risks:** Over-expanding journey-specific UI could create duplicated logic and inconsistent copy.
+
+### Pregnancy Journey Engine implementation note
+
+The first reusable engine layer is now present in `lib/journey-engine.ts` and `components/mama/pregnancy-journey-home.tsx`. It consumes existing profile, check-in, appointment, and engagement records; it does not create a parallel store. Definitions are data-driven and include milestones, goal status, stage content hooks, and four transparent progress measures. Scenario and learning surfaces are intentionally safe placeholders until clinician-reviewed content and escalation rules are supplied. No emergency threshold, diagnosis, fertility claim, or unrestricted LLM decision logic was added.
 
 ## Phase 5 — Food for Your Journey
 

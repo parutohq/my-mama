@@ -93,6 +93,7 @@ import { FirstDataOnboarding } from '@/components/mama/first-data-onboarding';
 import { CareCalendar } from '@/components/mama/care-calendar';
 import { defaultEngagementPreferences, type EngagementData, type JourneyTask, type UserReminder } from '@/lib/engagement-model';
 import { type Investigation, type Medication } from '@/lib/care-details-model';
+import { PregnancyJourneyHome } from '@/components/mama/pregnancy-journey-home';
 type View = MamaView;
 type Modal = 'profile' | 'checkin' | 'period' | 'care' | 'question' | 'help' | 'reminder' | 'medication' | 'investigation' | null;
 type SharingPermission = { id: string; provider_user_id: string; scopes: string[]; granted_at: string; expires_at: string | null; revoked_at: string | null };
@@ -1683,6 +1684,7 @@ export default function MamaApp() {
                 </div>
               )}
               {view === 'Journey' && (
+                profile.stage === 'pregnancy' ? <PregnancyJourneyHome profile={profile} checkins={checkins} tasks={engagement.tasks} appointments={appointments} onCare={() => go('My care')} onLearn={() => go('Learn')} onMama={() => go('Ask MAMA')} /> :
                 <div className="journey-experience journey-v2">
                   <section className={'journey-progress-card journey-v2-hero ' + (sensitiveJourney ? 'quiet' : '')}>
                     <div>
@@ -1697,7 +1699,7 @@ export default function MamaApp() {
                   <div className="journey-v2-section-heading"><div><span>YOUR PERSONAL VIEW</span><h2>Notice what you have recorded</h2></div><p>These visuals describe entries and chosen actions. They are never a clinical score.</p></div>
                   <div className="insights-grid journey-v2-insights">
                     <InsightCard title="Check-in rhythm" description="A view of entries you recorded." points={insightPoints} empty="Log a check-in to begin a private pattern view." footer="Recorded check-ins only. This is not a wellbeing or diagnostic score." />
-                    <InsightCard title={profile.stage === 'pregnancy' ? 'Journey progression' : profile.stage === 'postpartum' ? 'Postpartum timeline' : 'Cycle history'} description={metric ? metric.detail : stats.day ? `Day ${stats.day} from your latest recorded period.` : 'MAMA will only display dates you choose to record.'} points={metric ? [{ label: 'Today', value: 1, detail: `${metric.value} ${metric.label}` }] : periods.slice(0, 6).reverse().map((period) => ({ label: new Date(period.start + 'T12:00:00').toLocaleDateString('en-GB', { month: 'short' }), value: 1, detail: `Period start recorded ${prettyDate(period.start)}` }))} valueLabel={metric ? 'Estimated' : 'Recorded'} empty="No recorded timeline yet." footer={metric ? 'Estimated from the date you entered. It is not a clinical assessment.' : 'Recorded information only. MAMA does not predict fertility.'} />
+                    <InsightCard title="Journey progression" description={metric ? metric.detail : stats.day ? `Day ${stats.day} from your latest recorded period.` : 'MAMA will only display dates you choose to record.'} points={metric ? [{ label: 'Today', value: 1, detail: `${metric.value} ${metric.label}` }] : periods.slice(0, 6).reverse().map((period) => ({ label: new Date(period.start + 'T12:00:00').toLocaleDateString('en-GB', { month: 'short' }), value: 1, detail: `Period start recorded ${prettyDate(period.start)}` }))} valueLabel={metric ? 'Estimated' : 'Recorded'} empty="No recorded timeline yet." footer={metric ? 'Estimated from the date you entered. It is not a clinical assessment.' : 'Recorded information only. MAMA does not predict fertility.'} />
                     <InsightCard title="Care actions" description="The practical things you chose to prepare." points={activeTasks.map((task) => ({ label: task.category.replace('_', ' '), value: task.status === 'completed' ? 1 : 0.35, detail: task.title }))} empty="Add a task below when a step would help you feel prepared." footer="Progress is private and can be paused at any time." />
                   </div>
                   <section className="card journey-tasks-card journey-v2-tasks">
