@@ -910,7 +910,7 @@ export default function MamaApp() {
               {view === 'Today' && (
                 needsSetup && (showSetup || !setupDeferred) ? (
                   <FirstDataOnboarding profile={profile} onComplete={completeFirstData} onDefer={() => { setShowSetup(false); setSetupDeferred(true); }} />
-                ) : profile.stage === 'pregnancy' ? (
+                ) : profile.stage !== ('none' as Stage) ? (
                   <ImmersiveMamaHome profile={profile} checkins={checkins} tasks={engagement.tasks} appointments={appointments} onNavigate={go} />
                 ) : homeDesignState ? (
                   <HomeVisualPrototype
