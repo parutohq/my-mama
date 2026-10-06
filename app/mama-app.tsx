@@ -806,7 +806,7 @@ export default function MamaApp() {
           </div>
         </header>
         <motion.div key={view} className="page" initial={reducedMotion ? false : { opacity: 0, x: 34, rotateY: -5, scale: .985 }} animate={{ opacity: 1, x: 0, rotateY: 0, scale: 1 }} transition={{ duration: reducedMotion ? 0 : .42, ease: [0.2, 0.7, 0.1, 1] }}>
-          {!loading && !loadError && profile.stage !== 'none' && view !== 'Today' && <WorldDestinationHeader view={view} profile={profile} onNavigate={go} primaryAction={view === 'My journal' ? { label: 'Log a check-in', onClick: () => openCheckin() } : view === 'My care' ? { label: 'Add appointment', onClick: () => openCare() } : undefined} />}
+          {!loading && !loadError && profile.stage !== 'none' && view !== 'Today' && !(view === 'Journey' && profile.stage === 'pregnancy') && <WorldDestinationHeader view={view} profile={profile} onNavigate={go} primaryAction={view === 'My journal' ? { label: 'Log a check-in', onClick: () => openCheckin() } : view === 'My care' ? { label: 'Add appointment', onClick: () => openCare() } : undefined} />}
           <div className="page-heading" style={profile.stage !== 'none' && (view !== 'Today' || !needsSetup || setupDeferred) ? { display: 'none' } : undefined}>
             <div>
               <p className="eyebrow">
@@ -1696,7 +1696,7 @@ export default function MamaApp() {
                 </div>
               )}
               {view === 'Journey' && (
-                profile.stage === 'pregnancy' ? <PregnancyJourneyHome profile={profile} checkins={checkins} tasks={engagement.tasks} appointments={appointments} onCare={() => go('My care')} onLearn={() => go('Learn')} onMama={() => go('Ask MAMA')} /> :
+                profile.stage === 'pregnancy' ? <PregnancyJourneyHome profile={profile} checkins={checkins} tasks={engagement.tasks} appointments={appointments} onCare={() => go('My care')} onJournal={() => go('My journal')} onLearn={() => go('Learn')} onMama={() => go('Ask MAMA')} /> :
                 <div className="journey-experience journey-v2">
                   <section className={'journey-progress-card journey-v2-hero ' + (sensitiveJourney ? 'quiet' : '')}>
                     <div>

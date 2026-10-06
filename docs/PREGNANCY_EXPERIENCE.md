@@ -1,0 +1,9 @@
+# Pregnancy Journey experience
+
+The Pregnancy Journey view is the first finished destination in the cinematic My Mama world. It is a responsive, image-led interface over the existing application and does not create a new record store or clinical engine. The existing sidebar, mobile navigation, care screens, authentication, and Supabase boundaries remain in place.
+
+`lib/pregnancy-experience-state.ts` adapts the signed-in profile, check-ins, journey tasks, and care items already loaded by `app/mama-app.tsx`. It derives the current week through `pregnancyWeek`, progress measures through `journeyProgress`, care goals through `goalsFromRecords`, and milestone copy from `pregnancyJourney` in `lib/journey-engine.ts`. The week map covers the 40-week reference timeline in three sections. A missing pregnancy date produces an undated experience; it never substitutes a sample date, week, dose, appointment, or health result. The upcoming appointment panel reads only a future, incomplete appointment from the account.
+
+The interface uses the existing pregnancy artwork at `/world/pregnancy.jpg`, with a dark overlay for readable foreground text, subtle pointer parallax, and reduced-motion support. Each destination is a semantic button connected to the existing Journal, Care, Learn, or Ask MAMA view. The week path remains accessible without imagery or motion. Week details show only currently approved milestone descriptions; future baby-development explanations require separate clinical review before publication. Progress rings describe recorded actions and preparation, not health or pregnancy outcomes.
+
+The Preview-only Design Lab offers an empty-record pregnancy fixture for visual inspection. It does not query personal health records. Production Pregnancy Journey continues to use authenticated records. No dependencies or schema changes were added for this experience.
