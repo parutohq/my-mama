@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import './world-finish.css';
 export const metadata: Metadata = {
   title: 'MAMA · Your care, your journey',
   icons: { icon: '/favicon.svg' },

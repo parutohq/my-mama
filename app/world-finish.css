@@ -1,0 +1,59 @@
+/* Shared sanctuary finish for account entry and every authenticated room. */
+.world-auth.auth-page, .world-reset.auth-page { background: #281a25 !important; color: #2d2029; }
+.world-auth .auth-story {
+  background: linear-gradient(180deg, #24151eb8, #24151ee8), url('/world/sanctuary.jpg') center / cover !important;
+  color: #fff8f3 !important;
+}
+.world-auth .auth-story::after { content: ''; position: absolute; inset: 0; pointer-events: none; border: 1px solid #fff3; }
+.world-auth .auth-story h1, .world-auth .auth-story p, .world-auth .auth-story .auth-brand { color: #fff8f3 !important; }
+.world-auth .auth-story h1 i { color: #ffc6d3 !important; }
+.world-auth .auth-story .auth-kicker { color: #ffd2de !important; }
+.world-auth .auth-story-orbit { border-color: #ffefef9c; color: #fff7f4; background: #3a243099; backdrop-filter: blur(12px); }
+.world-auth .auth-panel { background: #fbf6f3 !important; }
+.world-auth .auth-card { width: min(470px, 100%); }
+.world-auth .auth-card h2, .world-reset .auth-card h1 { color: #2d2029 !important; }
+.world-auth .auth-card > p, .world-reset .auth-card > p { color: #766a72 !important; }
+.world-auth .auth-kicker, .world-reset .auth-kicker { color: #915c75 !important; }
+.world-auth .auth-journey-summary { background: #f6e9ed !important; border-color: #e4cbd5 !important; }
+.world-auth .auth-card input, .world-reset .auth-card input, .world-auth .password-input {
+  background: #fffdfb !important; border-color: #dfd0d4 !important; color: #2d2029 !important;
+}
+.world-auth .auth-card input:focus, .world-reset .auth-card input:focus { outline-color: #dcaabb !important; }
+.world-auth .auth-submit, .world-reset .auth-card form > button {
+  color: #fff !important; background: #603953 !important; box-shadow: 0 13px 30px #60395330 !important;
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.world-auth .auth-submit:hover, .world-reset .auth-card form > button:hover { background: #794762 !important; box-shadow: 0 16px 32px #60395345 !important; }
+.world-auth .auth-submit:active, .world-reset .auth-card form > button:active { transform: scale(.98); }
+.world-auth .auth-actions .text-button, .world-auth .auth-resend, .world-reset .auth-link { color: #603953 !important; }
+.world-auth .auth-message, .world-reset .auth-card output { background: #fff8f5 !important; border-color: #e4cbd5 !important; color: #43313d !important; }
+.world-auth .auth-theme { border-color: #e4d9da; color: #786772; }
+.world-auth .password-input button { color: #794661 !important; }
+.world-reset.auth-page { display: grid; place-items: center; min-height: 100svh; padding: 26px; background: linear-gradient(180deg, #281a25bd, #281a25e9), url('/world/sanctuary.jpg') center / cover !important; }
+.world-reset .auth-card { width: min(480px, 100%); border: 1px solid #edddde; border-radius: 28px; padding: clamp(24px, 6vw, 46px); background: #fffcfa !important; box-shadow: 0 30px 80px #190f1980; }
+.world-reset .auth-brand { color: #603953 !important; }
+@media (max-width: 800px) {
+  .world-auth.auth-page { display: block !important; width: 100%; padding: 0 !important; }
+  .world-auth .auth-story { display: flex; width: 100% !important; min-height: 285px; padding: 30px 24px; justify-content: space-between; background: linear-gradient(180deg, #24151e49, #24151ebe), url('/world/sanctuary.jpg') center 44% / cover !important; }
+  .world-auth .auth-story > div:first-of-type { margin-top: auto; }
+  .world-auth .auth-story h1 { font-size: clamp(2.2rem, 10vw, 3.2rem); }
+  .world-auth .auth-story p, .world-auth .auth-story-orbit, .world-auth .auth-mobile-brand { display: none; }
+  .world-auth .auth-panel { width: 100% !important; min-height: calc(100svh - 285px); padding: 36px 24px 60px; }
+  .world-auth .auth-card { width: 100%; }
+}
+.world-app-shell .app-main[data-world-ui='true'] :is(.learn-v2-hero, .summary-v2-hero, .ask-v2 > .card, .settings-v2 > .card) {
+  border-color: var(--world-line) !important;
+  background: #fffcfa !important;
+  box-shadow: 0 15px 38px #40263812 !important;
+  color: var(--world-ink) !important;
+}
+.world-app-shell .app-main[data-world-ui='true'] :is(.journal-v2-hero, .care-v2-hero, .journey-v2-hero) * { color: var(--world-ink) !important; }
+.world-app-shell .app-main[data-world-ui='true'] :is(.journal-v2-hero, .care-v2-hero, .journey-v2-hero) :is(.white-btn, .primary-btn, .button) { color: #fff !important; background: var(--world-plum) !important; }
+.world-app-shell .app-main[data-world-ui='true'] :is(.journal-v2-quick-icon.checkin, .journal-v2-quick-icon.period, .journal-v2-quick-icon.reminder) { color: #794661 !important; background: #f5e4e9 !important; }
+.world-app-shell .app-main[data-world-ui='true'] :is(.journal-v2-eyebrow, .care-v2-hero > div > span, .ask-v2-label) { color: #915c75 !important; background: #f7e9ed !important; }
+.world-app-shell .app-main[data-world-ui='true'] :is(input, select, textarea) { border-color: #dfd0d4; background: #fffdfb; color: var(--world-ink); }
+.world-app-shell .app-main[data-world-ui='true'] :is(input, select, textarea):focus-visible,
+.world-app-shell :is(button, a):focus-visible, .world-auth :is(button, a):focus-visible, .world-reset :is(button, a):focus-visible { outline: 3px solid #dcaabb; outline-offset: 3px; }
+.world-app-shell .app-main[data-world-ui='true'] :is(.primary-btn, .button, .white-btn) { transition: transform .18s ease, background .18s ease, box-shadow .18s ease; }
+.world-app-shell .app-main[data-world-ui='true'] :is(.primary-btn, .button, .white-btn):hover { background: #794661 !important; box-shadow: 0 12px 26px #60395332 !important; }
+@media (prefers-reduced-motion: reduce) { .world-auth .auth-submit, .world-reset .auth-card form > button, .world-app-shell .app-main[data-world-ui='true'] :is(.primary-btn, .button, .white-btn) { transition: none; } }

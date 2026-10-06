@@ -293,3 +293,73 @@
 @media (prefers-reduced-motion: reduce) {
   .flow :global(.journey-choice-grid button) { transition: none; }
 }
+
+/* The public entrance shares the same material, light and architecture as MAMA World. */
+.page {
+  position: relative;
+  isolation: isolate;
+  background: #fbf6f3;
+}
+.page::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: min(860px, 95svh);
+  content: '';
+  background: linear-gradient(180deg, #281a25ab 0%, #281a25c9 62%, #fbf6f3 100%), url('/world/sanctuary.jpg') center 45% / cover;
+}
+.nav { min-height: 82px; }
+.nav :global(.landing-brand), .signIn { color: #fff8f3; }
+.signIn {
+  border: 1px solid #ffffff6b;
+  border-radius: 999px;
+  padding: 0 17px;
+  background: #321d2a6e;
+  backdrop-filter: blur(14px);
+}
+.intro { padding: clamp(52px, 9vw, 112px) 0 clamp(46px, 7vw, 86px); }
+.kicker { color: #ffd4df; }
+.intro h1 { max-width: 13ch; color: #fff9f4; text-shadow: 0 6px 30px #24131c70; }
+.intro h1 i { color: #ffc4d5; }
+.intro p { color: #f7e8e7; font-size: clamp(1rem, 2vw, 1.2rem); }
+.flow:global(.first-data-flow) {
+  border: 1px solid #f3e5e4;
+  background: #fffcfa;
+  box-shadow: 0 35px 90px #29182335;
+}
+.sanctuaryVisual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 15px;
+  min-height: 350px;
+  overflow: hidden;
+  padding: 30px 26px;
+  color: #fff9f2;
+  background: linear-gradient(180deg, #2615201c 10%, #261520eb 100%), url('/world/journal.jpg') center / cover;
+}
+.sanctuaryVisual > svg { color: #ffc7d2; }
+.sanctuaryVisual > span { color: #ffd7df; font-size: .7rem; font-weight: 850; letter-spacing: .18em; }
+.sanctuaryVisual h2 { max-width: 11ch; margin: 0; color: #fff9f2; font-family: var(--mama-font-editorial); font-size: clamp(2.7rem, 7vw, 4.7rem); font-weight: 400; line-height: .95; }
+.sanctuaryVisual p { max-width: 30rem; margin: 0; color: #f7e8e7; line-height: 1.5; }
+.sanctuaryVisual small { display: flex; align-items: center; gap: 8px; max-width: 31rem; color: #efd8db; line-height: 1.4; }
+.flow :global(.first-data-form) { background: #fffcfa; }
+.flow :global(.journey-choice-grid button.selected) { border-color: #9e6580; background: #f8e9ed; box-shadow: inset 0 0 0 1px #9e6580; }
+.flow :global(.journey-choice-grid) { min-width: 0; border: 0; padding: 0; }
+.flow :global(.first-data-actions .button) { background: #603953; box-shadow: 0 12px 24px #60395335; }
+.flow :global(.first-data-actions .button:hover) { background: #794661; }
+.flow :global(.first-data-actions .button:active) { transform: scale(.98); }
+@media (min-width: 760px) {
+  .sanctuaryVisual { width: 40%; min-height: 660px; padding: 45px; }
+  .flow :global(.first-data-form) { flex: 1; }
+}
+@media (max-width: 759px) {
+  .page::before { height: 740px; }
+  .nav { min-height: 70px; }
+  .intro { padding: 48px 0 50px; }
+  .sanctuaryVisual { min-height: 300px; }
+}
+
+.nav :global(.landing-brand) { color: #fff8f3 !important; }
+.flow :global(.first-data-step) { color: #915c75 !important; }

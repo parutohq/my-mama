@@ -29,19 +29,19 @@ export function PublicJourneyStart() {
       <p>Choose your journey first. Your private MAMA account comes next.</p>
     </section>
     <section className={`first-data-flow ${styles.flow}`} aria-label="Choose your MAMA journey before creating an account">
-      <div className="first-data-visual">
+      <div className={styles.sanctuaryVisual}>
         <Flower2 size={25} /><span>WELCOME TO MAMA</span>
-        <h2>Let&apos;s make this yours.</h2>
-        <p>Tell MAMA where you are in your journey. We only ask for the small amount of information needed to personalise your space.</p>
+        <h2>A space that moves with you.</h2>
+        <p>Find your place in MAMA. Begin with your own chapter, then make room for what matters to you.</p>
         <small><LockKeyhole size={14} /> This step does not collect health details. You decide what to add after your account is private and secure.</small>
       </div>
       <div className="first-data-form">
         <span className="first-data-step">01 · YOUR JOURNEY</span>
         <h2>Where are you in your journey?</h2>
-        <div className="journey-choice-grid" role="group" aria-label="Journey options">
+        <fieldset className="journey-choice-grid" aria-label="Journey options">
           {publicJourneyChoices.map((item) => <button type="button" key={item.stage} aria-pressed={item.stage === stage} className={item.stage === stage ? 'selected' : ''} onClick={() => setStage(item.stage)}><b>{item.title}</b><span>{item.copy}</span></button>)}
-        </div>
-        <label className="field"><span>What should MAMA call you? <em>Optional</em></span><input value={name} maxLength={60} autoComplete="given-name" onChange={(event) => setName(event.target.value)} placeholder="Your first name" /></label>
+        </fieldset>
+        <label className="field"><span>What should MAMA call you? <em>Optional</em></span><input value={name} maxLength={60} autoComplete="name" onChange={(event) => setName(event.target.value)} placeholder="Your first name" /></label>
         <p className="first-data-note">No dates, symptoms or medical history are requested here. You can add only what you choose once you are signed in.</p>
         <div className="first-data-actions"><button type="button" className="button" onClick={continueToAccount}>Continue to create account <ArrowRight size={17} /></button><Link href="/sign-in">I already have an account</Link></div>
       </div>
