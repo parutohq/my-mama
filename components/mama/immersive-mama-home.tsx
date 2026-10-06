@@ -3,12 +3,13 @@
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, Heart, House, MessageCircle, Pill, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Box, CalendarDays, Heart, House, MessageCircle, Pill, Sparkles } from 'lucide-react';
 import type { CareItem, Checkin, Profile } from '@/lib/care-model';
 import type { Medication, Investigation } from '@/lib/care-details-model';
 import type { JourneyTask } from '@/lib/engagement-model';
 import { pregnancyJourney, pregnancyWeek } from '@/lib/journey-engine';
 import styles from './immersive-mama-home.module.css';
+import { SpatialSanctuary } from './spatial-sanctuary';
 
 type View = 'My care' | 'Learn' | 'My journal' | 'Journey' | 'Ask MAMA';
 type Scene = 'world' | 'pregnancy' | 'care';
@@ -36,6 +37,7 @@ type Destination = (typeof destinations)[number]['id'];
 
 export function ImmersiveMamaHome({ profile, checkins, tasks, appointments, medications, investigations, onNavigate }: Props) {
   const [scene, setScene] = useState<Scene>('world');
+  const [spatial, setSpatial] = useState(false);
   const [failedArtwork, setFailedArtwork] = useState<string | null>(null);
   const [shift, setShift] = useState({ x: 0, y: 0 });
   const reducedMotion = useReducedMotion();
@@ -48,6 +50,8 @@ export function ImmersiveMamaHome({ profile, checkins, tasks, appointments, medi
   const completedTasks = tasks.filter((item) => item.status === 'completed').length;
   const latestCheckin = checkins.slice().sort((a, b) => b.date.localeCompare(a.date))[0];
   const plannedInvestigations = investigations.filter((item) => item.status === 'planned');
+
+  if (spatial) return <SpatialSanctuary pregnancy={isPregnancy} week={week} upcoming={upcoming ? `${upcoming.title} · ${upcoming.date}` : null} lastCheckin={latestCheckin?.date ?? null} onNavigate={onNavigate} onClose={() => setSpatial(false)} />;
 
   const navigate = (id: Destination) => {
     if (id === 'home') setScene('world');
@@ -78,6 +82,7 @@ export function ImmersiveMamaHome({ profile, checkins, tasks, appointments, medi
         </motion.div>
       </AnimatePresence>
       <div className={styles.topline}><span className={styles.brand}>MAMA<span>·</span> WORLD</span><span className={styles.chapter}>{scene === 'world' ? '01 / Sanctuary' : scene === 'pregnancy' ? '02 / Journey' : '03 / Care'}</span></div>
+      {scene === 'world' && <button type="button" className={styles.explore3d} onClick={() => setSpatial(true)}><Box size={18} /> Explore in 3D <ArrowRight size={16} /></button>}
       {scene !== 'world' && <button className={styles.back} type="button" onClick={() => setScene('world')}><ArrowLeft size={17} /> Back to world</button>}
       <div className={styles.intro}>
         <span className={styles.eyebrow}>{scene === 'world' ? 'WELCOME HOME' : scene === 'pregnancy' ? 'PREGNANCY JOURNEY' : 'PERSONAL CARE'}</span>
