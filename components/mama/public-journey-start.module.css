@@ -363,3 +363,20 @@
 
 .nav :global(.landing-brand) { color: #fff8f3 !important; }
 .flow :global(.first-data-step) { color: #915c75 !important; }
+
+.claim { width:min(100% - 32px,1160px); margin:0 auto 24px; display:grid; gap:22px; border:1px solid #ffffff80; border-radius:25px; padding:25px; color:#fff9f5; background:#291a26e8; box-shadow:0 24px 60px #1e121a5c; backdrop-filter:blur(18px); }
+.claim > div:first-child > span { color:#ffc6d3; font-size:.68rem; font-weight:850; letter-spacing:.16em; }
+.claim h2 { margin:9px 0; color:#fff9f5; font:400 clamp(2.1rem,7vw,3.6rem)/1 Georgia,serif; letter-spacing:-.05em; }
+.claim p { max-width:30rem; color:#e8dbe0; line-height:1.5; font-size:.9rem; }
+.claimForm { display:grid; align-content:center; gap:8px; }
+.claimForm label { color:#fff8f4; font-size:.82rem; font-weight:800; }
+.claimInput { display:flex; align-items:center; min-height:54px; border-radius:14px; background:#fffaf8; color:#603953; }
+.claimInput b { padding-left:15px; font-size:1.4rem; }
+.claimInput input { flex:1; min-width:0; border:0; outline:0; padding:0 12px; background:transparent; color:#2d2029; font:inherit; }
+.claimForm > p { min-height:20px; margin:0; font-size:.78rem; }
+.claimButton { display:flex; align-items:center; justify-content:center; gap:8px; min-height:52px; border:0; border-radius:14px; background:#eeb6c3; color:#2d2029; font-weight:850; transition:transform .2s,background .2s; }
+.claimButton:hover { background:#ffd1da; }.claimButton:active { transform:scale(.98); }.claimButton:disabled { opacity:.55; cursor:not-allowed; }
+.suggestions { display:flex; flex-wrap:wrap; gap:6px; }.suggestions button { border:1px solid #ffffff69; border-radius:99px; padding:5px 8px; color:#fff; background:#ffffff21; font-size:.75rem; }
+.worldPlaces { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }.worldPlaces span { border:1px solid #fff8; border-radius:99px; padding:7px 10px; color:#fff; background:#291a2677; font-size:.7rem; backdrop-filter:blur(9px); }
+@media(min-width:760px){.claim{grid-template-columns:1fr 360px;align-items:center;padding:35px 42px;margin-bottom:28px}}
+@media(prefers-reduced-motion:reduce){.claimButton{transition:none}}

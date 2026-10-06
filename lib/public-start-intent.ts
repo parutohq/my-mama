@@ -10,13 +10,13 @@ export const publicJourneyChoices: Array<{ stage: Stage; title: string; copy: st
   { stage: 'perimenopause', title: 'Midlife', copy: 'Record only the changes and questions that feel useful.' },
 ];
 
-export type PublicStartIntent = { stage: Stage; name: string };
+export type PublicStartIntent = { stage: Stage; name: string; username?: string };
 export const publicStartIntentKey = 'mama-public-start-intent';
 
 export function parsePublicStartIntent(value: unknown): PublicStartIntent | null {
   if (!value || typeof value !== 'object') return null;
-  const candidate = value as { stage?: unknown; name?: unknown };
+  const candidate = value as { stage?: unknown; name?: unknown; username?: unknown };
   const stage = publicJourneyChoices.find((item) => item.stage === candidate.stage)?.stage;
   if (!stage) return null;
-  return { stage, name: typeof candidate.name === 'string' ? candidate.name.slice(0, 60) : '' };
+  return { stage, name: typeof candidate.name === 'string' ? candidate.name.slice(0, 60) : '', username: typeof candidate.username === 'string' ? candidate.username.slice(0, 20) : undefined };
 }

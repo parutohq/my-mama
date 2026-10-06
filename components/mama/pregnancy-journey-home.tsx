@@ -7,6 +7,7 @@ import { ArrowRight, BookOpen, CalendarDays, Check, CircleHelp, Heart, MessageCi
 import type { CareItem, Checkin, Profile } from '@/lib/care-model';
 import type { JourneyTask } from '@/lib/engagement-model';
 import { pregnancyExperienceState } from '@/lib/pregnancy-experience-state';
+import { PregnancySharing } from './pregnancy-sharing';
 import styles from './pregnancy-journey-home.module.css';
 
 type Props = {
@@ -69,6 +70,7 @@ export function PregnancyJourneyHome({ profile, checkins, tasks, appointments, o
     <section className={styles.growth} aria-labelledby="growth-title"><div className={styles.sectionHeading}><div><span>WHAT YOU HAVE CHOSEN TO RECORD</span><h2 id="growth-title">Your preparation, in view.</h2></div><p>These informational measures reflect entries and chosen actions. They are never medical scores.</p></div><div className={styles.rings}><Measure label="Care consistency" value={experience.measures.careConsistency} /><Measure label="Health knowledge" value={experience.measures.healthKnowledge} /><Measure label="Preparedness" value={experience.measures.preparedness} /></div></section>
 
     <section className={styles.guide}><div className={styles.guideSymbol}><CircleHelp size={27} /></div><div><span>MAMA IS HERE</span><h2>A kinder way to prepare a question.</h2><p>Bring what is on your mind to your next care conversation. MAMA helps you organise it; it does not diagnose.</p></div><button type="button" onClick={onMama}>Ask MAMA <ArrowRight size={17} /></button></section>
+    <PregnancySharing enabled={experience.week != null} />
     <p className={styles.clinicalNote}>For urgent symptoms, use “When to get help” above. Your journey map is a personal organiser, not a medical assessment.</p>
   </div>;
 }

@@ -9,5 +9,10 @@ export type Database = { public: { Tables: {
   notifications: Table; push_subscriptions: Table; notification_delivery_logs: Table; demo_data_state: Table;
   pregnancies: Table; postpartum_profiles: Table; user_roles: Table; providers: Table;
   consultation_services: Table; provider_availability: Table; consultation_bookings: Table;
-  sharing_permissions: Table; clinical_content: Table; audit_logs: Table;
-}; Views: Record<string, never>; Functions: Record<string, never>; Enums: Record<string, never>; CompositeTypes: Record<string, never> } };
+  sharing_permissions: Table; clinical_content: Table; audit_logs: Table; pregnancy_share_links: Table;
+}; Views: Record<string, never>; Functions: {
+  mama_username_status: { Args: { candidate: string }; Returns: string };
+  claim_mama_identity: { Args: { candidate: string; chosen_display_name: string; confirmed_13_plus: boolean }; Returns: string };
+  mama_public_profile: { Args: { handle: string }; Returns: Json };
+  resolve_pregnancy_share: { Args: { lookup_hash: string }; Returns: Json };
+}; Enums: Record<string, never>; CompositeTypes: Record<string, never> } };

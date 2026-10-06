@@ -88,6 +88,7 @@ import { articles, starterTasks, type Article } from '@/lib/education';
 import { createClient as createSupabaseClient } from '@/lib/supabase/client';
 import { careViews, MamaNavigation, type MamaView } from '@/components/mama/navigation';
 import { MobileBottomNavigation } from '@/components/mama/mobile-bottom-navigation';
+import { PublicProfileSettings } from '@/components/mama/public-profile-settings';
 import { InsightCard } from '@/components/mama/insight-card';
 import { HomeVisualPrototype, type HomeDesignState } from '@/components/mama/home-visual-prototype';
 import { FirstDataOnboarding } from '@/components/mama/first-data-onboarding';
@@ -1753,6 +1754,7 @@ export default function MamaApp() {
                     </div>
                     <button className="outline-btn" onClick={openProfile}><Pencil size={16} /> Edit profile</button>
                   </section>
+                  <PublicProfileSettings />
                   <section className="card settings-v2-appearance">
                     <Sparkles size={23} />
                     <h2 className="spaced">Appearance</h2>

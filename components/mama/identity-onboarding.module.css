@@ -1,0 +1,25 @@
+.page { min-height: 100svh; display: grid; background: #fbf6f3; color: #2d2029; }
+.art { min-height: 35svh; display: flex; align-items: flex-start; padding: 28px; color: #fff8f3; background: linear-gradient(180deg,#281a2555,#281a25aa),url('/world/sanctuary.jpg') center/cover; }
+.art span,.kicker { font-size: .72rem; font-weight: 850; letter-spacing: .16em; }
+.form { width: min(100%,580px); padding: 36px 24px 70px; margin: auto; }
+.kicker { color: #925b77; }
+.form h1 { margin: 15px 0; font-family: Georgia,serif; font-size: clamp(3rem,9vw,5rem); line-height: .98; letter-spacing: -.06em; font-weight: 400; }
+.form > p,.welcome p { color: #72636d; line-height: 1.55; }
+.field { display: grid; gap: 9px; margin-top: 26px; font-weight: 700; font-size: .9rem; }
+.field > input,.handle { min-height: 54px; border: 1px solid #deced3; border-radius: 15px; background: #fff; }
+.field > input { padding: 0 15px; }
+.handle { display: flex; align-items: center; padding-left: 16px; }
+.handle b { font-size: 1.4rem; color: #925b77; }
+.handle input { min-width: 0; flex: 1; border: 0; outline: 0; padding: 0 10px; background: transparent; font: inherit; }
+.status { min-height: 23px; font-size: .82rem; }
+.check { display: flex; align-items: flex-start; gap: 11px; margin-top: 20px; line-height: 1.45; font-size: .87rem; }
+.check input { flex: none; width: 20px; height: 20px; accent-color: #603953; }
+.privacy { display: flex; align-items: center; gap: 8px; font-size: .8rem; }
+.error { color: #a12848 !important; }
+.submit,.welcome button { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; width: 100%; margin-top: 28px; border: 0; border-radius: 17px; color: #fff; background: #603953; font-weight: 800; transition: transform .2s,background .2s; }
+.submit:hover,.welcome button:hover { background: #75445f; }
+.submit:active,.welcome button:active { transform: scale(.98); }
+.submit:disabled { opacity: .48; cursor: not-allowed; }
+.welcome svg { color: #925b77; }
+@media(min-width:850px){.page{grid-template-columns:1fr 1fr}.art{min-height:100svh;padding:48px}.form{padding:65px 50px}}
+@media(prefers-reduced-motion:reduce){.submit,.welcome button{transition:none}}

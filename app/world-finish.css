@@ -57,3 +57,9 @@
 .world-app-shell .app-main[data-world-ui='true'] :is(.primary-btn, .button, .white-btn) { transition: transform .18s ease, background .18s ease, box-shadow .18s ease; }
 .world-app-shell .app-main[data-world-ui='true'] :is(.primary-btn, .button, .white-btn):hover { background: #794661 !important; box-shadow: 0 12px 26px #60395332 !important; }
 @media (prefers-reduced-motion: reduce) { .world-auth .auth-submit, .world-reset .auth-card form > button, .world-app-shell .app-main[data-world-ui='true'] :is(.primary-btn, .button, .white-btn) { transition: none; } }
+.world-auth .auth-card .auth-age-confirmation { display:flex; flex-direction:row; align-items:flex-start; gap:10px; font-weight:600; line-height:1.45; }
+.world-auth .auth-card .auth-age-confirmation input { width:20px; height:20px; min-height:20px; flex:none; accent-color:#603953; }
+.settings-v2-identity .identity-visibility { display:flex; align-items:center; gap:10px; margin:16px 0; font-weight:650; }
+.settings-v2-identity .identity-visibility input { width:20px; height:20px; accent-color:#603953; }
+.settings-v2-identity .identity-bio { display:grid; gap:8px; font-weight:650; }
+.settings-v2-identity .identity-bio textarea { width:100%; min-height:100px; padding:12px; border:1px solid #dfd3dc; border-radius:12px; background:#fff; color:#30242d; font:inherit; resize:vertical; }
